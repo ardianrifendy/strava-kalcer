@@ -17,8 +17,10 @@ data class HeartRateConfig(
 
 data class CadenceConfig(
     val enabled: Boolean = true,
-    val baseCadenceRpm: Int = 85, // 85 for cycling, 165 for running
-    val coastingCadenceRpm: Int = 0 // Cadence drops when coasting on steep downhill
+    val baseCadenceRpm: Int = 85,          // 60-120 RPM for cycling, 140-200 SPM for running
+    val coastingCadenceRpm: Int = 0,        // Freewheeling coasting RPM on steep downhills
+    val allowCoasting: Boolean = true,      // Whether cadence drops when descending
+    val climbDropIntensity: Double = 1.0    // 0.0 (maintain base cadence) to 1.5 (heavier torque drop)
 )
 
 data class StopConfig(

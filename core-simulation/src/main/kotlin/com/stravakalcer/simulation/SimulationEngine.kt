@@ -159,7 +159,12 @@ object SimulationEngine {
         val maxHr = validHr.maxOrNull()
 
         val validCadence = finalPoints.mapNotNull { it.cadence }
-        val avgCadence = if (validCadence.isNotEmpty()) validCadence.average().toInt() else null
+        val nonZeroCadence = finalPoints.filter { (it.cadence ?: 0) > 0 }.mapNotNull { it.cadence }
+        val avgCadence = if (nonZeroCadence.isNotEmpty()) {
+            nonZeroCadence.average().toInt()
+        } else if (validCadence.isNotEmpty()) {
+            validCadence.average().toInt()
+        } else null
 
         return SimulationResult(
             settings = settings,

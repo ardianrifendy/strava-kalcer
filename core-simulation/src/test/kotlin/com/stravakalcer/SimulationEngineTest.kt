@@ -168,4 +168,52 @@ class SimulationEngineTest {
             assertEquals(run1.points[i].cadence, run2.points[i].cadence)
         }
     }
+
+    @Test
+    fun testCustomCadenceHighSpinner() {
+        val track = getTestTrack()
+        val settings = SimulationSettings(
+            sport = SportType.CYCLING,
+            profile = ActivityProfile.RACE_CYCLING,
+            targetAverageSpeedKmh = 35.0,
+            cadenceConfig = CadenceConfig(enabled = true, baseCadenceRpm = 105)
+        )
+
+        val result = SimulationEngine.simulate(track, settings)
+        assertNotNull(result.averageCadence)
+        assertTrue("Average cadence should reflect high spinner target", result.averageCadence!! >= 95)
+    }
+
+    @Test
+    fun testCustomCoastingDisabled() {
+        val track = getTestTrack()
+        val settings = SimulationSettings(
+            sport = SportType.CYCLING,
+            profile = ActivityProfile.ENDURANCE,
+            targetAverageSpeedKmh = 28.0,
+            cadenceConfig = CadenceConfig(enabled = true, baseCadenceRpm = 90, allowCoasting = false)
+        )
+
+        val result = SimulationEngine.simulate(track, settings)
+        val steepDownhillPoints = result.points.filter { it.gradient < -4.0 }
+        assertTrue(steepDownhillPoints.isNotEmpty())
+        for (pt in steepDownhillPoints) {
+            assertTrue("Cadence should stay high when coasting is disabled", (pt.cadence ?: 0) >= 70)
+        }
+    }
+
+    @Test
+    fun testCustomRunningCadence() {
+        val track = getTestTrack()
+        val settings = SimulationSettings(
+            sport = SportType.RUNNING,
+            profile = ActivityProfile.TEMPO_RUN,
+            targetAveragePaceSecondsPerKm = 300.0,
+            cadenceConfig = CadenceConfig(enabled = true, baseCadenceRpm = 178)
+        )
+
+        val result = SimulationEngine.simulate(track, settings)
+        assertNotNull(result.averageCadence)
+        assertTrue("Running cadence should match custom SPM target", result.averageCadence!! in 170..186)
+    }
 }

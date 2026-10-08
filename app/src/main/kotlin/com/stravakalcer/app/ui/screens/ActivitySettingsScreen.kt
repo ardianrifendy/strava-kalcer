@@ -53,6 +53,9 @@ fun ActivitySettingsScreen(
 
     var cadenceEnabled by remember(currentSettings.cadenceConfig.enabled) { mutableStateOf(currentSettings.cadenceConfig.enabled) }
     var baseCadence by remember(currentSettings.cadenceConfig.baseCadenceRpm) { mutableStateOf(currentSettings.cadenceConfig.baseCadenceRpm) }
+    var allowCoasting by remember(currentSettings.cadenceConfig.allowCoasting) { mutableStateOf(currentSettings.cadenceConfig.allowCoasting) }
+    var coastingCadence by remember(currentSettings.cadenceConfig.coastingCadenceRpm) { mutableStateOf(currentSettings.cadenceConfig.coastingCadenceRpm) }
+    var climbDropIntensity by remember(currentSettings.cadenceConfig.climbDropIntensity) { mutableStateOf(currentSettings.cadenceConfig.climbDropIntensity) }
 
     fun emitUpdate() {
         val updated = currentSettings.copy(
@@ -68,7 +71,10 @@ fun ActivitySettingsScreen(
             ),
             cadenceConfig = currentSettings.cadenceConfig.copy(
                 enabled = cadenceEnabled,
-                baseCadenceRpm = baseCadence
+                baseCadenceRpm = baseCadence,
+                allowCoasting = allowCoasting,
+                coastingCadenceRpm = coastingCadence,
+                climbDropIntensity = climbDropIntensity
             )
         )
         onSettingsChanged(updated)
@@ -424,7 +430,7 @@ fun ActivitySettingsScreen(
                     )
                 }
 
-                Divider(color = DarkBorder, modifier = Modifier.padding(vertical = 12.dp))
+                HorizontalDivider(color = DarkBorder, modifier = Modifier.padding(vertical = 12.dp))
 
                 // Cadence Switch
                 Row(
@@ -448,6 +454,229 @@ fun ActivitySettingsScreen(
                         },
                         colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = KalcerLime)
                     )
+                }
+
+                if (cadenceEnabled) {
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    val unit = if (selectedSport == SportType.CYCLING) "RPM" else "SPM"
+                    val label = if (selectedSport == SportType.CYCLING) "Target Base Cadence" else "Target Step Cadence"
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = label, color = TextSecondary, fontSize = 12.sp)
+                        Text(
+                            text = "$baseCadence $unit",
+                            color = KalcerLime,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    val minCadence = if (selectedSport == SportType.CYCLING) 60f else 145f
+                    val maxCadence = if (selectedSport == SportType.CYCLING) 115f else 195f
+
+                    Slider(
+                        value = baseCadence.toFloat().coerceIn(minCadence, maxCadence),
+                        onValueChange = {
+                            baseCadence = it.toInt()
+                            emitUpdate()
+                        },
+                        valueRange = minCadence..maxCadence,
+                        colors = SliderDefaults.colors(
+                            thumbColor = KalcerLime,
+                            activeTrackColor = KalcerLime,
+                            inactiveTrackColor = DarkBorder
+                        )
+                    )
+
+                    val presets = if (selectedSport == SportType.CYCLING) {
+                        listOf(
+                            Pair(75, "75 (Grind)"),
+                            Pair(85, "85 (Standard)"),
+                            Pair(95, "95 (Spinner)"),
+                            Pair(105, "105 (Crit)")
+                        )
+                    } else {
+                        listOf(
+                            Pair(155, "155 (Easy)"),
+                            Pair(165, "165 (Base)"),
+                            Pair(175, "175 (Optimal)"),
+                            Pair(185, "185 (Fast)")
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        presets.forEach { (rpm, chipLabel) ->
+                            val isSelected = baseCadence == rpm
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .background(
+                                        if (isSelected) KalcerLime.copy(alpha = 0.2f) else DarkSurfaceVariant,
+                                        RoundedCornerShape(6.dp)
+                                    )
+                                    .border(
+                                        1.dp,
+                                        if (isSelected) KalcerLime else DarkBorder,
+                                        RoundedCornerShape(6.dp)
+                                    )
+                                    .clickable {
+                                        baseCadence = rpm
+                                        emitUpdate()
+                                    }
+                                    .padding(vertical = 6.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = chipLabel,
+                                    color = if (isSelected) KalcerLime else TextSecondary,
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
+                        }
+                    }
+
+                    if (selectedSport == SportType.CYCLING) {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        HorizontalDivider(color = DarkBorder.copy(alpha = 0.5f))
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Downhill Coasting",
+                                    color = TextPrimary,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = if (allowCoasting) "Drops to $coastingCadence RPM on steep descents" else "Pedals continuously on downhills",
+                                    color = TextTertiary,
+                                    fontSize = 11.sp
+                                )
+                            }
+                            Switch(
+                                checked = allowCoasting,
+                                onCheckedChange = {
+                                    allowCoasting = it
+                                    emitUpdate()
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = KalcerLime
+                                )
+                            )
+                        }
+
+                        if (allowCoasting) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                val coastModes = listOf(
+                                    Pair(0, "0 RPM (Freewheel)"),
+                                    Pair(20, "20 RPM (Soft Spin)")
+                                )
+                                coastModes.forEach { (rpm, cLabel) ->
+                                    val isSelected = coastingCadence == rpm
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .background(
+                                                if (isSelected) KalcerLime.copy(alpha = 0.15f) else DarkSurfaceVariant,
+                                                RoundedCornerShape(6.dp)
+                                            )
+                                            .border(
+                                                1.dp,
+                                                if (isSelected) KalcerLime else DarkBorder,
+                                                RoundedCornerShape(6.dp)
+                                            )
+                                            .clickable {
+                                                coastingCadence = rpm
+                                                emitUpdate()
+                                            }
+                                            .padding(vertical = 6.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = cLabel,
+                                            color = if (isSelected) KalcerLime else TextSecondary,
+                                            fontSize = 11.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Climbing Cadence Adaptation",
+                                color = TextPrimary,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            val climbModes = listOf(
+                                Pair(1.0, "Realistic Drop"),
+                                Pair(0.5, "Light Drop"),
+                                Pair(0.0, "Fixed RPM")
+                            )
+                            climbModes.forEach { (intensity, dropLabel) ->
+                                val isSelected = climbDropIntensity == intensity
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .background(
+                                            if (isSelected) KalcerLime.copy(alpha = 0.15f) else DarkSurfaceVariant,
+                                            RoundedCornerShape(6.dp)
+                                        )
+                                        .border(
+                                            1.dp,
+                                            if (isSelected) KalcerLime else DarkBorder,
+                                            RoundedCornerShape(6.dp)
+                                        )
+                                        .clickable {
+                                            climbDropIntensity = intensity
+                                            emitUpdate()
+                                        }
+                                        .padding(vertical = 6.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = dropLabel,
+                                        color = if (isSelected) KalcerLime else TextSecondary,
+                                        fontSize = 11.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

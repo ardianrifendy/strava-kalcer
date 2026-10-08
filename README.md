@@ -119,8 +119,8 @@ flowchart TD
   Target kecepatan rata-rata (misal 30 km/jam pada sepeda) atau target pace (misal 5:00 min/km pada lari) dicapai melalui pencarian biner/metode secant pada ruang tenaga, bukan memotong data secara konstan.
 - **Fisiologi Berkelanjutan (Lag & Recovery)**:
   Detak jantung naik dengan jeda inersia kardiovaskular ($\tau_{\text{rise}} \approx 12\text{ detik}$) dan turun perlahan saat usaha mereda ($\tau_{\text{decay}} \approx 26\text{ detik}$).
-- **Kadensi Otomatis & Coasting**:
-  Sepeda otomatis masuk mode *freewheeling/coasting* (0 RPM) saat turunan curam. Mode lari mengkalkulasikan SPM (*Steps Per Minute*) sesuai laju langkah.
+- **Kadensi Fleksibel & Dapat Dikustomisasi (Customizable Cadence)**:
+  Target kadensi bebas diatur sesuai preferensi (slider & preset chip RPM untuk sepeda: 60-115 RPM, SPM untuk lari: 145-195 SPM), lengkap dengan tombol kontrol *freewheeling coasting* saat turunan terjal (0 RPM vs 20 RPM) serta adaptasi penurunan torsi saat tanjakan.
 - **Satu Kursor Waktu Terpadu**:
   Semua grafik (Elevation, Speed, HR, Cadence) dan titik pada peta diikat oleh satu timeline global. Menggeser kursor pada satu grafik menggerakkan seluruh visualisasi secara harmonis.
 - **Garmin FIT SDK Resmi & Self-Validation**:
