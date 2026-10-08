@@ -48,14 +48,14 @@ class AppViewModel : ViewModel() {
     }
 
     /**
-     * Parses and processes an imported GPX stream on background IO thread.
+     * Parses and processes imported GPX bytes on background thread.
      */
-    fun importGpx(inputStream: InputStream) {
+    fun importGpxBytes(bytes: ByteArray, onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, loadingMessage = "Parsing GPX route data...") }
             try {
                 val (track, intelligence) = withContext(Dispatchers.Default) {
-                    val parsed = GpxParser.parse(inputStream)
+                    val parsed = GpxParser.parse(bytes)
                     val processed = RouteProcessor.process(parsed)
                     val intel = RouteIntelligenceEngine.analyze(processed)
                     Pair(processed, intel)
@@ -83,6 +83,7 @@ class AppViewModel : ViewModel() {
                         fitValidationReport = null
                     )
                 }
+                onSuccess()
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
@@ -90,6 +91,24 @@ class AppViewModel : ViewModel() {
                         errorMessage = "Failed to parse GPX: ${e.message}"
                     )
                 }
+            }
+        }
+    }
+
+    /**
+     * Parses and processes an imported GPX stream.
+     * Reads all bytes immediately before background dispatch to prevent "stream closed" race conditions.
+     */
+    fun importGpx(inputStream: InputStream, onSuccess: () -> Unit = {}) {
+        try {
+            val bytes = inputStream.readBytes()
+            importGpxBytes(bytes, onSuccess)
+        } catch (e: Exception) {
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    errorMessage = "Failed to read GPX stream: ${e.message}"
+                )
             }
         }
     }

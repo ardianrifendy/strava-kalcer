@@ -47,9 +47,19 @@ class MainActivity : ComponentActivity() {
                     contract = ActivityResultContracts.OpenDocument()
                 ) { uri: Uri? ->
                     uri?.let {
-                        contentResolver.openInputStream(it)?.use { stream ->
-                            viewModel.importGpx(stream)
-                            navController.navigate(Screen.RouteReview.route)
+                        try {
+                            val bytes = contentResolver.openInputStream(it)?.use { stream ->
+                                stream.readBytes()
+                            }
+                            if (bytes != null && bytes.isNotEmpty()) {
+                                viewModel.importGpxBytes(bytes) {
+                                    navController.navigate(Screen.RouteReview.route)
+                                }
+                            } else {
+                                Toast.makeText(this, "Selected file is empty.", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(this, "Could not open GPX file: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -112,8 +122,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onLoadSampleClicked = {
                                     val sampleGpx = com.stravakalcer.sample.SampleRouteGenerator.createRealisticGpx(120)
-                                    viewModel.importGpx(ByteArrayInputStream(sampleGpx.toByteArray()))
-                                    navController.navigate(Screen.RouteReview.route)
+                                    viewModel.importGpxBytes(sampleGpx.toByteArray(Charsets.UTF_8)) {
+                                        navController.navigate(Screen.RouteReview.route)
+                                    }
                                 },
                                 onOpenDebugClicked = {
                                     navController.navigate(Screen.Debug.route)

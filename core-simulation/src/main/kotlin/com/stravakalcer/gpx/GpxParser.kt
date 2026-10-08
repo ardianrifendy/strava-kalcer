@@ -1,8 +1,9 @@
 package com.stravakalcer.gpx
 
+import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.time.Instant
-import java.time.format.DateTimeParseException
+import java.time.OffsetDateTime
 import javax.xml.parsers.DocumentBuilderFactory
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -24,11 +25,37 @@ data class ParsedGpxData(
 object GpxParser {
 
     /**
+     * Strips UTF-8 BOM (Byte Order Mark) if present.
+     */
+    fun stripBom(bytes: ByteArray): ByteArray {
+        if (bytes.size >= 3 &&
+            bytes[0] == 0xEF.toByte() &&
+            bytes[1] == 0xBB.toByte() &&
+            bytes[2] == 0xBF.toByte()
+        ) {
+            return bytes.copyOfRange(3, bytes.size)
+        }
+        return bytes
+    }
+
+    /**
+     * Parses a byte array of GPX XML content.
+     */
+    fun parse(bytes: ByteArray): ParsedGpxData {
+        val cleanBytes = stripBom(bytes)
+        return parseInternal(ByteArrayInputStream(cleanBytes))
+    }
+
+    /**
      * Parses an input stream of GPX XML content.
-     * Uses standard DOM parsing with namespace tolerance.
-     * Robust against invalid/empty/malformed GPX files.
+     * Reads all bytes immediately to prevent "stream closed" race conditions.
      */
     fun parse(inputStream: InputStream): ParsedGpxData {
+        val bytes = inputStream.readBytes()
+        return parse(bytes)
+    }
+
+    private fun parseInternal(inputStream: InputStream): ParsedGpxData {
         val factory = DocumentBuilderFactory.newInstance().apply {
             isNamespaceAware = true
             isValidating = false
@@ -56,25 +83,58 @@ object GpxParser {
         val rawPoints = mutableListOf<RawGpxPoint>()
         var segmentIndex = 0
 
-        // Look for track segments
+        // 1. Check for track segments (<trkseg>)
         val trkSegNodes = doc.getElementsByTagName("trkseg")
         if (trkSegNodes.length > 0) {
             for (i in 0 until trkSegNodes.length) {
                 val segNode = trkSegNodes.item(i)
-                parsePointsFromNode(segNode, segmentIndex, rawPoints)
+                parsePointsFromContainer(segNode, segmentIndex, "trkpt", rawPoints)
                 segmentIndex++
             }
         } else {
-            // Check for direct trkpt or rtept elements
-            val trkptNodes = doc.getElementsByTagName("trkpt")
-            if (trkptNodes.length > 0) {
-                parsePointsFromNode(doc.documentElement, 0, rawPoints)
-                segmentIndex = 1
+            // 2. Check for tracks without segments (<trk>)
+            val trkNodes = doc.getElementsByTagName("trk")
+            if (trkNodes.length > 0) {
+                for (i in 0 until trkNodes.length) {
+                    val trkNode = trkNodes.item(i)
+                    parsePointsFromContainer(trkNode, segmentIndex, "trkpt", rawPoints)
+                    segmentIndex++
+                }
             } else {
-                val rteptNodes = doc.getElementsByTagName("rtept")
-                if (rteptNodes.length > 0) {
-                    parseRoutePointsFromNode(doc.documentElement, 0, rawPoints)
+                // 3. Check for standalone trkpt anywhere in doc
+                val trkptNodes = doc.getElementsByTagName("trkpt")
+                if (trkptNodes.length > 0) {
+                    for (i in 0 until trkptNodes.length) {
+                        parseSinglePointElement(trkptNodes.item(i) as Element, 0)?.let { rawPoints.add(it) }
+                    }
                     segmentIndex = 1
+                } else {
+                    // 4. Check for route elements (<rte> / <rtept>)
+                    val rteNodes = doc.getElementsByTagName("rte")
+                    if (rteNodes.length > 0) {
+                        for (i in 0 until rteNodes.length) {
+                            val rteNode = rteNodes.item(i)
+                            parsePointsFromContainer(rteNode, segmentIndex, "rtept", rawPoints)
+                            segmentIndex++
+                        }
+                    } else {
+                        val rteptNodes = doc.getElementsByTagName("rtept")
+                        if (rteptNodes.length > 0) {
+                            for (i in 0 until rteptNodes.length) {
+                                parseSinglePointElement(rteptNodes.item(i) as Element, 0)?.let { rawPoints.add(it) }
+                            }
+                            segmentIndex = 1
+                        } else {
+                            // 5. Check for waypoints (<wpt>)
+                            val wptNodes = doc.getElementsByTagName("wpt")
+                            if (wptNodes.length > 0) {
+                                for (i in 0 until wptNodes.length) {
+                                    parseSinglePointElement(wptNodes.item(i) as Element, 0)?.let { rawPoints.add(it) }
+                                }
+                                segmentIndex = 1
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -86,85 +146,75 @@ object GpxParser {
         )
     }
 
-    private fun parsePointsFromNode(parentNode: Node, segmentIndex: Int, outList: MutableList<RawGpxPoint>) {
-        val childNodes = parentNode.childNodes
+    private fun parsePointsFromContainer(
+        containerNode: Node,
+        segmentIndex: Int,
+        tagName: String,
+        outList: MutableList<RawGpxPoint>
+    ) {
+        if (containerNode is Element) {
+            val ptNodes = containerNode.getElementsByTagName(tagName)
+            if (ptNodes.length > 0) {
+                for (i in 0 until ptNodes.length) {
+                    val el = ptNodes.item(i) as Element
+                    parseSinglePointElement(el, segmentIndex)?.let { outList.add(it) }
+                }
+                return
+            }
+        }
+
+        // Fallback: iterate immediate child nodes
+        val childNodes = containerNode.childNodes
         for (i in 0 until childNodes.length) {
             val child = childNodes.item(i)
-            if (child.nodeType == Node.ELEMENT_NODE && (child.nodeName == "trkpt" || child.localName == "trkpt")) {
-                val el = child as Element
-                val latStr = el.getAttribute("lat")
-                val lonStr = el.getAttribute("lon")
-                val lat = latStr.toDoubleOrNull()
-                val lon = lonStr.toDoubleOrNull()
-
-                // Validate coordinate ranges
-                if (lat != null && lon != null && lat >= -90.0 && lat <= 90.0 && lon >= -180.0 && lon <= 180.0) {
-                    var elevation: Double? = null
-                    var timestampMillis: Long? = null
-
-                    val innerChildren = el.childNodes
-                    for (j in 0 until innerChildren.length) {
-                        val inner = innerChildren.item(j)
-                        val name = inner.localName ?: inner.nodeName
-                        when (name.lowercase()) {
-                            "ele" -> {
-                                elevation = inner.textContent.trim().toDoubleOrNull()
-                            }
-                            "time" -> {
-                                val timeStr = inner.textContent.trim()
-                                try {
-                                    val instant = Instant.parse(timeStr)
-                                    timestampMillis = instant.toEpochMilli()
-                                } catch (_: DateTimeParseException) {
-                                    // Timestamp format unparseable, ignore
-                                }
-                            }
-                        }
-                    }
-
-                    outList.add(
-                        RawGpxPoint(
-                            latitude = lat,
-                            longitude = lon,
-                            elevation = elevation,
-                            timestampEpochMillis = timestampMillis,
-                            segmentIndex = segmentIndex
-                        )
-                    )
-                }
+            if (child.nodeType == Node.ELEMENT_NODE && (child.nodeName.equals(tagName, ignoreCase = true) || child.localName.equals(tagName, ignoreCase = true))) {
+                parseSinglePointElement(child as Element, segmentIndex)?.let { outList.add(it) }
             }
         }
     }
 
-    private fun parseRoutePointsFromNode(parentNode: Node, segmentIndex: Int, outList: MutableList<RawGpxPoint>) {
-        val childNodes = parentNode.childNodes
-        for (i in 0 until childNodes.length) {
-            val child = childNodes.item(i)
-            if (child.nodeType == Node.ELEMENT_NODE && (child.nodeName == "rtept" || child.localName == "rtept")) {
-                val el = child as Element
-                val lat = el.getAttribute("lat").toDoubleOrNull()
-                val lon = el.getAttribute("lon").toDoubleOrNull()
-                if (lat != null && lon != null && lat in -90.0..90.0 && lon in -180.0..180.0) {
-                    var elevation: Double? = null
-                    val innerChildren = el.childNodes
-                    for (j in 0 until innerChildren.length) {
-                        val inner = innerChildren.item(j)
-                        val name = inner.localName ?: inner.nodeName
-                        if (name.equals("ele", ignoreCase = true)) {
-                            elevation = inner.textContent.trim().toDoubleOrNull()
+    private fun parseSinglePointElement(el: Element, segmentIndex: Int): RawGpxPoint? {
+        val latStr = el.getAttribute("lat")
+        val lonStr = el.getAttribute("lon")
+        val lat = latStr.toDoubleOrNull() ?: return null
+        val lon = lonStr.toDoubleOrNull() ?: return null
+
+        if (lat !in -90.0..90.0 || lon !in -180.0..180.0) return null
+
+        var elevation: Double? = null
+        var timestampMillis: Long? = null
+
+        val innerChildren = el.childNodes
+        for (j in 0 until innerChildren.length) {
+            val inner = innerChildren.item(j)
+            if (inner.nodeType != Node.ELEMENT_NODE) continue
+            val name = inner.localName ?: inner.nodeName
+            when (name.lowercase()) {
+                "ele" -> {
+                    elevation = inner.textContent.trim().toDoubleOrNull()
+                }
+                "time" -> {
+                    val timeStr = inner.textContent.trim()
+                    try {
+                        val instant = try {
+                            Instant.parse(timeStr)
+                        } catch (_: Exception) {
+                            OffsetDateTime.parse(timeStr).toInstant()
                         }
+                        timestampMillis = instant.toEpochMilli()
+                    } catch (_: Exception) {
+                        // Timestamp format unparseable, ignore
                     }
-                    outList.add(
-                        RawGpxPoint(
-                            latitude = lat,
-                            longitude = lon,
-                            elevation = elevation,
-                            timestampEpochMillis = null,
-                            segmentIndex = segmentIndex
-                        )
-                    )
                 }
             }
         }
+
+        return RawGpxPoint(
+            latitude = lat,
+            longitude = lon,
+            elevation = elevation,
+            timestampEpochMillis = timestampMillis,
+            segmentIndex = segmentIndex
+        )
     }
 }

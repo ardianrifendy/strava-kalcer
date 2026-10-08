@@ -73,4 +73,66 @@ class GpxEngineTest {
         // Ensure distance is positive and bounds are valid
         assertTrue(track.totalDistanceMeters > 0.0)
     }
+
+    @Test
+    fun testParseGpxWithUtf8Bom() {
+        val rawXml = TestFixtures.createRealisticGpx(20)
+        val bomBytes = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte()) + rawXml.toByteArray(Charsets.UTF_8)
+        val parsed = GpxParser.parse(bomBytes)
+
+        assertEquals("Kalcer Test Loop", parsed.trackName)
+        assertEquals(20, parsed.points.size)
+    }
+
+    @Test
+    fun testParseGpxWithoutTrkseg() {
+        val xml = """<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Test">
+  <trk>
+    <name>Direct Points Track</name>
+    <trkpt lat="-7.2500" lon="112.7500"><ele>10.0</ele></trkpt>
+    <trkpt lat="-7.2510" lon="112.7510"><ele>15.0</ele></trkpt>
+  </trk>
+</gpx>""".trimIndent()
+        val parsed = GpxParser.parse(xml.toByteArray(Charsets.UTF_8))
+        assertEquals("Direct Points Track", parsed.trackName)
+        assertEquals(2, parsed.points.size)
+    }
+
+    @Test
+    fun testParseGpxWithRouteElements() {
+        val xml = """<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Test">
+  <rte>
+    <name>Planned Route</name>
+    <rtept lat="-7.2500" lon="112.7500"><ele>25.0</ele></rtept>
+    <rtept lat="-7.2520" lon="112.7520"><ele>30.0</ele></rtept>
+  </rte>
+</gpx>""".trimIndent()
+        val parsed = GpxParser.parse(xml.toByteArray(Charsets.UTF_8))
+        assertEquals("Planned Route", parsed.trackName)
+        assertEquals(2, parsed.points.size)
+    }
+
+    @Test
+    fun testParseGpxWithTimezoneOffsetTimestamps() {
+        val xml = """<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Test">
+  <trk><trkseg>
+    <trkpt lat="-7.2500" lon="112.7500">
+      <ele>20.0</ele>
+      <time>2026-10-08T07:30:00+07:00</time>
+    </trkpt>
+    <trkpt lat="-7.2510" lon="112.7510">
+      <ele>22.0</ele>
+      <time>2026-10-08T07:30:15+07:00</time>
+    </trkpt>
+  </trkseg></trk>
+</gpx>""".trimIndent()
+        val parsed = GpxParser.parse(xml.toByteArray(Charsets.UTF_8))
+        assertEquals(2, parsed.points.size)
+        assertNotNull(parsed.points[0].timestampEpochMillis)
+        assertNotNull(parsed.points[1].timestampEpochMillis)
+        assertEquals(15000L, parsed.points[1].timestampEpochMillis!! - parsed.points[0].timestampEpochMillis!!)
+    }
 }
