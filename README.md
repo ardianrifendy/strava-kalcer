@@ -1,121 +1,180 @@
 # Strava Kalcer — Native Android Fitness Simulation & FIT Engine
 
-**Strava Kalcer** is a native Android activity reconstruction and simulation application built with Kotlin, Jetpack Compose, and the Garmin FIT SDK.
+[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-7F52FF.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
+[![Android](https://img.shields.io/badge/Android-API%2034%20(UpsideDownCake)-3DDC84.svg?logo=android&logoColor=white)](https://developer.android.com/)
+[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4.svg?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![Garmin FIT SDK](https://img.shields.io/badge/Garmin%20FIT%20SDK-v21.141.0-007ACC.svg)](https://developer.garmin.com/fit/overview/)
+[![Tests](https://img.shields.io/badge/Unit%20%26%20Integration%20Tests-18%2F18%20Passed-brightgreen.svg)](#how-to-build--test)
+[![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
 
-Unlike simple GPX-to-FIT converters, **Strava Kalcer** transforms raw GPX routes into complete, internally consistent, physically and physiologically coherent activities.
+**Strava Kalcer** is a high-fidelity, native Android activity reconstruction and simulation engine built with **Kotlin**, **Jetpack Compose**, and the official **Garmin FIT SDK (`com.garmin:fit`)**.
+
+Unlike simplistic GPX-to-FIT converters that merely stamp static speeds or arbitrary time intervals onto coordinates, **Strava Kalcer** runs a physics-driven numerical solver and continuous cardiovascular/neuromuscular models to transform raw GPX routes into realistic, internally consistent, and physiologically coherent sports activities.
 
 ---
 
-## Architecture & Modular Design
+## 📑 Daftar Isi / Table of Contents
+1. [Mengapa Strava Kalcer? / Why Strava Kalcer?](#mengapa-strava-kalcer--why-strava-kalcer)
+2. [Arsitektur & Modularitas / Architecture](#arsitektur--modularitas--architecture)
+3. [Alur Simulasi / Simulation Pipeline](#alur-simulasi--simulation-pipeline)
+4. [Fitur Unggulan / Key Features](#fitur-unggulan--key-features)
+5. [Daftar Perangkat yang Didukung / Supported Devices](#daftar-perangkat-yang-didukung--supported-devices)
+6. [Berkas Sampel / Sample Deliverables](#berkas-sampel--sample-deliverables)
+7. [Panduan Build & Menjalankan / How to Build & Test](#panduan-build--menjalankan--how-to-build--test)
+8. [Dokumentasi Algoritma / Mathematical Formulations](#dokumentasi-algoritma--mathematical-formulations)
+
+---
+
+## Mengapa Strava Kalcer? / Why Strava Kalcer?
+
+Perbandingan antara konverter GPX tradisional dengan simulasi cerdas Strava Kalcer:
+
+| Fitur / Parameter | Konverter GPX Standar | **Strava Kalcer Engine** |
+| :--- | :--- | :--- |
+| **Profil Kecepatan** | Kecepatan konstan / flatline buatan | **Dinamis & berbasis kontur**: menanjak melambat, turunan meluncur cepat |
+| **Akselerasi & Deselerasi** | Lompatan instan tidak realistis | **Terikat inersia fisik**: percepatan dan pengereman bertahap (kinematic bounds) |
+| **Target Rata-rata** | Memotong kecepatan titik demi titik | **Root Solver Global**: rata-rata target tercapai dengan tetap mempertahankan kurva elevasi asli |
+| **Detak Jantung (Heart Rate)** | Angka acak / konstan tanpa jeda | **Model Asimetris 1st-Order**: ada cardiac lag saat sprint (~12s) dan peluruhan lambat (~26s) |
+| **Kadensi (Cadence)** | Flat konstan (misal selalu 90 rpm) | **Adaptif**: torsi tinggi saat tanjakan, freewheel coasting ($0\text{ rpm}$) saat turunan terjal |
+| **Validasi Berkas FIT** | Langsung simpan tanpa verifikasi | **Parse-Back Validator**: berkas dibaca ulang oleh parser Garmin resmi untuk verifikasi CRC & konsistensi data |
+| **Kepatuhan Protokol** | Sering gagal di platform analitik | **100% Garmin FIT Protocol**: FileId, Activity, Session, Lap, & Record messages |
+
+---
+
+## Arsitektur & Modularitas / Architecture
+
+Aplikasi dirancang dengan arsitektur multi-module yang bersih:
 
 ```
 Strava Kalcer
-├── core-simulation/          # Pure Kotlin JVM simulation engine (independent from Android UI)
-│   ├── gpx/                  # GPX parser, elevation quality classification, GeoMath
-│   ├── intelligence/         # Route intelligence (climbs, descents, downhill opportunities)
-│   ├── simulation/           # Cycling & running terrain models, target-average root solver
-│   ├── physiology/           # Continuous heart rate (lag & recovery) and cadence models
-│   ├── device/               # Extensible device profile registry (Garmin, Wahoo, Coros, Suunto, etc.)
-│   ├── fit/                  # Garmin FIT binary generator & parse-back validator
+├── core-simulation/          # Pure Kotlin JVM library (independen dari Android UI/Android framework)
+│   ├── gpx/                  # GPX 1.1 parser, elevation quality auditor, GeoMath (Haversine & Bearing)
+│   ├── intelligence/         # Route intelligence (kategorisasi tanjakan/turunan, grade smoothing)
+│   ├── simulation/           # Cycling & running terrain physics, dynamic target-average root solver
+│   ├── physiology/           # Continuous differential Heart Rate & Cadence models
+│   ├── device/               # Device profile registry (Garmin, Wahoo, Coros, Suunto, Polar, dll.)
+│   ├── fit/                  # Garmin FIT binary encoder & parse-back validator
 │   ├── debug/                # CSV diagnostic export & explainability reasons
-│   └── sample/               # Synthetic route generator
+│   └── sample/               # Synthetic route generator untuk demonstrasi instan
 │
-└── app/                      # Android Jetpack Compose application module
-    ├── theme/                # Athletic color palette, typography & Material 3 Dark theme
-    ├── ui/components/        # Synchronized multi-chart canvas, route map polyline canvas
+└── app/                      # Android Jetpack Compose application module (Material 3 Dark Theme)
+    ├── theme/                # Athletic color palette, typography & tokens
+    ├── ui/components/        # Multi-chart canvas tersinkronisasi, route polyline map canvas
     ├── ui/screens/           # Home, Route Review, Settings, Preview, Device Select, Export, Debug
-    └── viewmodel/            # Reactive state management with Kotlin Coroutines
+    └── viewmodel/            # Reactive state management berbasis Kotlin StateFlow & Coroutines
 ```
 
 ---
 
-## Core Pipeline
+## Alur Simulasi / Simulation Pipeline
 
-```
-IMPORT GPX
-  ↓
-ROUTE INTELLIGENCE & QUALITY AUDIT (Elevation classification: Original / Reconstructed / Unavailable)
-  ↓
-ACTIVITY SETTINGS (Sport: Cycling / Running, Profile: Endurance / Race / Climb / etc., Target Average)
-  ↓
-SIMULATION (Terrain-preserving root solver, dynamic acceleration & braking constraints)
-  ↓
-PHYSIOLOGY MODELING (Continuous Heart Rate with lag & recovery, Cadence with downhill coasting drop)
-  ↓
-SYNCHRONIZED PREVIEW (One cursor controlling Map, Elevation, Speed/Pace, HR, and Cadence)
-  ↓
-DEVICE PROFILE SELECTION (Garmin Edge, Wahoo ELEMNT, Hammerhead, COROS, Suunto, Polar, etc.)
-  ↓
-GARMIN FIT ENGINE (Binary encoding of FileId, Activity, Session, Lap, and Record messages)
-  ↓
-PARSE-BACK VALIDATION (Reopens file, verifies CRC, monotonic timestamps, sensor data & metrics)
-  ↓
-SAVE / SHARE (Android Storage Access Framework & Share Sheet)
+```mermaid
+flowchart TD
+    A[Import GPX File / Synthetic Sample] --> B[Route Intelligence & Elevation Audit]
+    B --> C[Activity Configuration: Sport, Profile, Target Average]
+    C --> D[Terrain Physics Simulation & Target Root Solver]
+    D --> E[Continuous Physiology Engine: HR Lag & Cadence Dynamics]
+    E --> F[Unified Synchronized Timeline Preview]
+    F --> G[Select Device Hardware Profile]
+    G --> H[Garmin FIT SDK Binary Generation]
+    H --> I[Parse-Back Validation: CRC, Semicircles, Messages]
+    I --> J[Save to Storage / Android Share Sheet]
 ```
 
----
-
-## Key Features & Invariants
-
-1. **Terrain-Authoritative Physics**:
-   - Uphill grades naturally reduce speed / increase running pace per km.
-   - Downhill grades naturally produce high speed with realistic terminal limits and cornering deceleration.
-   - Acceleration and deceleration are bounded to prevent unrealistic point jumps (e.g. `27 → 29 → 32 → 35 → 38`, never `27 → 27 → 44 → 29`).
-
-2. **Target-Average Solver**:
-   - Target speed (cycling) and target pace (running) are aggregate results, not point-by-point flatlines.
-   - Solved using iterative binary search / secant method over effort levels while strictly preserving the relative terrain curve.
-   - Infeasible targets are reported honestly with achievable metrics.
-
-3. **Continuous Physiology**:
-   - Heart rate is modeled using asymmetric first-order differential equations: effort drive with ~12s lag, and gradual ~26s recovery decay.
-   - Cadence responds to speed, climbing gradient, and drops to coasting levels on steep descents.
-
-4. **Single Synchronized Timeline**:
-   - Exactly one canonical cursor controls all charts and the map. Dragging anywhere updates every visual element in lockstep.
-
-5. **Strict Data Integrity**:
-   - Missing or all-zero elevations are detected and flagged as `UNAVAILABLE` rather than silently fabricated.
-   - Moving time and total time are tracked separately; pauses keep total time moving while moving time stops and speed is zero.
-   - Timestamps are strictly non-decreasing and chronological.
-
-6. **Garmin FIT SDK Integration & Parse-back Validation**:
-   - Generates official Garmin FIT protocol binaries (`com.garmin:fit`).
-   - Every file is automatically parsed back to check header CRC, message counts, coordinate semicircles, and metric consistency before enabling export.
-
-7. **Zero Emojis**:
-   - The UI strictly uses vector icons (`androidx.compose.material.icons`).
+1. **Import GPX**: Membaca file GPX atau menggunakan generator rute sintetis bawaan.
+2. **Audit Kualitas Elevasi**: Mengklasifikasikan data elevasi sebagai *Original*, *Reconstructed*, atau *Unavailable*.
+3. **Pengaturan Aktivitas**: Pilihan mode (Cycling / Running), gaya usaha (*Casual*, *Endurance*, *Tempo*, *Race*, *Climber*), dan target rata-rata kecepatan/pace.
+4. **Fisika Medan**: Menghitung kecepatan per titik dengan hukum gravitasi, hambatan angin, dan batas akselerasi/deselerasi.
+5. **Model Fisiologi**: Mensimulasikan respon kardiovaskular berkelanjutan dan kadensi pedal/langkah.
+6. **Pratinjau Sinkron**: Satu kursor interaktif mengontrol peta, profil elevasi, kecepatan, HR, dan kadensi secara *real-time*.
+7. **Pilihan Perangkat**: Memilih metadata *head unit* (Garmin Edge, Wahoo, COROS, dll.).
+8. **Enkoding FIT**: Menghasilkan berkas biner FIT resmi Garmin.
+9. **Validasi Mandiri**: Membaca kembali (*parse-back*) berkas sebelum diunduh untuk menjamin integritas.
 
 ---
 
-## Deliverables
+## Fitur Unggulan / Key Features
 
-- **Debug APK**: `app/build/outputs/apk/debug/app-debug.apk` (16.4 MB)
-- **Sample GPX Route**: `samples/sample_loop.gpx` (18.2 KB)
-- **Sample Validated FIT Activity**: `samples/sample_validated.fit` (4.4 KB)
-- **Sample Diagnostic CSV**: `samples/sample_diagnostic.csv` (17.4 KB)
+- **Fisika Berbasis Kontur Nyata**:
+  Tanjakan curam mengurangi kecepatan secara realistis, sedangkan turunan meningkatkan kecepatan dengan batasan aerodinamika terminal dan perlambatan sebelum tikungan tajam.
+- **Root Solver Target Rata-rata**:
+  Target kecepatan rata-rata (misal 30 km/jam pada sepeda) atau target pace (misal 5:00 min/km pada lari) dicapai melalui pencarian biner/metode secant pada ruang tenaga, bukan memotong data secara konstan.
+- **Fisiologi Berkelanjutan (Lag & Recovery)**:
+  Detak jantung naik dengan jeda inersia kardiovaskular ($\tau_{\text{rise}} \approx 12\text{ detik}$) dan turun perlahan saat usaha mereda ($\tau_{\text{decay}} \approx 26\text{ detik}$).
+- **Kadensi Otomatis & Coasting**:
+  Sepeda otomatis masuk mode *freewheeling/coasting* (0 RPM) saat turunan curam. Mode lari mengkalkulasikan SPM (*Steps Per Minute*) sesuai laju langkah.
+- **Satu Kursor Waktu Terpadu**:
+  Semua grafik (Elevation, Speed, HR, Cadence) dan titik pada peta diikat oleh satu timeline global. Menggeser kursor pada satu grafik menggerakkan seluruh visualisasi secara harmonis.
+- **Garmin FIT SDK Resmi & Self-Validation**:
+  Menggunakan `com.garmin:fit` versi 21.141.0. Menghasilkan koordinat dalam bentuk *semicircles*, timestamp UTC berurutan, akumulasi jarak akurat, serta validasi CRC internal sebelum ekspor.
+- **Antarmuka Elegan & Bersih**:
+  Desain bertema gelap *Athletic Dark Palette* menggunakan Material 3. Menggunakan vector icons resmi Android tanpa emoji.
 
 ---
 
-## How to Build & Test
+## Daftar Perangkat yang Didukung / Supported Devices
 
-### Prerequisites
-- JDK 17 (Microsoft OpenJDK or Eclipse Temurin)
-- Android SDK Platform 34 & Build-Tools 34.0.0 (configured in `local.properties`)
+Strava Kalcer menyertakan profil metadata perangkat olahraga populer:
 
-### Commands
+| Manufaktur | Model yang Didukung | Serial / Identifier |
+| :--- | :--- | :--- |
+| **Garmin** | Edge 1040, Edge 1030 Plus, Edge 830, Edge 530, Forerunner 965, Forerunner 955 | ID Produsen Resmi Garmin |
+| **Wahoo** | ELEMNT ROAM v2, ELEMNT BOLT v2 | Metadata Wahoo Fitness |
+| **Hammerhead** | Karoo 2 | Android Cycling Computer Profile |
+| **COROS** | PACE 3, PACE 2, VERTIX 2 | Profile Wearable Multisport |
+| **Suunto** | Suunto 9 Peak, Suunto Vertical | Profile Barometric GPS |
+| **Polar** | Grit X Pro, Vantage V2 | Precision Bio-sensor Profile |
 
-1. **Run full automated test suite**:
+---
+
+## Berkas Sampel / Sample Deliverables
+
+Di dalam direktori [`samples/`](samples/) tersedia berkas hasil simulasi yang dapat diuji:
+
+- [`samples/sample_loop.gpx`](samples/sample_loop.gpx): Rute loop rolling terrain 4.5 km lengkap dengan variasi tanjakan dan turunan.
+- [`samples/sample_validated.fit`](samples/sample_validated.fit): Berkas biner Garmin FIT hasil simulasi yang telah lulus validasi CRC dan siap diunggah ke Garmin Connect, Strava, atau TrainingPeaks.
+- [`samples/sample_diagnostic.csv`](samples/sample_diagnostic.csv): Berkas diagnostik per-detik berisi data: waktu, koordinat, elevasi, grade %, kecepatan, detak jantung, kadensi, dan alasan model fisika (*explainability log*).
+
+---
+
+## Panduan Build & Menjalankan / How to Build & Test
+
+### Kebutuhan Sistem
+- **Java Development Kit (JDK)**: Versi 17 (Microsoft OpenJDK 17 atau Eclipse Temurin 17).
+- **Android SDK**: Platform 34 (Android 14) & Build-Tools 34.0.0.
+- **Gradle**: 8.5 (sudah disediakan melalui `gradlew.bat`).
+
+### Perintah Pembangunan
+
+1. **Jalankan Seluruh Test Suite Otomatis**:
    ```powershell
    .\gradlew.bat test
    ```
+   *Memverifikasi 18 pengujian unit & integrasi untuk fisika, pemecah akar, model jantung, dan serialisasi FIT biner.*
 
-2. **Compile and assemble debug APK**:
+2. **Kompilasi & Hasilkan File APK**:
    ```powershell
    .\gradlew.bat assembleDebug
    ```
+   *Output APK akan berada di:*
+   `app/build/outputs/apk/debug/app-debug.apk`
 
-3. **Install on connected device (e.g. Samsung Galaxy A56)**:
+3. **Install Langsung ke HP / Emulator Android**:
    ```powershell
    .\gradlew.bat installDebug
    ```
+
+---
+
+## Dokumentasi Algoritma / Mathematical Formulations
+
+Penjelasan lengkap mengenai rumus fisika pergerakan (persamaan aerodinamika, rolling resistance, haversine, grade smoothing filter, diferensial respon kardiovaskular, dan format semicircles FIT) terdokumentasi di:
+
+👉 **[ALGORITHM_NOTES.md](ALGORITHM_NOTES.md)**
+
+---
+
+## Lisensi / License
+
+Project ini dilisensikan di bawah [MIT License](LICENSE).
+Dikembangkan untuk kebutuhan analisis rute olahraga dan rekonstruksi aktivitas digital.
