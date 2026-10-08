@@ -1,10 +1,11 @@
 # Strava Kalcer — Native Android Fitness Simulation & FIT Engine
 
+[![Download APK](https://img.shields.io/badge/Download-APK%20(v1.0.0)-FF5722.svg?logo=android&logoColor=white)](https://github.com/ardianrifendy/strava-kalcer/releases/latest)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-7F52FF.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![Android](https://img.shields.io/badge/Android-API%2034%20(UpsideDownCake)-3DDC84.svg?logo=android&logoColor=white)](https://developer.android.com/)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4.svg?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Garmin FIT SDK](https://img.shields.io/badge/Garmin%20FIT%20SDK-v21.141.0-007ACC.svg)](https://developer.garmin.com/fit/overview/)
-[![Tests](https://img.shields.io/badge/Unit%20%26%20Integration%20Tests-18%2F18%20Passed-brightgreen.svg)](#how-to-build--test)
+[![Tests](https://img.shields.io/badge/Unit%20%26%20Integration%20Tests-18%2F18%20Passed-brightgreen.svg)](#panduan-build--menjalankan--how-to-build--test)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
 
 **Strava Kalcer** is a high-fidelity, native Android activity reconstruction and simulation engine built with **Kotlin**, **Jetpack Compose**, and the official **Garmin FIT SDK (`com.garmin:fit`)**.
@@ -13,15 +14,32 @@ Unlike simplistic GPX-to-FIT converters that merely stamp static speeds or arbit
 
 ---
 
+## 📱 Unduh APK Siap Pakai / Download APK
+
+Berkas APK Android yang sudah siap di-install (kompatibel untuk Android 8.0 Oreo ke atas / API 26+) tersedia di GitHub Releases:
+
+| Berkas Instalasi | Versi | Ukuran | Tautan Unduh Langsung |
+| :--- | :--- | :--- | :--- |
+| **Strava Kalcer Android APK** | `v1.0.0` | ~16.4 MB | 👉 [**Download StravaKalcer-v1.0.0-debug.apk**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0-debug.apk) |
+
+> [!TIP]
+> **Cara Instalasi di HP Android**:
+> 1. Unduh file APK di atas melalui browser HP Anda (atau transfer dari PC).
+> 2. Buka file `.apk` yang telah diunduh, lalu pilih **Install**.
+> 3. Jika muncul peringatan keamanan, izinkan *Install unknown apps* / *Izinkan dari sumber ini*.
+
+---
+
 ## 📑 Daftar Isi / Table of Contents
-1. [Mengapa Strava Kalcer? / Why Strava Kalcer?](#mengapa-strava-kalcer--why-strava-kalcer)
-2. [Arsitektur & Modularitas / Architecture](#arsitektur--modularitas--architecture)
-3. [Alur Simulasi / Simulation Pipeline](#alur-simulasi--simulation-pipeline)
-4. [Fitur Unggulan / Key Features](#fitur-unggulan--key-features)
-5. [Daftar Perangkat yang Didukung / Supported Devices](#daftar-perangkat-yang-didukung--supported-devices)
-6. [Berkas Sampel / Sample Deliverables](#berkas-sampel--sample-deliverables)
-7. [Panduan Build & Menjalankan / How to Build & Test](#panduan-build--menjalankan--how-to-build--test)
-8. [Dokumentasi Algoritma / Mathematical Formulations](#dokumentasi-algoritma--mathematical-formulations)
+1. [Unduh APK Siap Pakai / Download APK](#-unduh-apk-siap-pakai--download-apk)
+2. [Mengapa Strava Kalcer? / Why Strava Kalcer?](#mengapa-strava-kalcer--why-strava-kalcer)
+3. [Arsitektur & Modularitas / Architecture](#arsitektur--modularitas--architecture)
+4. [Alur Simulasi / Simulation Pipeline](#alur-simulasi--simulation-pipeline)
+5. [Fitur Unggulan / Key Features](#fitur-unggulan--key-features)
+6. [Daftar Perangkat yang Didukung / Supported Devices](#daftar-perangkat-yang-didukung--supported-devices)
+7. [Berkas Sampel & Deliverables / Sample Deliverables](#berkas-sampel--sample-deliverables)
+8. [Panduan Build & Menjalankan / How to Build & Test](#panduan-build--menjalankan--how-to-build--test)
+9. [Dokumentasi Algoritma / Mathematical Formulations](#dokumentasi-algoritma--mathematical-formulations)
 
 ---
 
@@ -127,13 +145,12 @@ Strava Kalcer menyertakan profil metadata perangkat olahraga populer:
 
 ---
 
-## Berkas Sampel / Sample Deliverables
+## Berkas Sampel & Deliverables / Sample Deliverables
 
-Di dalam direktori [`samples/`](samples/) tersedia berkas hasil simulasi yang dapat diuji:
-
-- [`samples/sample_loop.gpx`](samples/sample_loop.gpx): Rute loop rolling terrain 4.5 km lengkap dengan variasi tanjakan dan turunan.
-- [`samples/sample_validated.fit`](samples/sample_validated.fit): Berkas biner Garmin FIT hasil simulasi yang telah lulus validasi CRC dan siap diunggah ke Garmin Connect, Strava, atau TrainingPeaks.
-- [`samples/sample_diagnostic.csv`](samples/sample_diagnostic.csv): Berkas diagnostik per-detik berisi data: waktu, koordinat, elevasi, grade %, kecepatan, detak jantung, kadensi, dan alasan model fisika (*explainability log*).
+- 📱 [**StravaKalcer-v1.0.0-debug.apk**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0-debug.apk): Berkas APK Android siap pakai (16.4 MB) untuk pengujian langsung di perangkat fisik atau emulator.
+- 🗺️ [`samples/sample_loop.gpx`](samples/sample_loop.gpx): Rute loop rolling terrain 4.5 km lengkap dengan variasi tanjakan dan turunan.
+- 🚴 [`samples/sample_validated.fit`](samples/sample_validated.fit): Berkas biner Garmin FIT hasil simulasi yang telah lulus validasi CRC dan siap diunggah ke Garmin Connect, Strava, atau TrainingPeaks.
+- 📊 [`samples/sample_diagnostic.csv`](samples/sample_diagnostic.csv): Berkas diagnostik per-detik berisi data: waktu, koordinat, elevasi, grade %, kecepatan, detak jantung, kadensi, dan alasan model fisika (*explainability log*).
 
 ---
 
