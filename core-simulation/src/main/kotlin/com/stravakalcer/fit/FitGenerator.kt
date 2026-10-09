@@ -63,10 +63,31 @@ object FitGenerator {
             type = File.ACTIVITY
             manufacturer = deviceProfile.manufacturerId
             product = deviceProfile.productNumber
+            if (deviceProfile.manufacturerId == Manufacturer.GARMIN) {
+                garminProduct = deviceProfile.productNumber
+            }
+            productName = deviceProfile.modelName
             serialNumber = 123456789L
             timeCreated = DateTime(Date(startEpochMillis))
         }
         encoder.write(fileIdMesg)
+
+        // 1b. Creator Device Info Message (Ensures accurate device detection on Strava & Garmin Connect)
+        val creatorDeviceInfo = DeviceInfoMesg().apply {
+            timestamp = DateTime(Date(startEpochMillis))
+            deviceIndex = DeviceIndex.CREATOR
+            deviceType = 0
+            manufacturer = deviceProfile.manufacturerId
+            product = deviceProfile.productNumber
+            if (deviceProfile.manufacturerId == Manufacturer.GARMIN) {
+                garminProduct = deviceProfile.productNumber
+            }
+            productName = deviceProfile.modelName
+            serialNumber = 123456789L
+            softwareVersion = 20.0f
+            sourceType = SourceType.LOCAL
+        }
+        encoder.write(creatorDeviceInfo)
 
         // 2. Timer Start Event
         val timerStartEvent = EventMesg().apply {

@@ -165,4 +165,53 @@ class FitEngineTest {
         val stravaSessionAvgSpm = sessionAvgCadence!!.toInt() * 2
         assertTrue("Strava session avg SPM must be around 168, NOT 300+ (was $stravaSessionAvgSpm)", stravaSessionAvgSpm in 150..185)
     }
+
+    @Test
+    fun testGarminDeviceMetadataStravaCompatibility() {
+        val xml = TestFixtures.createRealisticGpx(20)
+        val parsed = GpxParser.parse(ByteArrayInputStream(xml.toByteArray()))
+        val track = RouteProcessor.process(parsed)
+
+        val settings = SimulationSettings(
+            sport = SportType.RUNNING,
+            profile = ActivityProfile.EASY_RUN,
+            targetAveragePaceSecondsPerKm = 360.0
+        )
+        val result = SimulationEngine.simulate(track, settings)
+        val fr965Profile = DeviceProfileRegistry.getProfileById("garmin_forerunner_965")
+
+        assertEquals("Manufacturer must be Garmin", com.garmin.fit.Manufacturer.GARMIN, fr965Profile.manufacturerId)
+        assertEquals("FR965 product ID must be 4315, NOT 4105 (MARQ 2)", com.garmin.fit.GarminProduct.FR965, fr965Profile.productNumber)
+
+        val fitBytes = FitGenerator.generateFitBytes(result, fr965Profile)
+
+        val decode = com.garmin.fit.Decode()
+        val broadcaster = com.garmin.fit.MesgBroadcaster()
+        var parsedFileId: com.garmin.fit.FileIdMesg? = null
+        val parsedDeviceInfo = mutableListOf<com.garmin.fit.DeviceInfoMesg>()
+
+        broadcaster.addListener(com.garmin.fit.FileIdMesgListener { mesg ->
+            parsedFileId = mesg
+        })
+        broadcaster.addListener(com.garmin.fit.DeviceInfoMesgListener { mesg ->
+            parsedDeviceInfo.add(mesg)
+        })
+
+        decode.read(ByteArrayInputStream(fitBytes), broadcaster)
+
+        assertNotNull("FileIdMesg must be present", parsedFileId)
+        assertEquals(com.garmin.fit.Manufacturer.GARMIN, parsedFileId!!.manufacturer)
+        assertEquals(com.garmin.fit.GarminProduct.FR965, parsedFileId!!.product)
+        assertEquals(com.garmin.fit.GarminProduct.FR965, parsedFileId!!.garminProduct)
+        assertEquals("Forerunner 965", parsedFileId!!.productName)
+
+        val creatorDevice = parsedDeviceInfo.firstOrNull { it.deviceIndex == com.garmin.fit.DeviceIndex.CREATOR }
+        assertNotNull("Creator DeviceInfoMesg must be present", creatorDevice)
+        assertEquals(com.garmin.fit.Manufacturer.GARMIN, creatorDevice!!.manufacturer)
+        assertEquals(com.garmin.fit.GarminProduct.FR965, creatorDevice.product)
+        assertEquals(com.garmin.fit.GarminProduct.FR965, creatorDevice.garminProduct)
+        assertEquals("Forerunner 965", creatorDevice.productName)
+        assertEquals(com.garmin.fit.SourceType.LOCAL, creatorDevice.sourceType)
+    }
 }
+
