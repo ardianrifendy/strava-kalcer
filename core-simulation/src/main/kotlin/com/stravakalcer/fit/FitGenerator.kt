@@ -95,7 +95,18 @@ object FitGenerator {
                     heartRate = p.heartRate.toShort()
                 }
                 if (deviceProfile.includeCadence && p.cadence != null) {
-                    cadence = p.cadence.toShort()
+                    if (result.settings.sport == SportType.RUNNING) {
+                        // Official Garmin FIT specification for Running:
+                        // The 'cadence' field stores full stride cycles per minute (RPM / strides/min, where 1 stride = 2 steps).
+                        // Platforms like Strava and Garmin Connect multiply this value by 2 to display SPM (Steps Per Minute):
+                        // SPM = (cadence + fractional_cadence) * 2.
+                        val spm = p.cadence
+                        cadence = (spm / 2).toShort()
+                        fractionalCadence = if (spm % 2 != 0) 0.5f else 0.0f
+                    } else {
+                        // Cycling: crank arm revolutions per minute (RPM)
+                        cadence = p.cadence.toShort()
+                    }
                 }
             }
             encoder.write(record)
@@ -108,6 +119,8 @@ object FitGenerator {
             eventType = EventType.STOP_ALL
         }
         encoder.write(timerStopEvent)
+
+        val maxCadenceValue = points.mapNotNull { it.cadence }.maxOrNull()
 
         // 5. Lap Message
         val lapMesg = LapMesg().apply {
@@ -123,7 +136,20 @@ object FitGenerator {
 
             result.averageHeartRate?.let { avgHeartRate = it.toShort() }
             result.maxHeartRate?.let { maxHeartRate = it.toShort() }
-            result.averageCadence?.let { avgCadence = it.toShort() }
+
+            if (result.settings.sport == SportType.RUNNING) {
+                result.averageCadence?.let {
+                    avgCadence = (it / 2).toShort()
+                    avgFractionalCadence = if (it % 2 != 0) 0.5f else 0.0f
+                }
+                maxCadenceValue?.let {
+                    maxCadence = (it / 2).toShort()
+                    maxFractionalCadence = if (it % 2 != 0) 0.5f else 0.0f
+                }
+            } else {
+                result.averageCadence?.let { avgCadence = it.toShort() }
+                maxCadenceValue?.let { maxCadence = it.toShort() }
+            }
 
             sport = if (result.settings.sport == SportType.CYCLING) Sport.CYCLING else Sport.RUNNING
             subSport = SubSport.GENERIC
@@ -144,7 +170,20 @@ object FitGenerator {
 
             result.averageHeartRate?.let { avgHeartRate = it.toShort() }
             result.maxHeartRate?.let { maxHeartRate = it.toShort() }
-            result.averageCadence?.let { avgCadence = it.toShort() }
+
+            if (result.settings.sport == SportType.RUNNING) {
+                result.averageCadence?.let {
+                    avgCadence = (it / 2).toShort()
+                    avgFractionalCadence = if (it % 2 != 0) 0.5f else 0.0f
+                }
+                maxCadenceValue?.let {
+                    maxCadence = (it / 2).toShort()
+                    maxFractionalCadence = if (it % 2 != 0) 0.5f else 0.0f
+                }
+            } else {
+                result.averageCadence?.let { avgCadence = it.toShort() }
+                maxCadenceValue?.let { maxCadence = it.toShort() }
+            }
 
             sport = if (result.settings.sport == SportType.CYCLING) Sport.CYCLING else Sport.RUNNING
             subSport = SubSport.GENERIC

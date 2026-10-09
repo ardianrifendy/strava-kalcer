@@ -110,4 +110,59 @@ class FitEngineTest {
         java.io.File(samplesDir, "sample_validated.fit").writeBytes(fitBytes)
         java.io.File(samplesDir, "sample_diagnostic.csv").writeText(DebugExporter.exportToCsv(result))
     }
+
+    @Test
+    fun testRunningCadenceFitEncodingStravaCompatibility() {
+        val xml = TestFixtures.createRealisticGpx(40)
+        val parsed = GpxParser.parse(ByteArrayInputStream(xml.toByteArray()))
+        val track = RouteProcessor.process(parsed)
+
+        val targetSpm = 168
+        val settings = SimulationSettings(
+            sport = SportType.RUNNING,
+            profile = ActivityProfile.TEMPO_RUN,
+            targetAveragePaceSecondsPerKm = 330.0,
+            cadenceConfig = CadenceConfig(enabled = true, baseCadenceRpm = targetSpm)
+        )
+        val result = SimulationEngine.simulate(track, settings)
+        val profile = DeviceProfileRegistry.getProfileById("garmin_forerunner_965")
+
+        val fitBytes = FitGenerator.generateFitBytes(result, profile)
+        val validation = FitValidator.validate(fitBytes, result)
+        assertTrue(validation.isValid)
+
+        // Decode FIT records and verify that cadence is encoded in strides/min (RPM = SPM / 2)
+        val decode = com.garmin.fit.Decode()
+        val broadcaster = com.garmin.fit.MesgBroadcaster()
+        val parsedRecords = mutableListOf<com.garmin.fit.RecordMesg>()
+        var sessionAvgCadence: Short? = null
+
+        broadcaster.addListener(com.garmin.fit.RecordMesgListener { mesg ->
+            parsedRecords.add(mesg)
+        })
+        broadcaster.addListener(com.garmin.fit.SessionMesgListener { mesg ->
+            sessionAvgCadence = mesg.avgCadence
+        })
+
+        decode.read(ByteArrayInputStream(fitBytes), broadcaster)
+        assertTrue(parsedRecords.isNotEmpty())
+
+        // In FIT, running cadence field is RPM (strides/min, ~targetSpm / 2 = 84).
+        // Strava reads this and multiplies by 2: stravaSpm = (cadence + fractionalCadence) * 2
+        for (rec in parsedRecords) {
+            val rawFitCadence = rec.cadence?.toInt() ?: 0
+            val frac = rec.fractionalCadence ?: 0.0f
+            assertTrue("FIT cadence field for running must be stored in strides/min (RPM), NOT raw SPM (was $rawFitCadence)",
+                rawFitCadence in 60..110)
+
+            val stravaReconstructedSpm = ((rawFitCadence + frac) * 2).toInt()
+            assertTrue("Reconstructed Strava SPM must be in realistic running range (~140-195), NOT 300+ (was $stravaReconstructedSpm)",
+                stravaReconstructedSpm in 140..195)
+        }
+
+        assertNotNull(sessionAvgCadence)
+        assertTrue("Session avg cadence in FIT must be strides/min (~84)", sessionAvgCadence!!.toInt() in 70..95)
+        val stravaSessionAvgSpm = sessionAvgCadence!!.toInt() * 2
+        assertTrue("Strava session avg SPM must be around 168, NOT 300+ (was $stravaSessionAvgSpm)", stravaSessionAvgSpm in 150..185)
+    }
 }
