@@ -213,5 +213,67 @@ class FitEngineTest {
         assertEquals("Forerunner 965", creatorDevice.productName)
         assertEquals(com.garmin.fit.SourceType.LOCAL, creatorDevice.sourceType)
     }
+
+    @Test
+    fun testAllDeviceProfilesFitGenerationAndStravaCompatibility() {
+        val xml = TestFixtures.createRealisticGpx(10)
+        val parsed = GpxParser.parse(ByteArrayInputStream(xml.toByteArray()))
+        val track = RouteProcessor.process(parsed)
+
+        val settings = SimulationSettings(
+            sport = SportType.CYCLING,
+            profile = ActivityProfile.FONDO,
+            targetAverageSpeedKmh = 25.0
+        )
+        val result = SimulationEngine.simulate(track, settings)
+
+        val allProfiles = DeviceProfileRegistry.getAllProfiles()
+        assertTrue("Profiles registry should not be empty", allProfiles.size >= 30)
+
+        for (profile in allProfiles) {
+            assertTrue("Manufacturer ID must be positive: ${profile.id}", profile.manufacturerId > 0)
+            assertTrue("Product number must be positive: ${profile.id}", profile.productNumber > 0)
+            assertTrue("Model name must not be blank: ${profile.id}", profile.modelName.isNotBlank())
+            assertTrue("Formatted device name must not be blank: ${profile.id}", profile.formattedDeviceName.isNotBlank())
+
+            // Generate FIT bytes for this device profile
+            val fitBytes = FitGenerator.generateFitBytes(result, profile)
+            assertTrue("FIT bytes generated for ${profile.id} must not be empty", fitBytes.isNotEmpty())
+
+            // Decode FIT and verify FileIdMesg & DeviceInfoMesg
+            val decode = com.garmin.fit.Decode()
+            val broadcaster = com.garmin.fit.MesgBroadcaster()
+            var fileId: com.garmin.fit.FileIdMesg? = null
+            var creatorDevice: com.garmin.fit.DeviceInfoMesg? = null
+
+            broadcaster.addListener(com.garmin.fit.FileIdMesgListener { mesg ->
+                fileId = mesg
+            })
+            broadcaster.addListener(com.garmin.fit.DeviceInfoMesgListener { mesg ->
+                if (mesg.deviceIndex == com.garmin.fit.DeviceIndex.CREATOR) {
+                    creatorDevice = mesg
+                }
+            })
+
+            decode.read(ByteArrayInputStream(fitBytes), broadcaster)
+
+            assertNotNull("FileIdMesg must be present for ${profile.id}", fileId)
+            assertEquals("FileId manufacturer mismatch for ${profile.id}", profile.manufacturerId, fileId!!.manufacturer)
+            assertEquals("FileId product mismatch for ${profile.id}", profile.productNumber, fileId!!.product)
+            assertNotNull("FileId productName must be populated for Strava detection: ${profile.id}", fileId!!.productName)
+            assertTrue("FileId productName must not be blank for ${profile.id}", fileId!!.productName.isNotBlank())
+
+            assertNotNull("Creator DeviceInfoMesg must be present for ${profile.id}", creatorDevice)
+            assertEquals("DeviceInfo manufacturer mismatch for ${profile.id}", profile.manufacturerId, creatorDevice!!.manufacturer)
+            assertEquals("DeviceInfo product mismatch for ${profile.id}", profile.productNumber, creatorDevice!!.product)
+            assertEquals("DeviceInfo productName must match: ${profile.id}", fileId!!.productName, creatorDevice!!.productName)
+            assertEquals("DeviceInfo sourceType must be LOCAL: ${profile.id}", com.garmin.fit.SourceType.LOCAL, creatorDevice!!.sourceType)
+
+            if (profile.manufacturerId == com.garmin.fit.Manufacturer.GARMIN) {
+                assertEquals("Garmin product must match productNumber: ${profile.id}", profile.productNumber, fileId!!.garminProduct)
+                assertEquals("Garmin product must match productNumber in DeviceInfo: ${profile.id}", profile.productNumber, creatorDevice!!.garminProduct)
+            }
+        }
+    }
 }
 

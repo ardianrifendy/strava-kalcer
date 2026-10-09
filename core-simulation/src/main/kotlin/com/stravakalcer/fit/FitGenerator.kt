@@ -58,6 +58,12 @@ object FitGenerator {
         val startEpochMillis = points.first().timestampEpochMillis
         val endEpochMillis = points.last().timestampEpochMillis
 
+        val effectiveProductName = if (deviceProfile.manufacturerId == Manufacturer.GARMIN) {
+            deviceProfile.modelName
+        } else {
+            deviceProfile.formattedDeviceName
+        }
+
         // 1. File ID Message
         val fileIdMesg = FileIdMesg().apply {
             type = File.ACTIVITY
@@ -66,7 +72,7 @@ object FitGenerator {
             if (deviceProfile.manufacturerId == Manufacturer.GARMIN) {
                 garminProduct = deviceProfile.productNumber
             }
-            productName = deviceProfile.modelName
+            productName = effectiveProductName
             serialNumber = 123456789L
             timeCreated = DateTime(Date(startEpochMillis))
         }
@@ -82,7 +88,7 @@ object FitGenerator {
             if (deviceProfile.manufacturerId == Manufacturer.GARMIN) {
                 garminProduct = deviceProfile.productNumber
             }
-            productName = deviceProfile.modelName
+            productName = effectiveProductName
             serialNumber = 123456789L
             softwareVersion = 20.0f
             sourceType = SourceType.LOCAL

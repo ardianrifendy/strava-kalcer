@@ -25,7 +25,14 @@ data class DeviceProfile(
     val includeAltitude: Boolean = true,
     val includeHeartRate: Boolean = true,
     val includeCadence: Boolean = true
-)
+) {
+    val formattedDeviceName: String
+        get() = if (modelName.startsWith(manufacturer, ignoreCase = true)) {
+            modelName
+        } else {
+            "$manufacturer $modelName"
+        }
+}
 
 object DeviceProfileRegistry {
 
@@ -38,17 +45,17 @@ object DeviceProfileRegistry {
         DeviceProfile("garmin_edge_830", "Garmin", "Edge 830", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.GARMIN, GarminProduct.EDGE_830, "Touchscreen performance cycling computer with dynamic metrics."),
         DeviceProfile("garmin_edge_530", "Garmin", "Edge 530", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.GARMIN, GarminProduct.EDGE_530, "Popular button-controlled performance bike computer."),
 
-        // Wahoo Bike Computers (Wahoo Fitness = 32)
-        DeviceProfile("wahoo_elemnt_roam", "Wahoo", "ELEMNT ROAM v2", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.WAHOO_FITNESS, 28, "Large color screen GPS bike computer with smart navigation."),
-        DeviceProfile("wahoo_elemnt_bolt", "Wahoo", "ELEMNT BOLT v2", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.WAHOO_FITNESS, 27, "Aerodynamic compact GPS cycling computer."),
+        // Wahoo Bike Computers (Wahoo Fitness = 32, Official ANT FIT Profile IDs: ROAM = 1163, BOLT = 1164)
+        DeviceProfile("wahoo_elemnt_roam", "Wahoo", "ELEMNT ROAM v2", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.WAHOO_FITNESS, 1163, "Large color screen GPS bike computer with smart navigation."),
+        DeviceProfile("wahoo_elemnt_bolt", "Wahoo", "ELEMNT BOLT v2", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.WAHOO_FITNESS, 1164, "Aerodynamic compact GPS cycling computer."),
 
         // Hammerhead (Hammerhead = 289)
         DeviceProfile("hammerhead_karoo_3", "Hammerhead", "Karoo (3rd Gen)", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.HAMMERHEAD, 3, "High-definition display cycling computer running Android core."),
         DeviceProfile("hammerhead_karoo_2", "Hammerhead", "Karoo 2", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.HAMMERHEAD, 2, "Smartphone-quality touchscreen cycling computer."),
 
         // Bryton (Bryton = 267)
-        DeviceProfile("bryton_rider_s800", "Bryton", "Rider S800", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.BRYTON, 10, "Flagship color touch cycling computer."),
-        DeviceProfile("bryton_rider_750", "Bryton", "Rider 750 SE", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.BRYTON, 11, "Endurance GPS cycling computer with voice search."),
+        DeviceProfile("bryton_rider_s800", "Bryton", "Rider S800", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.BRYTON, 800, "Flagship color touch cycling computer."),
+        DeviceProfile("bryton_rider_750", "Bryton", "Rider 750 SE", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.BRYTON, 750, "Endurance GPS cycling computer with voice search."),
 
         // iGPSPORT (iGPSPORT = 115)
         DeviceProfile("igpsport_igs630", "iGPSPORT", "iGS630", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.IGPSPORT, 630, "Color display full GNSS cycling computer."),
@@ -58,13 +65,13 @@ object DeviceProfileRegistry {
         DeviceProfile("magene_c606", "Magene", "C606 Smart GPS", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.MAGENE, 606, "Smart cycling computer with color touch screen and WiFi sync."),
         DeviceProfile("magene_c406", "Magene", "C406 Pro", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.MAGENE, 406, "Affordable aerodynamic FSTN screen bike computer."),
 
-        // XOSS (XOSS = 289 / Generic)
-        DeviceProfile("xoss_nav", "XOSS", "NAV Smart GPS", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), 289, 101, "Route guidance navigation bike computer."),
-        DeviceProfile("xoss_g_plus", "XOSS", "G+ Gen 2", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), 289, 102, "Entry level GPS speedometer."),
+        // XOSS (Standard Development / Custom = 255)
+        DeviceProfile("xoss_nav", "XOSS", "NAV Smart GPS", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.DEVELOPMENT, 101, "Route guidance navigation bike computer."),
+        DeviceProfile("xoss_g_plus", "XOSS", "G+ Gen 2", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.DEVELOPMENT, 102, "Entry level GPS speedometer."),
 
-        // Sigma (Sigma Sport = 86)
-        DeviceProfile("sigma_rox_12_1", "Sigma", "ROX 12.1 EVO", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), 86, 12, "Full-map navigation cycling computer made in Germany."),
-        DeviceProfile("sigma_rox_11_1", "Sigma", "ROX 11.1 EVO", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), 86, 11, "Compact training and sensor computer."),
+        // Sigma (Sigma Sport = 70)
+        DeviceProfile("sigma_rox_12_1", "Sigma", "ROX 12.1 EVO", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.SIGMASPORT, 12, "Full-map navigation cycling computer made in Germany."),
+        DeviceProfile("sigma_rox_11_1", "Sigma", "ROX 11.1 EVO", DeviceCategory.CYCLOCOMPUTER, setOf(SportType.CYCLING), Manufacturer.SIGMASPORT, 11, "Compact training and sensor computer."),
 
         // Garmin Watches (Official GarminProduct IDs)
         DeviceProfile("garmin_forerunner_965", "Garmin", "Forerunner 965", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.GARMIN, GarminProduct.FR965, "Premium AMOLED running and triathlon GPS smartwatch."),
@@ -90,16 +97,16 @@ object DeviceProfileRegistry {
         DeviceProfile("polar_vantage_v3", "Polar", "Vantage V3", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.POLAR_ELECTRO, 80, "Premium multisport watch with biosensing technologies."),
         DeviceProfile("polar_pacer_pro", "Polar", "Pacer Pro", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.POLAR_ELECTRO, 81, "Ultralight advanced running watch with barometer."),
 
-        // Amazfit (Zepp / Amazfit = 255)
-        DeviceProfile("amazfit_cheetah_pro", "Amazfit", "Cheetah Pro", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), 255, 501, "Dedicated marathon running watch with MaxTrack dual-band antenna."),
+        // Amazfit (Development / Custom = 255)
+        DeviceProfile("amazfit_cheetah_pro", "Amazfit", "Cheetah Pro", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.DEVELOPMENT, 501, "Dedicated marathon running watch with MaxTrack dual-band antenna."),
 
-        // Apple & Samsung Watches (Apple = 111, Samsung = 112)
-        DeviceProfile("apple_watch_ultra_2", "Apple", "Watch Ultra 2", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), 111, 2, "Rugged titanium smartwatch with precision dual-frequency GPS."),
-        DeviceProfile("samsung_galaxy_watch_6", "Samsung", "Galaxy Watch 6 Pro", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), 112, 6, "Wear OS sport smartwatch with personalized HR zones."),
+        // Apple & Samsung Watches (Development / Custom = 255)
+        DeviceProfile("apple_watch_ultra_2", "Apple", "Watch Ultra 2", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.DEVELOPMENT, 2, "Rugged titanium smartwatch with precision dual-frequency GPS."),
+        DeviceProfile("samsung_galaxy_watch_6", "Samsung", "Galaxy Watch 6 Pro", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.DEVELOPMENT, 6, "Wear OS sport smartwatch with personalized HR zones."),
 
         // Generic / Custom
-        DeviceProfile("generic_fit", "Generic", "Standard FIT 2.0 Activity", DeviceCategory.GENERIC, setOf(SportType.CYCLING, SportType.RUNNING), 255, 1, "Universal specification-compliant FIT activity file."),
-        DeviceProfile("custom_profile", "Custom", "Custom FIT Profile", DeviceCategory.GENERIC, setOf(SportType.CYCLING, SportType.RUNNING), 255, 99, "User-configured recording interval and sensor preferences.")
+        DeviceProfile("generic_fit", "Generic", "Standard FIT 2.0 Activity", DeviceCategory.GENERIC, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.DEVELOPMENT, 1, "Universal specification-compliant FIT activity file."),
+        DeviceProfile("custom_profile", "Custom", "Custom FIT Profile", DeviceCategory.GENERIC, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.DEVELOPMENT, 99, "User-configured recording interval and sensor preferences.")
     )
 
     fun getAllProfiles(): List<DeviceProfile> = profiles
