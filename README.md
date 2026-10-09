@@ -185,9 +185,17 @@ Strava Kalcer menyertakan profil metadata perangkat olahraga populer:
 
 ## Dokumentasi Algoritma / Mathematical Formulations
 
-Penjelasan lengkap mengenai rumus fisika pergerakan (persamaan aerodinamika, rolling resistance, haversine, grade smoothing filter, diferensial respon kardiovaskular, dan format semicircles FIT) terdokumentasi di:
+### 1. Jarak Haversine & Geodesik
+$$a = \sin^2\left(\frac{\Delta \phi}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\Delta \lambda}{2}\right)$$
+$$s = 2 R \operatorname{atan2}(\sqrt{a}, \sqrt{1 - a})$$
 
-👉 **[ALGORITHM_NOTES.md](ALGORITHM_NOTES.md)**
+### 2. Gradient Smoothing & Pemodelan Tanjakan
+$$G_{\text{raw}} = \frac{\Delta h}{s} \times 100\%,\quad G_{\text{smooth}, i} = \frac{1}{2k + 1} \sum_{j = i - k}^{i + k} G_{\text{raw}, j}$$
+
+### 3. Batas Inersia Fisik & Model Kardiovaskular
+- **Akselerasi & Deselerasi Kinematik**: $v_i \le \sqrt{v_{i-1}^2 + 2 a_{\max} s_i}$
+- **Respon Heart Rate Asimetris (1st-Order Lag)**: $\tau_{\text{rise}} \approx 12\text{s}$, $\tau_{\text{decay}} \approx 26\text{s}$
+- **Enkoding Koordinat Garmin FIT**: $\text{semicircles} = \text{degrees} \times \frac{2^{31}}{180}$
 
 ---
 

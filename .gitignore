@@ -11,3 +11,7 @@ captures/
 android-sdk/
 gradle-dist/
 *.apk
+[0-9][0-9]_*.md
+*prompt*
+*PROMPT*
+
