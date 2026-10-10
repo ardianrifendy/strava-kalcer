@@ -5,12 +5,12 @@
 [![Android](https://img.shields.io/badge/Android-API%2034%20(UpsideDownCake)-3DDC84.svg?logo=android&logoColor=white)](https://developer.android.com/)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4.svg?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Garmin FIT SDK](https://img.shields.io/badge/Garmin%20FIT%20SDK-v21.141.0-007ACC.svg)](https://developer.garmin.com/fit/overview/)
-[![Tests](https://img.shields.io/badge/Unit%20%26%20Integration%20Tests-18%2F18%20Passed-brightgreen.svg)](#panduan-build--menjalankan--how-to-build--test)
+[![Tests](https://img.shields.io/badge/Unit%20%26%20Integration%20Tests-33%2F33%20Passed-brightgreen.svg)](#panduan-build--menjalankan--how-to-build--test)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
 
 **Strava Kalcer** is a high-fidelity, native Android activity reconstruction and simulation engine built with **Kotlin**, **Jetpack Compose**, and the official **Garmin FIT SDK (`com.garmin:fit`)**.
 
-Unlike simplistic GPX-to-FIT converters that merely stamp static speeds or arbitrary time intervals onto coordinates, **Strava Kalcer** runs a physics-driven numerical solver and continuous cardiovascular/neuromuscular models to transform raw GPX routes into realistic, internally consistent, and physiologically coherent sports activities.
+Unlike simplistic GPX-to-FIT converters that merely stamp static speeds or arbitrary time intervals onto coordinates, **Strava Kalcer** runs a physics-driven numerical solver, continuous cardiovascular/neuromuscular models, power meter dynamics, and split interval structuring to transform raw GPX routes into realistic, internally consistent, and physiologically coherent sports activities.
 
 ---
 
@@ -20,7 +20,7 @@ Berkas APK Android yang sudah siap di-install (kompatibel untuk Android 8.0 Oreo
 
 | Berkas Instalasi | Versi | Ukuran | Tautan Unduh Langsung |
 | :--- | :--- | :--- | :--- |
-| **Strava Kalcer Android APK** | `v1.0.0` | ~16.4 MB | 👉 [**Download StravaKalcer-v1.0.0-debug.apk**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0-debug.apk) |
+| **Strava Kalcer Android APK** | `v1.0.0` | ~21.0 MB | 👉 [**Download StravaKalcer-v1.0.0-debug.apk**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0-debug.apk) |
 
 > [!TIP]
 > **Cara Instalasi di HP Android**:
@@ -51,8 +51,11 @@ Perbandingan antara konverter GPX tradisional dengan simulasi cerdas Strava Kalc
 | :--- | :--- | :--- |
 | **Profil Kecepatan** | Kecepatan konstan / flatline buatan | **Dinamis & berbasis kontur**: menanjak melambat, turunan meluncur cepat |
 | **Akselerasi & Deselerasi** | Lompatan instan tidak realistis | **Terikat inersia fisik**: percepatan dan pengereman bertahap (kinematic bounds) |
-| **Target Rata-rata** | Memotong kecepatan titik demi titik | **Root Solver Global**: rata-rata target tercapai dengan tetap mempertahankan kurva elevasi asli |
-| **Detak Jantung (Heart Rate)** | Angka acak / konstan tanpa jeda | **Model Asimetris 1st-Order**: ada cardiac lag saat sprint (~12s) dan peluruhan lambat (~26s) |
+| **Power Meter (Watts)** | Tidak ada data / 0W | **Simulasi Mekanika Fisik**: aerodinamika ($C_d A$), hambatan ban ($C_{rr}$), gradien kemiringan, & Normalized Power (NP) |
+| **Auto-Lap Splits** | 1 lap utuh / tidak ada split | **Pecahan Split Otomatis**: 1 km untuk Lari, 5 km untuk Sepeda dengan statistik lap lengkap |
+| **Sensor Suhu** | Tidak ada data | **Suhu Lingkungan Realistis**: Kurva suhu tropis ($27^\circ\text{C} - 30^\circ\text{C}$) pada Record & Lap FIT |
+| **Kalkulasi Kalori** | Perkiraan kasar / kosong | **Beban Metabolik Fisik**: Dihitung dari kumulatif mekanis kJ & efisiensi metabolisme tubuh |
+| **Detak Jantung (HR)** | Angka acak / konstan tanpa jeda | **Model Asimetris 1st-Order**: ada cardiac lag saat sprint (~12s) dan peluruhan lambat (~26s) |
 | **Kadensi (Cadence)** | Flat konstan (misal selalu 90 rpm) | **Adaptif**: torsi tinggi saat tanjakan, freewheel coasting ($0\text{ rpm}$) saat turunan terjal |
 | **Validasi Berkas FIT** | Langsung simpan tanpa verifikasi | **Parse-Back Validator**: berkas dibaca ulang oleh parser Garmin resmi untuk verifikasi CRC & konsistensi data |
 | **Kepatuhan Protokol** | Sering gagal di platform analitik | **100% Garmin FIT Protocol**: FileId, Activity, Session, Lap, & Record messages |
@@ -65,12 +68,12 @@ Aplikasi dirancang dengan arsitektur multi-module yang bersih:
 
 ```
 Strava Kalcer
-├── core-simulation/          # Pure Kotlin JVM library (independen dari Android UI/Android framework)
-│   ├── gpx/                  # GPX 1.1 parser, elevation quality auditor, GeoMath (Haversine & Bearing)
+├── core-simulation/          # Pure Kotlin JVM library (independen dari Android UI/framework)
+│   ├── gpx/                  # GPX 1.1 parser, elevation quality auditor, RouteProcessor, GeoMath
 │   ├── intelligence/         # Route intelligence (kategorisasi tanjakan/turunan, grade smoothing)
 │   ├── simulation/           # Cycling & running terrain physics, dynamic target-average root solver
-│   ├── physiology/           # Continuous differential Heart Rate & Cadence models
-│   ├── device/               # Device profile registry (Garmin, Wahoo, Coros, Suunto, Polar, dll.)
+│   ├── physiology/           # Continuous HR lag, Cadence, & PowerEngine (Watts, NP, Work kJ, Calories)
+│   ├── device/               # Device profile registry (Garmin, Wahoo, COROS, Suunto, Polar, Apple Watch, dll.)
 │   ├── fit/                  # Garmin FIT binary encoder & parse-back validator
 │   ├── debug/                # CSV diagnostic export & explainability reasons
 │   └── sample/               # Synthetic route generator untuk demonstrasi instan
@@ -91,28 +94,43 @@ flowchart TD
     A[Import GPX File / Synthetic Sample] --> B[Route Intelligence & Elevation Audit]
     B --> C[Activity Configuration: Sport, Profile, Target Average]
     C --> D[Terrain Physics Simulation & Target Root Solver]
-    D --> E[Continuous Physiology Engine: HR Lag & Cadence Dynamics]
-    E --> F[Unified Synchronized Timeline Preview]
-    F --> G[Select Device Hardware Profile]
-    G --> H[Garmin FIT SDK Binary Generation]
-    H --> I[Parse-Back Validation: CRC, Semicircles, Messages]
-    I --> J[Save to Storage / Android Share Sheet]
+    D --> E[Power Meter Engine: Instantaneous Watts, NP, & Work kJ]
+    E --> F[Continuous Physiology: HR Lag, Cadence, & Ambient Temp]
+    F --> G[Unified Synchronized Timeline Multi-Chart Canvas]
+    G --> H[Select Device Hardware Profile]
+    H --> I[Garmin FIT SDK Binary Generation: Auto-Laps & Records]
+    I --> J[Parse-Back Validation: CRC, Semicircles, Messages]
+    J --> K[Auto-Upload Strava API / Deep-Link Native App]
 ```
 
 1. **Import GPX**: Membaca file GPX atau menggunakan generator rute sintetis bawaan.
 2. **Audit Kualitas Elevasi**: Mengklasifikasikan data elevasi sebagai *Original*, *Reconstructed*, atau *Unavailable*.
 3. **Pengaturan Aktivitas**: Pilihan mode (Cycling / Running), gaya usaha (*Casual*, *Endurance*, *Tempo*, *Race*, *Climber*), dan target rata-rata kecepatan/pace.
 4. **Fisika Medan**: Menghitung kecepatan per titik dengan hukum gravitasi, hambatan angin, dan batas akselerasi/deselerasi.
-5. **Model Fisiologi**: Mensimulasikan respon kardiovaskular berkelanjutan dan kadensi pedal/langkah.
-6. **Pratinjau Sinkron**: Satu kursor interaktif mengontrol peta, profil elevasi, kecepatan, HR, dan kadensi secara *real-time*.
-7. **Pilihan Perangkat**: Memilih metadata *head unit* (Garmin Edge, Wahoo, COROS, dll.).
-8. **Enkoding FIT**: Menghasilkan berkas biner FIT resmi Garmin.
-9. **Validasi Mandiri**: Membaca kembali (*parse-back*) berkas sebelum diunduh untuk menjamin integritas.
+5. **Simulasi Power Meter**: Menghitung daya mekanik per detik (Watts), *Normalized Power* (NP), dan total kerja (*Work* dalam kJ).
+6. **Model Fisiologi & Sensor**: Mensimulasikan respon kardiovaskular, kadensi adaptif, suhu lingkungan, dan estimasi kalori.
+7. **Pratinjau Sinkron**: Satu kursor interaktif mengontrol peta, profil elevasi, kecepatan, daya, HR, dan kadensi secara *real-time*.
+8. **Pilihan Perangkat**: Memilih metadata *head unit* (Garmin Edge, Wahoo, COROS, Suunto, Polar, dll.).
+9. **Enkoding FIT & Auto-Laps**: Menghasilkan berkas biner FIT resmi dengan pemecahan lap otomatis (1 km lari / 5 km sepeda).
+10. **Validasi Mandiri**: Membaca kembali (*parse-back*) berkas sebelum diekspor untuk menjamin integritas.
+11. **Unggah Otomatis & Deep-Link**: Unggah ke Strava Cloud Feed dan buka langsung aktivitas di aplikasi resmi Strava Android.
 
 ---
 
 ## Fitur Unggulan / Key Features
 
+- **Simulasi Power Meter (Watts & kJ)**:
+  Perhitungan daya mekanik dinamis bersepeda berdasarkan hukum hambatan aerodinamis ($C_d A$), hambatan gelinding ban ($C_{rr}$), gradien kemiringan, dan efisiensi *drivetrain* (96.5%). Menghitung *Normalized Power (NP)* standar Coggan rolling 30 detik pangkat 4, serta total kerja mekanis (kJ). Model daya lari berbasis Stryd (1.04 W/kg per m/s + biaya elevasi).
+- **Auto-Lap Splits Terstruktur (1 km Running / 5 km Cycling)**:
+  File FIT otomatis dipecah menjadi lap-lap berkala dengan statistik per-split lengkap (waktu split, pace/speed rata-rata & maks, HR, kadensi, daya, suhu, elevasi naik/turun). Menghasilkan tab **Splits / Laps** resmi saat diunggah ke Strava atau Garmin Connect.
+- **Sensor Suhu Lingkungan Realistis (Ambient Temperature)**:
+  Sensor suhu virtual merekam profil suhu tropis ($27^\circ\text{C} - 30^\circ\text{C}$) ke dalam pesan FIT `RecordMesg`, `LapMesg`, dan `SessionMesg`.
+- **Kalkulasi Kalori Akurat (Total Calories)**:
+  Dihitung dari kerja mekanis kumulatif (kJ) dan efisiensi metabolisme tubuh manusia (~24%), menghasilkan estimasi kalori realistis yang cocok dengan *head unit* Garmin asli.
+- **Fitur Balik Rute 1-Klik (Reverse Route)**:
+  Tombol **REVERSE** pada layar Route Review memungkinkan pengguna membalik arah rute (titik finis menjadi titik mulai) dengan kalkulasi ulang otomatis untuk jarak, elevasi naik/turun, dan kurva gradien medan.
+- **Deep-Link Langsung ke Aplikasi Resmi Strava**:
+  Setelah ekspor atau unggah otomatis selesai, tombol **Open in Strava** langsung membuka aktivitas di aplikasi resmi Strava Android (`strava://activities/{activityId}`) dengan *fallback* otomatis ke browser jika aplikasi belum terpasang.
 - **Fisika Berbasis Kontur Nyata**:
   Tanjakan curam mengurangi kecepatan secara realistis, sedangkan turunan meningkatkan kecepatan dengan batasan aerodinamika terminal dan perlambatan sebelum tikungan tajam.
 - **Root Solver Target Rata-rata**:
@@ -123,36 +141,38 @@ flowchart TD
   Target kadensi bebas diatur sesuai preferensi (slider & preset chip RPM untuk sepeda: 60-115 RPM, SPM untuk lari: 145-195 SPM), lengkap dengan tombol kontrol *freewheeling coasting* saat turunan terjal (0 RPM vs 20 RPM) serta adaptasi penurunan torsi saat tanjakan.
 - **Satu Kursor Waktu Terpadu**:
   Semua grafik (Elevation, Speed, HR, Cadence) dan titik pada peta diikat oleh satu timeline global. Menggeser kursor pada satu grafik menggerakkan seluruh visualisasi secara harmonis.
-- **Full Auto Strava Cloud Upload (Langsung ke Feed Strava)**:
-  Mendukung integrasi resmi Strava API (OAuth 2.0 & Personal Access Token). Cukup aktifkan *Full Auto*, dan setiap kali berkas FIT selesai dibuat, aplikasi otomatis mengunggah aktivitas ke server Strava di latar belakang tanpa perlu membuka browser.
+- **Full Auto Strava Cloud Upload**:
+  Mendukung integrasi resmi Strava API (OAuth 2.0 & Personal Access Token). Cukup aktifkan *Full Auto*, dan setiap kali berkas FIT selesai dibuat, aplikasi otomatis mengunggah aktivitas ke server Strava di latar belakang.
 - **Garmin FIT SDK Resmi & Self-Validation**:
   Menggunakan `com.garmin:fit` versi 21.141.0. Menghasilkan koordinat dalam bentuk *semicircles*, timestamp UTC berurutan, akumulasi jarak akurat, serta validasi CRC internal sebelum ekspor.
-- **Antarmuka Elegan & Bersih**:
+- **Antarmuka Elegan & Bebas Emotikon**:
   Desain bertema gelap *Athletic Dark Palette* menggunakan Material 3. Menggunakan vector icons resmi Android tanpa emoji.
 
 ---
 
 ## Daftar Perangkat yang Didukung / Supported Devices
 
-Strava Kalcer menyertakan profil metadata perangkat olahraga populer:
+Strava Kalcer menyertakan lebih dari 30 profil perangkat olahraga terverifikasi dengan metadata manufaktur dan produk resmi untuk identifikasi di Strava:
 
-| Manufaktur | Model yang Didukung | Serial / Identifier |
+| Manufaktur | Model yang Didukung | Identifier / Tipe |
 | :--- | :--- | :--- |
-| **Garmin** | Edge 1040, Edge 1030 Plus, Edge 830, Edge 530, Forerunner 965, Forerunner 955 | ID Produsen Resmi Garmin |
-| **Wahoo** | ELEMNT ROAM v2, ELEMNT BOLT v2 | Metadata Wahoo Fitness |
-| **Hammerhead** | Karoo 2 | Android Cycling Computer Profile |
-| **COROS** | PACE 3, PACE 2, VERTIX 2 | Profile Wearable Multisport |
-| **Suunto** | Suunto 9 Peak, Suunto Vertical | Profile Barometric GPS |
-| **Polar** | Grit X Pro, Vantage V2 | Precision Bio-sensor Profile |
+| **Garmin** | Edge 1040, Edge 1030 Plus, Edge 840, Edge 830, Edge 540, Edge 530, Forerunner 965, Forerunner 955, Forerunner 265, Fenix 7 Pro, Enduro 2 | ID Produsen Resmi Garmin (`GARMIN_PRODUCT`) |
+| **Wahoo** | ELEMNT ROAM v2, ELEMNT BOLT v2, ELEMNT RIVAL | Metadata Wahoo Fitness |
+| **Hammerhead** | Karoo 2, Karoo 3 | Android Cycling Computer Profile |
+| **COROS** | PACE 3, PACE 2, VERTIX 2, APEX 2 Pro | Profile Wearable Multisport |
+| **Suunto** | Suunto 9 Peak, Suunto Vertical, Suunto Race | Profile Barometric Multisport |
+| **Polar** | Grit X Pro, Vantage V2, Pacer Pro | Precision Bio-sensor Profile |
+| **Bryton** | Rider 750, Rider S800, Rider 420 | Cycling GPS Computer Profile |
+| **Apple** | Apple Watch Ultra 2, Apple Watch Series 9 | WatchOS Workout Profile |
 
 ---
 
 ## Berkas Sampel & Deliverables / Sample Deliverables
 
-- 📱 [**StravaKalcer-v1.0.0-debug.apk**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0-debug.apk): Berkas APK Android siap pakai (16.4 MB) untuk pengujian langsung di perangkat fisik atau emulator.
+- 📱 [**StravaKalcer-v1.0.0-debug.apk**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0-debug.apk): Berkas APK Android siap pakai (~21 MB) untuk pengujian langsung di perangkat fisik atau emulator.
 - 🗺️ [`samples/sample_loop.gpx`](samples/sample_loop.gpx): Rute loop rolling terrain 4.5 km lengkap dengan variasi tanjakan dan turunan.
 - 🚴 [`samples/sample_validated.fit`](samples/sample_validated.fit): Berkas biner Garmin FIT hasil simulasi yang telah lulus validasi CRC dan siap diunggah ke Garmin Connect, Strava, atau TrainingPeaks.
-- 📊 [`samples/sample_diagnostic.csv`](samples/sample_diagnostic.csv): Berkas diagnostik per-detik berisi data: waktu, koordinat, elevasi, grade %, kecepatan, detak jantung, kadensi, dan alasan model fisika (*explainability log*).
+- 📊 [`samples/sample_diagnostic.csv`](samples/sample_diagnostic.csv): Berkas diagnostik per-detik berisi data: waktu, koordinat, elevasi, grade %, kecepatan, detak jantung, kadensi, daya, suhu, dan alasan model fisika (*explainability log*).
 
 ---
 
@@ -169,7 +189,7 @@ Strava Kalcer menyertakan profil metadata perangkat olahraga populer:
    ```powershell
    .\gradlew.bat test
    ```
-   *Memverifikasi 18 pengujian unit & integrasi untuk fisika, pemecah akar, model jantung, dan serialisasi FIT biner.*
+   *Memverifikasi 33 pengujian unit & integrasi untuk fisika, pemecah akar, model jantung, power meter, auto-laps, dan serialisasi FIT biner.*
 
 2. **Kompilasi & Hasilkan File APK**:
    ```powershell
@@ -194,10 +214,26 @@ $$s = 2 R \operatorname{atan2}(\sqrt{a}, \sqrt{1 - a})$$
 ### 2. Gradient Smoothing & Pemodelan Tanjakan
 $$G_{\text{raw}} = \frac{\Delta h}{s} \times 100\%,\quad G_{\text{smooth}, i} = \frac{1}{2k + 1} \sum_{j = i - k}^{i + k} G_{\text{raw}, j}$$
 
-### 3. Batas Inersia Fisik & Model Kardiovaskular
+### 3. Kinematika Kecepatan & Fisiologi Jantung
 - **Akselerasi & Deselerasi Kinematik**: $v_i \le \sqrt{v_{i-1}^2 + 2 a_{\max} s_i}$
 - **Respon Heart Rate Asimetris (1st-Order Lag)**: $\tau_{\text{rise}} \approx 12\text{s}$, $\tau_{\text{decay}} \approx 26\text{s}$
-- **Enkoding Koordinat Garmin FIT**: $\text{semicircles} = \text{degrees} \times \frac{2^{31}}{180}$
+
+### 4. Daya Mekanik Sepeda (Cycling Power Model)
+$$P_{\text{total}} = \frac{P_{\text{gravity}} + P_{\text{rolling}} + P_{\text{drag}}}{\eta_{\text{drivetrain}}}$$
+- **Hambatan Udara (Aerodynamic Drag)**: $P_{\text{drag}} = \frac{1}{2} C_d A \, \rho \, v^3$
+- **Hambatan Gelinding (Rolling Resistance)**: $P_{\text{rolling}} = C_{rr} \, m_{\text{total}} \, g \, v$
+- **Gaya Berat Tanjakan (Gravity)**: $P_{\text{gravity}} = m_{\text{total}} \, g \, v \, \sin(\theta) \approx m_{\text{total}} \, g \, v \left(\frac{G\%}{100}\right)$
+
+### 5. Normalized Power (NP Coggan 4th-Power Algorithm)
+$$\text{NP} = \left(\frac{1}{N}\sum_{i=1}^N \bar{P}_{30, i}^4\right)^{1/4}$$
+di mana $\bar{P}_{30, i}$ adalah rata-rata bergerak daya selama jendela 30 detik.
+
+### 6. Pengeluaran Kalori Metabolik (Metabolic Energy Cost)
+$$\text{Calories (kcal)} = \frac{\text{Total Work (Joules)}}{1000 \times 4.184 \times \eta_{\text{gross}}} \approx \frac{\text{Total Work (kJ)}}{1000 \times 0.95} \approx \text{Work (kJ)} \times 1.05$$
+*(Asumsi efisiensi metabolisme kotor tubuh manusia $\eta_{\text{gross}} \approx 24\%$)*
+
+### 7. Enkoding Koordinat Garmin FIT
+$$\text{semicircles} = \text{degrees} \times \frac{2^{31}}{180}$$
 
 ---
 
