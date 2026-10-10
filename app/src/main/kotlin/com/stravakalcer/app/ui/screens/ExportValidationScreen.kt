@@ -426,7 +426,7 @@ fun ExportValidationScreen(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Cara Upload 100% Gratis (Tanpa Langganan & Tanpa API):",
+                        text = "Cara Upload ke Strava:",
                         color = KalcerLime,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -434,7 +434,7 @@ fun ExportValidationScreen(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "1. Klik tombol 'SAVE FIT FILE' untuk menyimpan file ke HP.\n2. Klik tombol 'OPEN STRAVA WEB UPLOAD' di bawah.\n3. Pilih file .fit yang baru disimpan — selesai! Otomatis terdeteksi dengan nama device & metrik lengkap.",
+                    text = "1. Klik 'SAVE FIT FILE TO STORAGE' untuk menyimpan file ke HP.\n2. Klik 'UPLOAD TO STRAVA' untuk membuka halaman upload.\n3. Pilih file .fit yang tersimpan — aktivitas langsung tayang di Strava!",
                     color = TextSecondary,
                     fontSize = 11.sp,
                     lineHeight = 16.sp
@@ -488,7 +488,7 @@ fun ExportValidationScreen(
             Icon(imageVector = Icons.Default.OpenInNew, contentDescription = null, tint = Color.White)
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "OPEN STRAVA WEB UPLOAD (100% FREE)",
+                text = "UPLOAD TO STRAVA",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
