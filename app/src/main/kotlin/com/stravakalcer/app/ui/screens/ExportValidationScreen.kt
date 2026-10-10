@@ -245,9 +245,10 @@ fun ExportValidationScreen(
                     }
                 } else {
                     Text(
-                        text = "Connect once to upload activities directly without using a browser.",
+                        text = "Auto-upload via API (Note: Strava now requires a paid subscription to generate new API keys. If your account is free, use the 100% Free Web Upload below).",
                         color = TextSecondary,
-                        fontSize = 12.sp
+                        fontSize = 11.sp,
+                        lineHeight = 15.sp
                     )
                 }
 
@@ -407,6 +408,42 @@ fun ExportValidationScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Free Web Upload Helper Card
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(DarkSurfaceVariant, RoundedCornerShape(10.dp))
+                .border(1.dp, KalcerLime.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                .padding(12.dp)
+        ) {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = KalcerLime,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Cara Upload 100% Gratis (Tanpa Langganan & Tanpa API):",
+                        color = KalcerLime,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "1. Klik tombol 'SAVE FIT FILE' untuk menyimpan file ke HP.\n2. Klik tombol 'OPEN STRAVA WEB UPLOAD' di bawah.\n3. Pilih file .fit yang baru disimpan — selesai! Otomatis terdeteksi dengan nama device & metrik lengkap.",
+                    color = TextSecondary,
+                    fontSize = 11.sp,
+                    lineHeight = 16.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
         // Save & Share Buttons
         Button(
             onClick = onSaveFitClicked,
@@ -427,6 +464,34 @@ fun ExportValidationScreen(
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextPrimary
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Button(
+            onClick = {
+                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.strava.com/upload/select")).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                try {
+                    context.startActivity(webIntent)
+                } catch (_: Exception) {}
+            },
+            enabled = canExport,
+            colors = ButtonDefaults.buttonColors(containerColor = KalcerOrange),
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+        ) {
+            Icon(imageVector = Icons.Default.OpenInNew, contentDescription = null, tint = Color.White)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "OPEN STRAVA WEB UPLOAD (100% FREE)",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
             )
         }
 

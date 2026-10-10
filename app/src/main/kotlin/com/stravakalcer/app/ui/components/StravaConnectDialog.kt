@@ -170,9 +170,27 @@ fun StravaConnectDialog(
                     Spacer(modifier = Modifier.height(14.dp))
 
                     if (selectedTab == 0) {
+                        // Notice about Strava subscriber requirement
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(DarkBackground, RoundedCornerShape(8.dp))
+                                .border(1.dp, KalcerOrange.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                .padding(10.dp)
+                        ) {
+                            Text(
+                                text = "Perhatian: Strava kini membatasi pembuatan API key baru hanya untuk akun pelanggan berbayar. Jika akun Anda gratis, JANGAN berlangganan! Gunakan tombol 'OPEN STRAVA WEB UPLOAD' di layar ekspor untuk upload 100% gratis.",
+                                color = KalcerOrange,
+                                fontSize = 11.sp,
+                                lineHeight = 15.sp
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
                         // OAuth Flow Inputs
                         Text(
-                            text = "Enter your Strava API credentials from strava.com/settings/api:",
+                            text = "Jika Anda sudah memiliki API credentials dari strava.com/settings/api:",
                             color = TextSecondary,
                             fontSize = 11.sp
                         )
