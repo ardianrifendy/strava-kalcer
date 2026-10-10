@@ -60,10 +60,11 @@ object SimulationEngine {
         for (i in 0 until n) {
             val routePt = points[i]
             val segDist = routePt.segmentDistanceMeters
-            val speedMps = if (stopPoints[i]) 0.0 else solvedSpeedsMps[i]
+            val solvedSpeed = solvedSpeedsMps[i]
+            val isStop = stopPoints[i]
 
-            // Floating point time step to preserve fractional seconds without truncation drift
-            val moveStepSec = if (i == 0 || speedMps < 0.2) 0.0 else segDist / speedMps
+            // Time taken to traverse the segment into point i:
+            val moveStepSec = if (i == 0 || solvedSpeed < 0.2) 0.0 else segDist / solvedSpeed
             val stopStepSec = stopDurationsSec[i].toDouble()
 
             val stepDurationSec = moveStepSec + stopStepSec
@@ -73,9 +74,11 @@ object SimulationEngine {
             cumulativeTotalTimeSec += stepDurationSec
             currentEpochMillis += (stepDurationSec * 1000.0).roundToLong()
 
+            val speedMps = if (isStop) 0.0 else solvedSpeed
+
             // Reason code explainability
             val reason = when {
-                stopPoints[i] -> "STOP"
+                isStop -> "STOP"
                 isCycling && routePt.smoothedGradient <= params.coastingThresholdGradient -> "COASTING"
                 routePt.smoothedGradient > 2.0 -> "UPHILL_SLOWDOWN"
                 routePt.smoothedGradient < -2.0 -> "DOWNHILL_ACCELERATION"
@@ -99,7 +102,8 @@ object SimulationEngine {
                     timestampEpochMillis = currentEpochMillis,
                     movingTimeSeconds = cumulativeMovingTimeSec.roundToLong(),
                     totalTimeSeconds = cumulativeTotalTimeSec.roundToLong(),
-                    isStopped = stopPoints[i],
+                    isStopped = isStop,
+                    stopDurationSeconds = stopDurationsSec[i],
                     stopReason = stopReasons[i],
                     baselineSpeedKmh = GeoMath.mpsToKmh(solvedSpeedsMps[i]),
                     explainReason = reason

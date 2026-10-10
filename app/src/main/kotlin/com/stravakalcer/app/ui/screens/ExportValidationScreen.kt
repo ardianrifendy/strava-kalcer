@@ -11,7 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,7 +34,11 @@ fun ExportValidationScreen(
     validationReport: FitValidationReport?,
     stravaAuthState: StravaAuthState,
     stravaUploadProgress: StravaUploadProgress,
-    onUploadToStravaClicked: () -> Unit,
+    activityTitle: String = "Morning Ride",
+    activityDescription: String = "Reconstructed with Strava Kalcer",
+    onTitleChanged: (String) -> Unit = {},
+    onDescriptionChanged: (String) -> Unit = {},
+    onUploadToStravaClicked: (title: String, description: String) -> Unit,
     onOpenStravaSettingsClicked: () -> Unit,
     onSaveFitClicked: () -> Unit,
     onShareFitClicked: () -> Unit,
@@ -44,6 +48,9 @@ fun ExportValidationScreen(
     val scrollState = rememberScrollState()
     val canExport = validationReport?.isValid == true && fitBytes != null
     val context = LocalContext.current
+
+    var titleText by remember(activityTitle) { mutableStateOf(activityTitle) }
+    var descText by remember(activityDescription) { mutableStateOf(activityDescription) }
 
     Column(
         modifier = modifier
@@ -307,11 +314,50 @@ fun ExportValidationScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
-
                 if (stravaAuthState.isConnected) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = titleText,
+                        onValueChange = {
+                            titleText = it
+                            onTitleChanged(it)
+                        },
+                        label = { Text("Activity Title (Strava)", color = TextSecondary, fontSize = 11.sp) },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = KalcerOrange,
+                            unfocusedBorderColor = DarkBorder,
+                            cursorColor = KalcerOrange
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = descText,
+                        onValueChange = {
+                            descText = it
+                            onDescriptionChanged(it)
+                        },
+                        label = { Text("Activity Notes / Description", color = TextSecondary, fontSize = 11.sp) },
+                        maxLines = 2,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = KalcerOrange,
+                            unfocusedBorderColor = DarkBorder,
+                            cursorColor = KalcerOrange
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
                     Button(
-                        onClick = onUploadToStravaClicked,
+                        onClick = { onUploadToStravaClicked(titleText, descText) },
                         enabled = canExport && !stravaUploadProgress.isUploading,
                         colors = ButtonDefaults.buttonColors(containerColor = KalcerOrange),
                         shape = RoundedCornerShape(10.dp),

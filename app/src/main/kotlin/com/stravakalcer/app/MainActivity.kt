@@ -159,6 +159,10 @@ class MainActivity : ComponentActivity() {
                             ActivitySettingsScreen(
                                 currentSettings = uiState.settings,
                                 intelligence = uiState.intelligence,
+                                activityTitle = uiState.activityTitle,
+                                activityDescription = uiState.activityDescription,
+                                onTitleChanged = { viewModel.setActivityTitle(it) },
+                                onDescriptionChanged = { viewModel.setActivityDescription(it) },
                                 onSettingsChanged = { viewModel.updateSettings(it) },
                                 onStartSimulationClicked = {
                                     viewModel.runSimulation()
@@ -209,8 +213,12 @@ class MainActivity : ComponentActivity() {
                                     validationReport = uiState.fitValidationReport,
                                     stravaAuthState = stravaAuth,
                                     stravaUploadProgress = uiState.stravaUploadProgress,
-                                    onUploadToStravaClicked = {
-                                        viewModel.uploadCurrentFitToStrava()
+                                    activityTitle = uiState.activityTitle,
+                                    activityDescription = uiState.activityDescription,
+                                    onTitleChanged = { viewModel.setActivityTitle(it) },
+                                    onDescriptionChanged = { viewModel.setActivityDescription(it) },
+                                    onUploadToStravaClicked = { title, desc ->
+                                        viewModel.uploadCurrentFitToStrava(title, desc)
                                     },
                                     onOpenStravaSettingsClicked = {
                                         viewModel.setStravaConnectDialogVisible(true)

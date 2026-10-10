@@ -216,4 +216,51 @@ class SimulationEngineTest {
         assertNotNull(result.averageCadence)
         assertTrue("Running cadence should match custom SPM target", result.averageCadence!! in 170..186)
     }
+
+    @Test
+    fun testSmartStopPresetsAndPhysicsSeparation() {
+        val track = getTestTrack()
+        val stops = SimulationSettings.generateStopsForPreset(SmartStopPreset.CITY_TRAFFIC, track.totalDistanceMeters)
+        assertTrue("City traffic preset should generate intermediate stops", stops.isNotEmpty())
+
+        val totalExpectedStopDuration = stops.sumOf { it.durationSeconds }
+
+        val settings = SimulationSettings(
+            sport = SportType.CYCLING,
+            profile = ActivityProfile.ENDURANCE,
+            targetAverageSpeedKmh = 27.0,
+            smartStopPreset = SmartStopPreset.CITY_TRAFFIC,
+            stops = stops
+        )
+
+        val result = SimulationEngine.simulate(track, settings)
+        val timeDiff = result.totalTimeSeconds - result.movingTimeSeconds
+        assertEquals("Total time must exceed moving time by total stopped duration", totalExpectedStopDuration, timeDiff)
+
+        val stopPoints = result.points.filter { it.isStopped }
+        assertTrue("Should have stop points in simulation result", stopPoints.isNotEmpty())
+
+        for (pt in stopPoints) {
+            assertEquals("Stop speed must be 0", 0.0, pt.speedKmh, 0.001)
+            assertEquals("Stop cadence must be 0", 0, pt.cadence ?: 0)
+            assertTrue("Stop duration must be recorded", pt.stopDurationSeconds > 0)
+            assertEquals("Explain reason must be STOP", "STOP", pt.explainReason)
+        }
+    }
+
+    @Test
+    fun testCustomStartEpochPropagation() {
+        val track = getTestTrack()
+        val customStartEpoch = 1770000000000L // Custom historical timestamp
+
+        val settings = SimulationSettings(
+            sport = SportType.CYCLING,
+            profile = ActivityProfile.EASY_RIDE,
+            startEpochMillis = customStartEpoch
+        )
+
+        val result = SimulationEngine.simulate(track, settings)
+        assertEquals("First point timestamp must match startEpochMillis", customStartEpoch, result.points.first().timestampEpochMillis)
+        assertTrue("Subsequent points must advance from custom start epoch", result.points.last().timestampEpochMillis > customStartEpoch)
+    }
 }

@@ -29,7 +29,12 @@ object CadenceEngine {
             return result
         }
 
-        var currentCadence = cadenceConfig.baseCadenceRpm.toDouble()
+        val baseForSport = if (sport == SportType.RUNNING && cadenceConfig.baseCadenceRpm < 120) {
+            165.0
+        } else {
+            cadenceConfig.baseCadenceRpm.toDouble()
+        }
+        var currentCadence = baseForSport
 
         for (i in 0 until n) {
             val dt = timeDeltasSec[i].coerceIn(0.5, 30.0)
@@ -58,7 +63,7 @@ object CadenceEngine {
             } else {
                 // Running cadence SPM physics:
                 val paceSecPerKm = 1000.0 / speed
-                val base = cadenceConfig.baseCadenceRpm.toDouble().coerceIn(130.0, 215.0)
+                val base = baseForSport.coerceIn(130.0, 215.0)
                 // Faster pace slightly increases SPM, slower pace slightly reduces SPM
                 val paceOffset = (paceSecPerKm - 330.0) * 0.10
                 val spm = base - paceOffset

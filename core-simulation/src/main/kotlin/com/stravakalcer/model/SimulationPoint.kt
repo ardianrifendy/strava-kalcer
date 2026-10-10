@@ -22,6 +22,7 @@ data class SimulationPoint(
     val movingTimeSeconds: Long,
     val totalTimeSeconds: Long,
     val isStopped: Boolean = false,
+    val stopDurationSeconds: Long = 0L,
     val stopReason: String? = null,
     val baselineSpeedKmh: Double = 0.0,
     val profileAdjustmentKmh: Double = 0.0,

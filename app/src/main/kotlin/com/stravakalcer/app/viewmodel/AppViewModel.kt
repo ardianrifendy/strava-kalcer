@@ -45,7 +45,9 @@ data class AppUiState(
     val cursorRoutePoint: RoutePoint? = null,
     val cursorSimPoint: SimulationPoint? = null,
     val stravaUploadProgress: StravaUploadProgress = StravaUploadProgress(),
-    val showStravaConnectDialog: Boolean = false
+    val showStravaConnectDialog: Boolean = false,
+    val activityTitle: String = "Morning Ride",
+    val activityDescription: String = "Reconstructed with Strava Kalcer"
 )
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
@@ -60,12 +62,32 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(errorMessage = null) }
     }
 
+    fun setActivityTitle(title: String) {
+        _uiState.update { it.copy(activityTitle = title) }
+    }
+
+    fun setActivityDescription(desc: String) {
+        _uiState.update { it.copy(activityDescription = desc) }
+    }
+
     fun setStravaConnectDialogVisible(visible: Boolean) {
         _uiState.update { it.copy(showStravaConnectDialog = visible) }
     }
 
     fun clearStravaUploadResult() {
         _uiState.update { it.copy(stravaUploadProgress = StravaUploadProgress()) }
+    }
+
+    private fun getTimeOfDayTitle(epochMillis: Long): String {
+        val cal = java.util.Calendar.getInstance().apply { timeInMillis = epochMillis }
+        val hour = cal.get(java.util.Calendar.HOUR_OF_DAY)
+        return when (hour) {
+            in 4..11 -> "Morning"
+            in 12..14 -> "Lunch"
+            in 15..17 -> "Afternoon"
+            in 18..21 -> "Evening"
+            else -> "Night"
+        }
     }
 
     /**
@@ -92,17 +114,37 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     return@launch
                 }
 
+                val sport = _uiState.value.settings.sport
+                val sportName = if (sport == SportType.CYCLING) "Ride" else "Run"
+                val defaultTitle = if (track.name.isNotBlank() && track.name != "Imported Route") {
+                    track.name
+                } else {
+                    val timeOfDay = getTimeOfDayTitle(_uiState.value.settings.startEpochMillis)
+                    "$timeOfDay $sportName"
+                }
+                val defaultDesc = "Reconstructed with Strava Kalcer • ${_uiState.value.selectedDeviceProfile.formattedDeviceName}"
+
+                // If user already had a preset selected, generate stops for the new track
+                val presetStops = if (_uiState.value.settings.smartStopPreset != SmartStopPreset.NONE) {
+                    SimulationSettings.generateStopsForPreset(_uiState.value.settings.smartStopPreset, track.totalDistanceMeters)
+                } else {
+                    _uiState.value.settings.stops
+                }
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         currentTrack = track,
                         intelligence = intelligence,
+                        settings = it.settings.copy(stops = presetStops),
                         cursorDistanceMeters = 0.0,
                         cursorRoutePoint = track.points.firstOrNull(),
                         simulationResult = null,
                         fitBytes = null,
                         fitValidationReport = null,
-                        stravaUploadProgress = StravaUploadProgress()
+                        stravaUploadProgress = StravaUploadProgress(),
+                        activityTitle = defaultTitle,
+                        activityDescription = defaultDesc
                     )
                 }
                 onSuccess()
@@ -147,7 +189,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateSettings(newSettings: SimulationSettings) {
-        _uiState.update { it.copy(settings = newSettings) }
+        val track = _uiState.value.currentTrack
+        val adjustedSettings = if (newSettings.smartStopPreset != _uiState.value.settings.smartStopPreset && track != null) {
+            val generatedStops = SimulationSettings.generateStopsForPreset(newSettings.smartStopPreset, track.totalDistanceMeters)
+            newSettings.copy(stops = generatedStops)
+        } else {
+            newSettings
+        }
+        _uiState.update { it.copy(settings = adjustedSettings) }
     }
 
     fun selectDeviceProfile(profile: DeviceProfile) {
@@ -209,7 +258,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
                 // Full auto: automatically trigger Strava cloud upload if enabled and connected!
                 if (report.isValid && stravaAuthState.value.isConnected && stravaAuthState.value.autoUploadEnabled) {
-                    uploadCurrentFitToStrava()
+                    uploadCurrentFitToStrava(_uiState.value.activityTitle, _uiState.value.activityDescription)
                 }
             } catch (e: Exception) {
                 _uiState.update {
@@ -288,7 +337,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         stravaAuthManager.setAutoUploadEnabled(enabled)
     }
 
-    fun uploadCurrentFitToStrava(customTitle: String? = null) {
+    fun uploadCurrentFitToStrava(customTitle: String? = null, customDescription: String? = null) {
         val bytes = _uiState.value.fitBytes ?: return
         val result = _uiState.value.simulationResult ?: return
         val profile = _uiState.value.selectedDeviceProfile
@@ -328,8 +377,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             val defaultTitle = "${result.settings.sport.name.lowercase().replaceFirstChar { it.uppercase() }} - Strava Kalcer"
-            val title = customTitle?.ifBlank { defaultTitle } ?: defaultTitle
-            val desc = "Reconstructed with Strava Kalcer • ${profile.manufacturer} ${profile.modelName}"
+            val title = customTitle?.ifBlank { null }
+                ?: _uiState.value.activityTitle.ifBlank { null }
+                ?: defaultTitle
+            val defaultDesc = "Reconstructed with Strava Kalcer • ${profile.manufacturer} ${profile.modelName}"
+            val desc = customDescription?.ifBlank { null }
+                ?: _uiState.value.activityDescription.ifBlank { null }
+                ?: defaultDesc
 
             val uploadRes = StravaApiClient.uploadFitActivity(
                 accessToken = token,

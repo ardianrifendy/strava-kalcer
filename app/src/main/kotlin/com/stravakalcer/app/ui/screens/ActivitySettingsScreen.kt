@@ -1,5 +1,7 @@
 package com.stravakalcer.app.ui.screens
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,12 +10,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Traffic
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,16 +26,32 @@ import com.stravakalcer.app.theme.*
 import com.stravakalcer.gpx.GeoMath
 import com.stravakalcer.intelligence.RouteIntelligenceSummary
 import com.stravakalcer.model.*
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun ActivitySettingsScreen(
     currentSettings: SimulationSettings,
     intelligence: RouteIntelligenceSummary?,
+    activityTitle: String = "Morning Ride",
+    activityDescription: String = "Reconstructed with Strava Kalcer",
+    onTitleChanged: (String) -> Unit = {},
+    onDescriptionChanged: (String) -> Unit = {},
     onSettingsChanged: (SimulationSettings) -> Unit,
     onStartSimulationClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
+
+    var startEpochMillis by remember(currentSettings.startEpochMillis) {
+        mutableLongStateOf(currentSettings.startEpochMillis)
+    }
+    var selectedStopPreset by remember(currentSettings.smartStopPreset) {
+        mutableStateOf(currentSettings.smartStopPreset)
+    }
 
     var selectedSport by remember(currentSettings.sport) { mutableStateOf(currentSettings.sport) }
     var selectedProfile by remember(currentSettings.profile) { mutableStateOf(currentSettings.profile) }
@@ -57,6 +78,8 @@ fun ActivitySettingsScreen(
     var coastingCadence by remember(currentSettings.cadenceConfig.coastingCadenceRpm) { mutableStateOf(currentSettings.cadenceConfig.coastingCadenceRpm) }
     var climbDropIntensity by remember(currentSettings.cadenceConfig.climbDropIntensity) { mutableStateOf(currentSettings.cadenceConfig.climbDropIntensity) }
 
+    val dateFormatter = remember { SimpleDateFormat("EEEE, dd MMM yyyy • HH:mm", Locale.getDefault()) }
+
     fun emitUpdate() {
         val updated = currentSettings.copy(
             sport = selectedSport,
@@ -64,6 +87,8 @@ fun ActivitySettingsScreen(
             targetAverageSpeedKmh = if (selectedSport == SportType.CYCLING) targetSpeedKmh else null,
             targetAveragePaceSecondsPerKm = if (selectedSport == SportType.RUNNING) targetPaceSec else null,
             requestedMaxSpeedKmh = if (enableMaxSpeed && selectedSport == SportType.CYCLING) requestedMaxSpeedKmh else null,
+            smartStopPreset = selectedStopPreset,
+            startEpochMillis = startEpochMillis,
             hrConfig = currentSettings.hrConfig.copy(
                 enabled = hrEnabled,
                 restingHr = restingHr,
@@ -78,6 +103,44 @@ fun ActivitySettingsScreen(
             )
         )
         onSettingsChanged(updated)
+    }
+
+    fun openDatePicker() {
+        val cal = Calendar.getInstance().apply { timeInMillis = startEpochMillis }
+        val y = cal.get(Calendar.YEAR)
+        val m = cal.get(Calendar.MONTH)
+        val d = cal.get(Calendar.DAY_OF_MONTH)
+
+        DatePickerDialog(context, { _, year, month, dayOfMonth ->
+            val h = cal.get(Calendar.HOUR_OF_DAY)
+            val min = cal.get(Calendar.MINUTE)
+
+            TimePickerDialog(context, { _, hourOfDay, minute ->
+                val newCal = Calendar.getInstance().apply {
+                    set(Calendar.YEAR, year)
+                    set(Calendar.MONTH, month)
+                    set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                    set(Calendar.HOUR_OF_DAY, hourOfDay)
+                    set(Calendar.MINUTE, minute)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                startEpochMillis = newCal.timeInMillis
+                emitUpdate()
+            }, h, min, true).show()
+        }, y, m, d).show()
+    }
+
+    fun setQuickTime(dayOffset: Int, hour: Int, minute: Int) {
+        val cal = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, dayOffset)
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        startEpochMillis = cal.timeInMillis
+        emitUpdate()
     }
 
     Column(
@@ -222,6 +285,178 @@ fun ActivitySettingsScreen(
                             )
                         }
                     }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Activity Details & Strava Sync
+        Text(
+            text = "ACTIVITY DETAILS & STRAVA",
+            color = TextSecondary,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.8.sp
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(DarkSurface, RoundedCornerShape(12.dp))
+                .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
+                .padding(16.dp)
+        ) {
+            Column {
+                OutlinedTextField(
+                    value = activityTitle,
+                    onValueChange = onTitleChanged,
+                    label = { Text("Activity Title (Strava)", color = TextSecondary, fontSize = 12.sp) },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedBorderColor = KalcerOrange,
+                        unfocusedBorderColor = DarkBorder,
+                        cursorColor = KalcerOrange
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                OutlinedTextField(
+                    value = activityDescription,
+                    onValueChange = onDescriptionChanged,
+                    label = { Text("Activity Description / Notes", color = TextSecondary, fontSize = 12.sp) },
+                    maxLines = 2,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedBorderColor = KalcerOrange,
+                        unfocusedBorderColor = DarkBorder,
+                        cursorColor = KalcerOrange
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Activity Start Date & Time
+        Text(
+            text = "ACTIVITY START DATE & TIME",
+            color = TextSecondary,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.8.sp
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(DarkSurface, RoundedCornerShape(12.dp))
+                .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
+                .padding(16.dp)
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = dateFormatter.format(Date(startEpochMillis)),
+                            color = KalcerCyan,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Determines activity date & morning/afternoon categorization on Strava",
+                            color = TextSecondary,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            startEpochMillis = System.currentTimeMillis()
+                            emitUpdate()
+                        },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, DarkBorder),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(36.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text("Now", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    }
+
+                    OutlinedButton(
+                        onClick = { setQuickTime(0, 6, 0) },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, DarkBorder),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(36.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text("Today 06:00", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    }
+
+                    OutlinedButton(
+                        onClick = { setQuickTime(-1, 6, 0) },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, DarkBorder),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(36.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text("Yest 06:00", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { openDatePicker() },
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkSurfaceVariant),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, KalcerCyan.copy(alpha = 0.6f)),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(38.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CalendarToday,
+                        contentDescription = null,
+                        tint = KalcerCyan,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Pick Custom Date & Time",
+                        color = KalcerCyan,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -375,6 +610,100 @@ fun ActivitySettingsScreen(
                         )
                     }
                 }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Traffic Stops & Smart Pause
+        Text(
+            text = "TRAFFIC STOPS & SMART PAUSE",
+            color = TextSecondary,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.8.sp
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(DarkSurface, RoundedCornerShape(12.dp))
+                .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
+                .padding(16.dp)
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Red Light / Stop Simulation",
+                            color = TextPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Simulates 0 km/h speed, 0 RPM cadence & heart rate recovery drop",
+                            color = TextSecondary,
+                            fontSize = 11.sp
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.Traffic,
+                        contentDescription = null,
+                        tint = KalcerOrange,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SmartStopPreset.values().forEach { preset ->
+                        val isSelected = selectedStopPreset == preset
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .background(
+                                    if (isSelected) KalcerOrange.copy(alpha = 0.15f) else DarkSurfaceVariant,
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .border(
+                                    1.dp,
+                                    if (isSelected) KalcerOrange else DarkBorder,
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .clickable {
+                                    selectedStopPreset = preset
+                                    emitUpdate()
+                                }
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = preset.title,
+                                color = if (isSelected) KalcerOrange else TextSecondary,
+                                fontSize = 11.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = selectedStopPreset.subtitle,
+                    color = TextSecondary,
+                    fontSize = 11.sp,
+                    lineHeight = 15.sp
+                )
             }
         }
 

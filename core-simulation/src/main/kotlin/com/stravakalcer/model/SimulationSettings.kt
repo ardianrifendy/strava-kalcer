@@ -29,6 +29,12 @@ data class StopConfig(
     val reason: String = "Rest / Traffic Stop"
 )
 
+enum class SmartStopPreset(val title: String, val subtitle: String) {
+    NONE("None (Non-stop)", "Continuous movement, 0 traffic stops"),
+    LIGHT("Light (1-2 Stops)", "1-2 brief pauses (30-45s) at intersections"),
+    CITY_TRAFFIC("City Traffic (3-5 Stops)", "3-5 red lights / stops (45-60s)")
+}
+
 data class SimulationSettings(
     val sport: SportType = SportType.CYCLING,
     val profile: ActivityProfile = ActivityProfile.ENDURANCE,
@@ -37,6 +43,7 @@ data class SimulationSettings(
     val targetAveragePaceSecondsPerKm: Double? = 330.0, // Running target (5:30 min/km)
     val requestedMaxSpeedKmh: Double? = null,        // Cycling preferred max
     val requestedBestPaceSecondsPerKm: Double? = null, // Running preferred best pace
+    val smartStopPreset: SmartStopPreset = SmartStopPreset.NONE,
     val stops: List<StopConfig> = emptyList(),
     val hrConfig: HeartRateConfig = HeartRateConfig(),
     val cadenceConfig: CadenceConfig = CadenceConfig(),
@@ -46,4 +53,27 @@ data class SimulationSettings(
 ) {
     val activeProfileParams: ProfileParameters
         get() = customParams ?: ProfileParameters.defaultsFor(profile)
+
+    companion object {
+        fun generateStopsForPreset(preset: SmartStopPreset, totalDistanceMeters: Double): List<StopConfig> {
+            if (preset == SmartStopPreset.NONE || totalDistanceMeters < 1000.0) return emptyList()
+            val count = when (preset) {
+                SmartStopPreset.NONE -> 0
+                SmartStopPreset.LIGHT -> if (totalDistanceMeters >= 12000.0) 2 else 1
+                SmartStopPreset.CITY_TRAFFIC -> if (totalDistanceMeters >= 15000.0) 5 else 3
+            }
+            val list = ArrayList<StopConfig>(count)
+            val step = totalDistanceMeters / (count + 1)
+            for (i in 1..count) {
+                val dist = step * i
+                val duration = when (preset) {
+                    SmartStopPreset.LIGHT -> 35L + (i % 2) * 10L
+                    SmartStopPreset.CITY_TRAFFIC -> 45L + (i % 3) * 10L
+                    SmartStopPreset.NONE -> 0L
+                }
+                list.add(StopConfig(distanceMeters = dist, durationSeconds = duration, reason = "Traffic Stop #$i"))
+            }
+            return list
+        }
+    }
 }
