@@ -123,6 +123,8 @@ flowchart TD
   Target kadensi bebas diatur sesuai preferensi (slider & preset chip RPM untuk sepeda: 60-115 RPM, SPM untuk lari: 145-195 SPM), lengkap dengan tombol kontrol *freewheeling coasting* saat turunan terjal (0 RPM vs 20 RPM) serta adaptasi penurunan torsi saat tanjakan.
 - **Satu Kursor Waktu Terpadu**:
   Semua grafik (Elevation, Speed, HR, Cadence) dan titik pada peta diikat oleh satu timeline global. Menggeser kursor pada satu grafik menggerakkan seluruh visualisasi secara harmonis.
+- **Full Auto Strava Cloud Upload (Langsung ke Feed Strava)**:
+  Mendukung integrasi resmi Strava API (OAuth 2.0 & Personal Access Token). Cukup aktifkan *Full Auto*, dan setiap kali berkas FIT selesai dibuat, aplikasi otomatis mengunggah aktivitas ke server Strava di latar belakang tanpa perlu membuka browser.
 - **Garmin FIT SDK Resmi & Self-Validation**:
   Menggunakan `com.garmin:fit` versi 21.141.0. Menghasilkan koordinat dalam bentuk *semicircles*, timestamp UTC berurutan, akumulasi jarak akurat, serta validasi CRC internal sebelum ekspor.
 - **Antarmuka Elegan & Bersih**:

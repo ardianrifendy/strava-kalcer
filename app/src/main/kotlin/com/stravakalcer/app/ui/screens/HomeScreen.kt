@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.PlayArrow
@@ -23,6 +24,8 @@ import com.stravakalcer.app.theme.*
 
 @Composable
 fun HomeScreen(
+    stravaConnected: Boolean,
+    onOpenStravaSettingsClicked: () -> Unit,
     onImportGpxClicked: () -> Unit,
     onLoadSampleClicked: () -> Unit,
     onOpenDebugClicked: () -> Unit,
@@ -58,17 +61,32 @@ fun HomeScreen(
                     fontWeight = FontWeight.Medium
                 )
             }
-            IconButton(
-                onClick = onOpenDebugClicked,
-                modifier = Modifier
-                    .background(DarkSurfaceVariant, RoundedCornerShape(8.dp))
-                    .border(1.dp, DarkBorder, RoundedCornerShape(8.dp))
-            ) {
-                Icon(
-                    imageVector = Icons.Default.BugReport,
-                    contentDescription = "Debug Tools",
-                    tint = TextSecondary
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(
+                    onClick = onOpenStravaSettingsClicked,
+                    modifier = Modifier
+                        .background(DarkSurfaceVariant, RoundedCornerShape(8.dp))
+                        .border(1.dp, if (stravaConnected) KalcerLime.copy(alpha = 0.5f) else DarkBorder, RoundedCornerShape(8.dp))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CloudUpload,
+                        contentDescription = "Strava Integration",
+                        tint = if (stravaConnected) KalcerLime else KalcerOrange
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(
+                    onClick = onOpenDebugClicked,
+                    modifier = Modifier
+                        .background(DarkSurfaceVariant, RoundedCornerShape(8.dp))
+                        .border(1.dp, DarkBorder, RoundedCornerShape(8.dp))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.BugReport,
+                        contentDescription = "Debug Tools",
+                        tint = TextSecondary
+                    )
+                }
             }
         }
 

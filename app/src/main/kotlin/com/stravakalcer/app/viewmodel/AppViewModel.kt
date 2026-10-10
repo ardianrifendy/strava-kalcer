@@ -1,7 +1,9 @@
 package com.stravakalcer.app.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.stravakalcer.app.strava.*
 import com.stravakalcer.device.DeviceProfile
 import com.stravakalcer.device.DeviceProfileRegistry
 import com.stravakalcer.fit.FitGenerator
@@ -22,6 +24,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 
+data class StravaUploadProgress(
+    val isUploading: Boolean = false,
+    val message: String = "",
+    val lastResult: StravaUploadResult? = null
+)
+
 data class AppUiState(
     val isLoading: Boolean = false,
     val loadingMessage: String = "",
@@ -35,16 +43,29 @@ data class AppUiState(
     val fitValidationReport: FitValidationReport? = null,
     val cursorDistanceMeters: Double = 0.0,
     val cursorRoutePoint: RoutePoint? = null,
-    val cursorSimPoint: SimulationPoint? = null
+    val cursorSimPoint: SimulationPoint? = null,
+    val stravaUploadProgress: StravaUploadProgress = StravaUploadProgress(),
+    val showStravaConnectDialog: Boolean = false
 )
 
-class AppViewModel : ViewModel() {
+class AppViewModel(application: Application) : AndroidViewModel(application) {
+
+    val stravaAuthManager = StravaAuthManager(application)
+    val stravaAuthState: StateFlow<StravaAuthState> = stravaAuthManager.authState
 
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
 
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    fun setStravaConnectDialogVisible(visible: Boolean) {
+        _uiState.update { it.copy(showStravaConnectDialog = visible) }
+    }
+
+    fun clearStravaUploadResult() {
+        _uiState.update { it.copy(stravaUploadProgress = StravaUploadProgress()) }
     }
 
     /**
@@ -80,7 +101,8 @@ class AppViewModel : ViewModel() {
                         cursorRoutePoint = track.points.firstOrNull(),
                         simulationResult = null,
                         fitBytes = null,
-                        fitValidationReport = null
+                        fitValidationReport = null,
+                        stravaUploadProgress = StravaUploadProgress()
                     )
                 }
                 onSuccess()
@@ -95,10 +117,6 @@ class AppViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Parses and processes an imported GPX stream.
-     * Reads all bytes immediately before background dispatch to prevent "stream closed" race conditions.
-     */
     fun importGpx(inputStream: InputStream, onSuccess: () -> Unit = {}) {
         try {
             val bytes = inputStream.readBytes()
@@ -113,9 +131,6 @@ class AppViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Updates the canonical cursor across all graphs and map.
-     */
     fun setCursorDistance(distMeters: Double) {
         val state = _uiState.value
         val clampedDist = distMeters.coerceIn(0.0, state.currentTrack?.totalDistanceMeters ?: 0.0)
@@ -139,9 +154,6 @@ class AppViewModel : ViewModel() {
         _uiState.update { it.copy(selectedDeviceProfile = profile) }
     }
 
-    /**
-     * Runs complete simulation pipeline off the main thread.
-     */
     fun runSimulation() {
         val track = _uiState.value.currentTrack ?: return
         val settings = _uiState.value.settings
@@ -159,7 +171,8 @@ class AppViewModel : ViewModel() {
                         simulationResult = result,
                         cursorSimPoint = result.findPointAtDistance(it.cursorDistanceMeters),
                         fitBytes = null,
-                        fitValidationReport = null
+                        fitValidationReport = null,
+                        stravaUploadProgress = StravaUploadProgress()
                     )
                 }
             } catch (e: Exception) {
@@ -173,9 +186,6 @@ class AppViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Generates FIT binary file and executes parse-back validation.
-     */
     fun generateAndValidateFit() {
         val result = _uiState.value.simulationResult ?: return
         val profile = _uiState.value.selectedDeviceProfile
@@ -196,6 +206,11 @@ class AppViewModel : ViewModel() {
                         fitValidationReport = report
                     )
                 }
+
+                // Full auto: automatically trigger Strava cloud upload if enabled and connected!
+                if (report.isValid && stravaAuthState.value.isConnected && stravaAuthState.value.autoUploadEnabled) {
+                    uploadCurrentFitToStrava()
+                }
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
@@ -203,6 +218,164 @@ class AppViewModel : ViewModel() {
                         errorMessage = "FIT generation error: ${e.message}"
                     )
                 }
+            }
+        }
+    }
+
+    // ==================== STRAVA CLOUD API INTEGRATION ====================
+
+    fun handleStravaOAuthCallback(code: String) {
+        val auth = stravaAuthState.value
+        if (auth.clientId.isBlank() || auth.clientSecret.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Strava Client ID or Secret missing. Please enter them in settings.") }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, loadingMessage = "Authorizing with Strava...") }
+            val res = StravaApiClient.exchangeCodeForToken(auth.clientId, auth.clientSecret, code)
+            _uiState.update { it.copy(isLoading = false) }
+
+            if (res.isSuccess) {
+                val tokenResp = res.getOrThrow()
+                stravaAuthManager.saveTokens(
+                    accessToken = tokenResp.accessToken,
+                    refreshToken = tokenResp.refreshToken,
+                    expiresAt = tokenResp.expiresAt,
+                    athleteName = tokenResp.athleteName,
+                    athleteUsername = tokenResp.athleteUsername
+                )
+                _uiState.update { it.copy(showStravaConnectDialog = false) }
+            } else {
+                _uiState.update { it.copy(errorMessage = "OAuth failed: ${res.exceptionOrNull()?.message}") }
+            }
+        }
+    }
+
+    fun connectWithManualToken(token: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, loadingMessage = "Verifying Strava Token...") }
+            val athleteRes = StravaApiClient.fetchAthleteProfile(token)
+            _uiState.update { it.copy(isLoading = false) }
+
+            if (athleteRes.isSuccess) {
+                val (name, username) = athleteRes.getOrThrow()
+                stravaAuthManager.saveTokens(
+                    accessToken = token,
+                    refreshToken = "",
+                    expiresAt = 0L,
+                    athleteName = name,
+                    athleteUsername = username
+                )
+                _uiState.update { it.copy(showStravaConnectDialog = false) }
+            } else {
+                _uiState.update { it.copy(errorMessage = "Invalid Token: ${athleteRes.exceptionOrNull()?.message}") }
+            }
+        }
+    }
+
+    fun disconnectStrava() {
+        stravaAuthManager.disconnect()
+        _uiState.update {
+            it.copy(
+                showStravaConnectDialog = false,
+                stravaUploadProgress = StravaUploadProgress()
+            )
+        }
+    }
+
+    fun toggleAutoUpload(enabled: Boolean) {
+        stravaAuthManager.setAutoUploadEnabled(enabled)
+    }
+
+    fun uploadCurrentFitToStrava(customTitle: String? = null) {
+        val bytes = _uiState.value.fitBytes ?: return
+        val result = _uiState.value.simulationResult ?: return
+        val profile = _uiState.value.selectedDeviceProfile
+        val auth = stravaAuthState.value
+
+        if (!auth.isConnected) {
+            _uiState.update { it.copy(showStravaConnectDialog = true) }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    stravaUploadProgress = StravaUploadProgress(
+                        isUploading = true,
+                        message = "Uploading FIT activity to Strava cloud..."
+                    )
+                )
+            }
+
+            var token = auth.accessToken
+
+            // Refresh token if expired
+            if (stravaAuthManager.isTokenExpired() && auth.refreshToken.isNotBlank() && auth.clientId.isNotBlank()) {
+                val refreshRes = StravaApiClient.refreshAccessToken(auth.clientId, auth.clientSecret, auth.refreshToken)
+                if (refreshRes.isSuccess) {
+                    val newTok = refreshRes.getOrThrow()
+                    stravaAuthManager.saveTokens(
+                        accessToken = newTok.accessToken,
+                        refreshToken = newTok.refreshToken,
+                        expiresAt = newTok.expiresAt,
+                        athleteName = auth.athleteName,
+                        athleteUsername = auth.athleteUsername
+                    )
+                    token = newTok.accessToken
+                }
+            }
+
+            val defaultTitle = "${result.settings.sport.name.lowercase().replaceFirstChar { it.uppercase() }} - Strava Kalcer"
+            val title = customTitle?.ifBlank { defaultTitle } ?: defaultTitle
+            val desc = "Reconstructed with Strava Kalcer • ${profile.manufacturer} ${profile.modelName}"
+
+            val uploadRes = StravaApiClient.uploadFitActivity(
+                accessToken = token,
+                fitBytes = bytes,
+                activityName = title,
+                description = desc,
+                sportType = result.settings.sport
+            )
+
+            if (uploadRes.isFailure) {
+                val err = uploadRes.exceptionOrNull()?.message ?: "Upload failed"
+                _uiState.update {
+                    it.copy(
+                        stravaUploadProgress = StravaUploadProgress(
+                            isUploading = false,
+                            message = "Upload failed: $err",
+                            lastResult = StravaUploadResult(0L, "Failed", error = err)
+                        )
+                    )
+                }
+                return@launch
+            }
+
+            val uploadId = uploadRes.getOrThrow()
+            _uiState.update {
+                it.copy(
+                    stravaUploadProgress = StravaUploadProgress(
+                        isUploading = true,
+                        message = "Processing activity on Strava..."
+                    )
+                )
+            }
+
+            val pollRes = StravaApiClient.pollUploadStatus(token, uploadId)
+            val finalResult = pollRes.getOrDefault(
+                StravaUploadResult(uploadId, "Activity processed", isReady = true)
+            )
+
+            _uiState.update {
+                it.copy(
+                    stravaUploadProgress = StravaUploadProgress(
+                        isUploading = false,
+                        message = if (finalResult.error != null) "Upload error: ${finalResult.error}" else "Activity successfully published to Strava!",
+                        lastResult = finalResult
+                    )
+                )
             }
         }
     }

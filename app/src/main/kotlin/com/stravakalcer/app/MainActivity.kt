@@ -21,14 +21,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.stravakalcer.app.navigation.Screen
+import com.stravakalcer.app.strava.StravaApiClient
 import com.stravakalcer.app.theme.DarkBackground
 import com.stravakalcer.app.theme.KalcerCyan
 import com.stravakalcer.app.theme.KalcerOrange
 import com.stravakalcer.app.theme.StravaKalcerTheme
+import com.stravakalcer.app.ui.components.StravaConnectDialog
 import com.stravakalcer.app.ui.screens.*
 import com.stravakalcer.app.viewmodel.AppViewModel
 import com.stravakalcer.debug.DebugExporter
-import java.io.ByteArrayInputStream
 
 class MainActivity : ComponentActivity() {
 
@@ -36,11 +37,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleOAuthIntent(intent)
 
         setContent {
             StravaKalcerTheme {
                 val navController = rememberNavController()
                 val uiState by viewModel.uiState.collectAsState()
+                val stravaAuth by viewModel.stravaAuthState.collectAsState()
 
                 // Storage Access Framework: GPX File Picker
                 val gpxPickerLauncher = rememberLauncherForActivityResult(
@@ -117,6 +120,10 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(Screen.Home.route) {
                             HomeScreen(
+                                stravaConnected = stravaAuth.isConnected,
+                                onOpenStravaSettingsClicked = {
+                                    viewModel.setStravaConnectDialogVisible(true)
+                                },
                                 onImportGpxClicked = {
                                     gpxPickerLauncher.launch(arrayOf("*/*", "application/gpx+xml", "application/xml"))
                                 },
@@ -200,6 +207,14 @@ class MainActivity : ComponentActivity() {
                                     deviceProfile = uiState.selectedDeviceProfile,
                                     fitBytes = uiState.fitBytes,
                                     validationReport = uiState.fitValidationReport,
+                                    stravaAuthState = stravaAuth,
+                                    stravaUploadProgress = uiState.stravaUploadProgress,
+                                    onUploadToStravaClicked = {
+                                        viewModel.uploadCurrentFitToStrava()
+                                    },
+                                    onOpenStravaSettingsClicked = {
+                                        viewModel.setStravaConnectDialogVisible(true)
+                                    },
                                     onSaveFitClicked = {
                                         val filename = "StravaKalcer_${result.settings.sport.name.lowercase()}_${System.currentTimeMillis()}.fit"
                                         fitSaveLauncher.launch(filename)
@@ -226,6 +241,35 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                    }
+
+                    // Strava Connect & OAuth Dialog
+                    if (uiState.showStravaConnectDialog) {
+                        StravaConnectDialog(
+                            authState = stravaAuth,
+                            onDismissRequest = { viewModel.setStravaConnectDialogVisible(false) },
+                            onStartOAuth = { clientId, clientSecret ->
+                                viewModel.stravaAuthManager.saveAppCredentials(clientId, clientSecret)
+                                val authUrl = StravaApiClient.buildAuthorizationUrl(
+                                    clientId = clientId,
+                                    redirectUri = "stravakalcer://oauth/callback"
+                                )
+                                try {
+                                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(authUrl)))
+                                } catch (e: Exception) {
+                                    Toast.makeText(this@MainActivity, "Could not open browser: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            onConnectManualToken = { token ->
+                                viewModel.connectWithManualToken(token)
+                            },
+                            onToggleAutoUpload = { enabled ->
+                                viewModel.toggleAutoUpload(enabled)
+                            },
+                            onDisconnect = {
+                                viewModel.disconnectStrava()
+                            }
+                        )
                     }
 
                     // Background Loading Indicator
@@ -263,6 +307,20 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleOAuthIntent(intent)
+    }
+
+    private fun handleOAuthIntent(intent: Intent?) {
+        val uri = intent?.data ?: return
+        val code = uri.getQueryParameter("code")
+        if (!code.isNullOrBlank()) {
+            viewModel.handleStravaOAuthCallback(code)
+            Toast.makeText(this, "Strava authorization code received! Connecting...", Toast.LENGTH_SHORT).show()
         }
     }
 }

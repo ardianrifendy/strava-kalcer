@@ -1,5 +1,7 @@
 package com.stravakalcer.app.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -7,19 +9,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.stravakalcer.app.strava.StravaAuthState
 import com.stravakalcer.app.theme.*
+import com.stravakalcer.app.viewmodel.StravaUploadProgress
 import com.stravakalcer.device.DeviceProfile
 import com.stravakalcer.fit.FitValidationReport
 import com.stravakalcer.model.SimulationResult
@@ -30,12 +32,18 @@ fun ExportValidationScreen(
     deviceProfile: DeviceProfile,
     fitBytes: ByteArray?,
     validationReport: FitValidationReport?,
+    stravaAuthState: StravaAuthState,
+    stravaUploadProgress: StravaUploadProgress,
+    onUploadToStravaClicked: () -> Unit,
+    onOpenStravaSettingsClicked: () -> Unit,
     onSaveFitClicked: () -> Unit,
     onShareFitClicked: () -> Unit,
     onShareDebugCsvClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val canExport = validationReport?.isValid == true && fitBytes != null
+    val context = LocalContext.current
 
     Column(
         modifier = modifier
@@ -140,7 +148,6 @@ fun ExportValidationScreen(
                     Divider(color = DarkBorder)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Checklist items
                     ValidationCheckItem("Header & CRC checksum integrity", isValid)
                     ValidationCheckItem("FileId, Activity, Session & Lap structure", validationReport.hasFileId && validationReport.hasSession)
                     ValidationCheckItem("Parsed record messages (${validationReport.totalRecordsParsed})", validationReport.totalRecordsParsed > 0)
@@ -161,27 +168,212 @@ fun ExportValidationScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // 1. Strava Cloud Upload Section (Full Auto & Manual)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(DarkSurfaceVariant, RoundedCornerShape(12.dp))
+                .border(1.dp, KalcerOrange.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                .padding(16.dp)
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.CloudUpload,
+                            contentDescription = null,
+                            tint = KalcerOrange,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "STRAVA CLOUD UPLOAD",
+                            color = TextPrimary,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    IconButton(onClick = onOpenStravaSettingsClicked, modifier = Modifier.size(32.dp)) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Strava Settings",
+                            tint = KalcerCyan,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                if (stravaAuthState.isConnected) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = KalcerLime,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Connected as: ${stravaAuthState.athleteName.ifEmpty { "Strava Athlete" }}",
+                            color = KalcerLime,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        if (stravaAuthState.autoUploadEnabled) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "• Full Auto Active",
+                                color = KalcerCyan,
+                                fontSize = 11.sp
+                            )
+                        }
+                    }
+                } else {
+                    Text(
+                        text = "Connect once to upload activities directly without using a browser.",
+                        color = TextSecondary,
+                        fontSize = 12.sp
+                    )
+                }
+
+                // Upload Progress & Result Messages
+                if (stravaUploadProgress.isUploading) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(4.dp),
+                        color = KalcerOrange,
+                        trackColor = DarkBackground
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = stravaUploadProgress.message,
+                        color = KalcerOrange,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                } else if (stravaUploadProgress.lastResult != null) {
+                    val res = stravaUploadProgress.lastResult
+                    Spacer(modifier = Modifier.height(10.dp))
+                    if (res.isReady || res.activityId != null) {
+                        val activityUrl = if (res.activityId != null) {
+                            "https://www.strava.com/activities/${res.activityId}"
+                        } else {
+                            "https://www.strava.com"
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Activity published to Strava!",
+                                color = KalcerLime,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            TextButton(onClick = {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(activityUrl))
+                                context.startActivity(intent)
+                            }) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("Open in Strava", color = KalcerCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.OpenInNew,
+                                        contentDescription = null,
+                                        tint = KalcerCyan,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                }
+                            }
+                        }
+                    } else if (res.error != null) {
+                        Text(
+                            text = if (res.isDuplicate) "Notice: This activity is already on your Strava." else "Error: ${res.error}",
+                            color = if (res.isDuplicate) KalcerOrange else KalcerRed,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                if (stravaAuthState.isConnected) {
+                    Button(
+                        onClick = onUploadToStravaClicked,
+                        enabled = canExport && !stravaUploadProgress.isUploading,
+                        colors = ButtonDefaults.buttonColors(containerColor = KalcerOrange),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.CloudUpload, contentDescription = null, tint = Color.White)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (stravaUploadProgress.isUploading) "UPLOADING TO STRAVA..." else "UPLOAD DIRECTLY TO STRAVA",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = onOpenStravaSettingsClicked,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = KalcerOrange),
+                        border = ButtonDefaults.outlinedButtonBorder.copy(
+                            brush = androidx.compose.ui.graphics.SolidColor(KalcerOrange)
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.CloudUpload, contentDescription = null, tint = KalcerOrange)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "CONNECT STRAVA (FULL AUTO)",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Save & Share Buttons
-        val canExport = validationReport?.isValid == true && fitBytes != null
-
         Button(
             onClick = onSaveFitClicked,
             enabled = canExport,
-            colors = ButtonDefaults.buttonColors(containerColor = KalcerOrange),
+            colors = ButtonDefaults.buttonColors(containerColor = DarkSurfaceVariant),
+            border = ButtonDefaults.outlinedButtonBorder.copy(
+                brush = androidx.compose.ui.graphics.SolidColor(DarkBorder)
+            ),
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .height(48.dp)
         ) {
-            Icon(imageVector = Icons.Default.Download, contentDescription = null, tint = Color.White)
+            Icon(imageVector = Icons.Default.Download, contentDescription = null, tint = TextPrimary)
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "SAVE FIT FILE TO STORAGE",
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = TextPrimary
             )
         }
 
@@ -197,13 +389,13 @@ fun ExportValidationScreen(
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
+                .height(44.dp)
         ) {
             Icon(imageVector = Icons.Default.Share, contentDescription = null, tint = if (canExport) KalcerCyan else TextTertiary)
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "SHARE FIT VIA APPS",
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
         }
