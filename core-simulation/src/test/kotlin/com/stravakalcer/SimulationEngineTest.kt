@@ -263,4 +263,95 @@ class SimulationEngineTest {
         assertEquals("First point timestamp must match startEpochMillis", customStartEpoch, result.points.first().timestampEpochMillis)
         assertTrue("Subsequent points must advance from custom start epoch", result.points.last().timestampEpochMillis > customStartEpoch)
     }
+
+    @Test
+    fun testCyclingPowerEnergyAndTemperature() {
+        val track = getTestTrack()
+        val settings = SimulationSettings(
+            sport = SportType.CYCLING,
+            profile = ActivityProfile.ENDURANCE,
+            targetAverageSpeedKmh = 30.0,
+            hrConfig = HeartRateConfig(enabled = true, restingHr = 60, maxHr = 185)
+        )
+
+        val result = SimulationEngine.simulate(track, settings)
+
+        // 1. Power validation
+        assertNotNull("Average power must be computed", result.averagePower)
+        assertNotNull("Max power must be computed", result.maxPower)
+        assertNotNull("Normalized power must be computed", result.normalizedPower)
+
+        assertTrue("Average power should be realistic (100-350W)", result.averagePower!! in 100..350)
+        assertTrue("Max power should be >= average power", result.maxPower!! >= result.averagePower!!)
+        assertTrue("Normalized power should be > 0", result.normalizedPower!! > 0)
+        assertTrue("Total work must be positive", result.totalWorkJoules > 1000)
+
+        // Climbs demand higher power than flats/descents
+        val climbPoints = result.points.filter { it.gradient > 4.0 && !it.isStopped }
+        val flatPoints = result.points.filter { abs(it.gradient) <= 1.0 && !it.isStopped }
+        if (climbPoints.isNotEmpty() && flatPoints.isNotEmpty()) {
+            val avgClimbPower = climbPoints.mapNotNull { it.powerWatts }.average()
+            val avgFlatPower = flatPoints.mapNotNull { it.powerWatts }.average()
+            assertTrue("Climbing power ($avgClimbPower) should exceed flat power ($avgFlatPower)", avgClimbPower > avgFlatPower)
+        }
+
+        // 2. Calories validation
+        assertNotNull("Total calories must be computed", result.totalCalories)
+        assertTrue("Calories must be realistic (> 50 kcal)", result.totalCalories!! > 50)
+
+        // 3. Ambient Temperature validation
+        assertNotNull("Average temperature must be computed", result.averageTemperature)
+        assertNotNull("Max temperature must be computed", result.maxTemperature)
+        assertTrue("Ambient temperature must be in tropical range (25-35°C)", result.averageTemperature!! in 25..35)
+        assertTrue("Max temperature must be >= average temperature", result.maxTemperature!! >= result.averageTemperature!!)
+    }
+
+    @Test
+    fun testRunningPowerAndCalories() {
+        val track = getTestTrack()
+        val settings = SimulationSettings(
+            sport = SportType.RUNNING,
+            profile = ActivityProfile.TEMPO_RUN,
+            targetAveragePaceSecondsPerKm = 300.0,
+            hrConfig = HeartRateConfig(enabled = true)
+        )
+
+        val result = SimulationEngine.simulate(track, settings)
+
+        assertNotNull(result.averagePower)
+        assertTrue("Running power should be realistic (150-450W)", result.averagePower!! in 150..450)
+        assertNotNull(result.totalCalories)
+        assertTrue("Running calories should be > 50 kcal", result.totalCalories!! > 50)
+    }
+
+    @Test
+    fun testRouteReversalIntegrity() {
+        val originalTrack = getTestTrack()
+        val reversedTrack = RouteProcessor.reverseTrack(originalTrack)
+
+        // Size matches
+        assertEquals("Reversed track should have same number of points", originalTrack.points.size, reversedTrack.points.size)
+
+        // Distance matches within 1% margin
+        val distDiff = abs(originalTrack.totalDistanceMeters - reversedTrack.totalDistanceMeters)
+        assertTrue("Reversed total distance should be virtually identical (diff: $distDiff)", distDiff < 5.0)
+
+        // Reversed start matches original end coordinates
+        val origStart = originalTrack.points.first()
+        val origEnd = originalTrack.points.last()
+        val revStart = reversedTrack.points.first()
+        val revEnd = reversedTrack.points.last()
+
+        assertEquals("Reversed start lat should match original end lat", origEnd.latitude, revStart.latitude, 0.0001)
+        assertEquals("Reversed start lon should match original end lon", origEnd.longitude, revStart.longitude, 0.0001)
+        assertEquals("Reversed end lat should match original start lat", origStart.latitude, revEnd.latitude, 0.0001)
+        assertEquals("Reversed end lon should match original start lon", origStart.longitude, revEnd.longitude, 0.0001)
+
+        // Reversed name has suffix
+        assertTrue("Reversed track name should indicate reversal", reversedTrack.name.contains("(Reversed)"))
+
+        // Double reversal restores original name
+        val doubleReversed = RouteProcessor.reverseTrack(reversedTrack)
+        assertFalse("Double reversal should remove (Reversed) suffix", doubleReversed.name.contains("(Reversed)"))
+    }
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,6 +30,7 @@ fun RouteReviewScreen(
     cursorDistanceMeters: Double,
     cursorPoint: RoutePoint?,
     onCursorMoved: (Double) -> Unit,
+    onReverseRouteClicked: () -> Unit = {},
     onConfirmRouteClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -242,23 +244,52 @@ fun RouteReviewScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Confirmation CTA Button
-        Button(
-            onClick = onConfirmRouteClicked,
-            colors = ButtonDefaults.buttonColors(containerColor = KalcerOrange),
-            shape = RoundedCornerShape(10.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
+        // Confirmation & Reverse Action Buttons
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                text = "CONFIRM ROUTE & NEXT",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
+            OutlinedButton(
+                onClick = onReverseRouteClicked,
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = KalcerCyan),
+                border = androidx.compose.foundation.BorderStroke(1.dp, KalcerCyan.copy(alpha = 0.7f)),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(50.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Sync,
+                    contentDescription = null,
+                    tint = KalcerCyan,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "REVERSE",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = KalcerCyan
+                )
+            }
+
+            Button(
+                onClick = onConfirmRouteClicked,
+                colors = ButtonDefaults.buttonColors(containerColor = KalcerOrange),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .weight(2f)
+                    .height(50.dp)
+            ) {
+                Text(
+                    text = "CONFIRM ROUTE",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
+            }
         }
     }
 }

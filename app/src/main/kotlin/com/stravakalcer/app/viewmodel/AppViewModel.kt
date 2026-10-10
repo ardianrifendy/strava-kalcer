@@ -173,6 +173,39 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun reverseCurrentTrack() {
+        val track = _uiState.value.currentTrack ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, loadingMessage = "Reversing route direction...") }
+            try {
+                val (reversedTrack, intelligence) = withContext(Dispatchers.Default) {
+                    val rev = RouteProcessor.reverseTrack(track)
+                    val intel = RouteIntelligenceEngine.analyze(rev)
+                    Pair(rev, intel)
+                }
+
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        currentTrack = reversedTrack,
+                        intelligence = intelligence,
+                        cursorDistanceMeters = 0.0,
+                        cursorRoutePoint = reversedTrack.points.firstOrNull(),
+                        simulationResult = null,
+                        fitBytes = null,
+                        fitValidationReport = null,
+                        stravaUploadProgress = StravaUploadProgress(),
+                        activityTitle = reversedTrack.name
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(isLoading = false, errorMessage = "Failed to reverse track: ${e.message}")
+                }
+            }
+        }
+    }
+
     fun setCursorDistance(distMeters: Double) {
         val state = _uiState.value
         val clampedDist = distMeters.coerceIn(0.0, state.currentTrack?.totalDistanceMeters ?: 0.0)

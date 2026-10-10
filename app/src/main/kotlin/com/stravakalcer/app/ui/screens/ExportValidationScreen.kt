@@ -272,11 +272,6 @@ fun ExportValidationScreen(
                     val res = stravaUploadProgress.lastResult
                     Spacer(modifier = Modifier.height(10.dp))
                     if (res.isReady || res.activityId != null) {
-                        val activityUrl = if (res.activityId != null) {
-                            "https://www.strava.com/activities/${res.activityId}"
-                        } else {
-                            "https://www.strava.com"
-                        }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -289,8 +284,20 @@ fun ExportValidationScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             TextButton(onClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(activityUrl))
-                                context.startActivity(intent)
+                                if (res.activityId != null) {
+                                    val appUri = Uri.parse("strava://activities/${res.activityId}")
+                                    val webUri = Uri.parse("https://www.strava.com/activities/${res.activityId}")
+                                    try {
+                                        val appIntent = Intent(Intent.ACTION_VIEW, appUri).apply {
+                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        }
+                                        context.startActivity(appIntent)
+                                    } catch (_: Exception) {
+                                        context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
+                                    }
+                                } else {
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.strava.com")))
+                                }
                             }) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text("Open in Strava", color = KalcerCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)

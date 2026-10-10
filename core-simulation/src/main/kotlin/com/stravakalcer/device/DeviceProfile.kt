@@ -24,7 +24,9 @@ data class DeviceProfile(
     val includeDistance: Boolean = true,
     val includeAltitude: Boolean = true,
     val includeHeartRate: Boolean = true,
-    val includeCadence: Boolean = true
+    val includeCadence: Boolean = true,
+    val includePower: Boolean = true,
+    val includeTemperature: Boolean = true
 ) {
     val formattedDeviceName: String
         get() = if (modelName.startsWith(manufacturer, ignoreCase = true)) {

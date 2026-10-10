@@ -275,5 +275,69 @@ class FitEngineTest {
             }
         }
     }
+
+    @Test
+    fun testFitAutoLapsPowerAndTemperatureEncoding() {
+        val xml = TestFixtures.createRealisticGpx(60) // ~3.2 km track
+        val parsed = GpxParser.parse(ByteArrayInputStream(xml.toByteArray()))
+        val track = RouteProcessor.process(parsed)
+
+        val settings = SimulationSettings(
+            sport = SportType.RUNNING,
+            profile = ActivityProfile.TEMPO_RUN,
+            targetAveragePaceSecondsPerKm = 300.0,
+            hrConfig = HeartRateConfig(enabled = true)
+        )
+        val result = SimulationEngine.simulate(track, settings)
+        val profile = DeviceProfileRegistry.getProfileById("garmin_forerunner_965")
+
+        val fitBytes = FitGenerator.generateFitBytes(result, profile)
+        val validation = FitValidator.validate(fitBytes, result)
+        assertTrue("FIT validation failed: ${validation.errors.joinToString("; ")}", validation.isValid)
+
+        // Decode FIT and inspect Laps, Records, and Session messages
+        val decode = com.garmin.fit.Decode()
+        val broadcaster = com.garmin.fit.MesgBroadcaster()
+        val parsedLaps = mutableListOf<com.garmin.fit.LapMesg>()
+        val parsedRecords = mutableListOf<com.garmin.fit.RecordMesg>()
+        var parsedSession: com.garmin.fit.SessionMesg? = null
+
+        broadcaster.addListener(com.garmin.fit.LapMesgListener { mesg ->
+            parsedLaps.add(mesg)
+        })
+        broadcaster.addListener(com.garmin.fit.RecordMesgListener { mesg ->
+            parsedRecords.add(mesg)
+        })
+        broadcaster.addListener(com.garmin.fit.SessionMesgListener { mesg ->
+            parsedSession = mesg
+        })
+
+        decode.read(ByteArrayInputStream(fitBytes), broadcaster)
+
+        // Running track (~3.2km) with 1km splits should generate at least 3 laps
+        assertTrue("Auto-lap splits should generate multiple laps (found: ${parsedLaps.size})", parsedLaps.size >= 3)
+        for (i in parsedLaps.indices) {
+            val lap = parsedLaps[i]
+            assertEquals("Lap message index should match order", i, lap.messageIndex)
+            assertTrue("Lap total distance should be positive", (lap.totalDistance ?: 0.0f) > 0f)
+            assertTrue("Lap total moving time should be positive", (lap.totalMovingTime ?: lap.totalTimerTime ?: 0.0f) > 0f)
+        }
+
+        // Verify Session message
+        assertNotNull("SessionMesg must be present", parsedSession)
+        assertEquals("Session numLaps must match parsed laps count", parsedLaps.size, parsedSession!!.numLaps)
+        assertEquals("Session firstLapIndex must be 0", 0, parsedSession!!.firstLapIndex)
+        assertNotNull("Session total calories must be populated", parsedSession!!.totalCalories)
+        assertTrue("Session calories should be > 0", parsedSession!!.totalCalories > 0)
+
+        // Verify Record messages have power and temperature
+        val recordsWithPower = parsedRecords.filter { it.power != null }
+        val recordsWithTemp = parsedRecords.filter { it.temperature != null }
+        assertTrue("Record messages should include power (found ${recordsWithPower.size} / ${parsedRecords.size})", recordsWithPower.isNotEmpty())
+        assertTrue("Record messages should include temperature (found ${recordsWithTemp.size} / ${parsedRecords.size})", recordsWithTemp.isNotEmpty())
+
+        val sampleTemp = recordsWithTemp.first().temperature.toInt()
+        assertTrue("Temperature should be in tropical range (~25-35°C, was $sampleTemp)", sampleTemp in 25..35)
+    }
 }
 

@@ -126,7 +126,6 @@ object FitGenerator {
                         // Official Garmin FIT specification for Running:
                         // The 'cadence' field stores full stride cycles per minute (RPM / strides/min, where 1 stride = 2 steps).
                         // Platforms like Strava and Garmin Connect multiply this value by 2 to display SPM (Steps Per Minute):
-                        // SPM = (cadence + fractional_cadence) * 2.
                         val spm = p.cadence
                         cadence = (spm / 2).toShort()
                         fractionalCadence = if (spm % 2 != 0) 0.5f else 0.0f
@@ -134,6 +133,12 @@ object FitGenerator {
                         // Cycling: crank arm revolutions per minute (RPM)
                         cadence = p.cadence.toShort()
                     }
+                }
+                if (deviceProfile.includePower && p.powerWatts != null) {
+                    power = p.powerWatts
+                }
+                if (deviceProfile.includeTemperature && p.temperatureCelsius != null) {
+                    temperature = p.temperatureCelsius.toByte()
                 }
             }
             encoder.write(record)
@@ -149,39 +154,94 @@ object FitGenerator {
 
         val maxCadenceValue = points.mapNotNull { it.cadence }.maxOrNull()
 
-        // 5. Lap Message
-        val lapMesg = LapMesg().apply {
-            timestamp = DateTime(Date(endEpochMillis))
-            startTime = DateTime(Date(startEpochMillis))
-            totalElapsedTime = result.totalTimeSeconds.toFloat()
-            totalTimerTime = result.movingTimeSeconds.toFloat()
-            totalDistance = result.totalDistanceMeters.toFloat()
-            enhancedAvgSpeed = (result.totalDistanceMeters / maxOf(1L, result.movingTimeSeconds)).toFloat()
-            enhancedMaxSpeed = (result.maxSpeedKmh / 3.6).toFloat()
-            totalAscent = result.elevationGainMeters.toInt()
-            totalDescent = result.elevationLossMeters.toInt()
+        // 5. Auto-Lap Splits (1 KM for Running, 5 KM for Cycling)
+        val lapIntervalMeters = if (result.settings.sport == SportType.CYCLING) 5000.0 else 1000.0
+        val laps = mutableListOf<List<com.stravakalcer.model.SimulationPoint>>()
+        var currentLapPoints = mutableListOf<com.stravakalcer.model.SimulationPoint>()
+        var nextMilestoneMeters = lapIntervalMeters
 
-            result.averageHeartRate?.let { avgHeartRate = it.toShort() }
-            result.maxHeartRate?.let { maxHeartRate = it.toShort() }
-
-            if (result.settings.sport == SportType.RUNNING) {
-                result.averageCadence?.let {
-                    avgCadence = (it / 2).toShort()
-                    avgFractionalCadence = if (it % 2 != 0) 0.5f else 0.0f
-                }
-                maxCadenceValue?.let {
-                    maxCadence = (it / 2).toShort()
-                    maxFractionalCadence = if (it % 2 != 0) 0.5f else 0.0f
-                }
-            } else {
-                result.averageCadence?.let { avgCadence = it.toShort() }
-                maxCadenceValue?.let { maxCadence = it.toShort() }
+        for (p in points) {
+            currentLapPoints.add(p)
+            if (p.distanceFromStartMeters >= nextMilestoneMeters && currentLapPoints.size >= 5) {
+                laps.add(currentLapPoints)
+                currentLapPoints = mutableListOf()
+                nextMilestoneMeters += lapIntervalMeters
             }
-
-            sport = if (result.settings.sport == SportType.CYCLING) Sport.CYCLING else Sport.RUNNING
-            subSport = SubSport.GENERIC
         }
-        encoder.write(lapMesg)
+        if (currentLapPoints.isNotEmpty()) {
+            laps.add(currentLapPoints)
+        }
+
+        for (lapIdx in laps.indices) {
+            val lapPts = laps[lapIdx]
+            val lapStartEpoch = lapPts.first().timestampEpochMillis
+            val lapEndEpoch = lapPts.last().timestampEpochMillis
+            val lapDist = (lapPts.last().distanceFromStartMeters - lapPts.first().distanceFromStartMeters).coerceAtLeast(0.0)
+            val lapTimerTime = (lapPts.last().movingTimeSeconds - lapPts.first().movingTimeSeconds).coerceAtLeast(1L)
+            val lapElapsedTime = (lapPts.last().totalTimeSeconds - lapPts.first().totalTimeSeconds).coerceAtLeast(1L)
+
+            val lapMesg = LapMesg().apply {
+                timestamp = DateTime(Date(lapEndEpoch))
+                startTime = DateTime(Date(lapStartEpoch))
+                totalElapsedTime = lapElapsedTime.toFloat()
+                totalTimerTime = lapTimerTime.toFloat()
+                totalMovingTime = lapTimerTime.toFloat()
+                totalDistance = lapDist.toFloat()
+                enhancedAvgSpeed = if (lapTimerTime > 0) (lapDist / lapTimerTime).toFloat() else 0.0f
+                enhancedMaxSpeed = ((lapPts.maxOfOrNull { it.speedKmh } ?: 0.0) / 3.6).toFloat()
+                messageIndex = lapIdx
+
+                val lapElevations = lapPts.map { it.elevation }
+                var ascent = 0.0
+                var descent = 0.0
+                for (k in 1 until lapElevations.size) {
+                    val diff = lapElevations[k] - lapElevations[k - 1]
+                    if (diff > 0) ascent += diff else descent += -diff
+                }
+                totalAscent = ascent.toInt()
+                totalDescent = descent.toInt()
+
+                val lapHr = lapPts.mapNotNull { it.heartRate }
+                if (lapHr.isNotEmpty()) {
+                    avgHeartRate = lapHr.average().toInt().toShort()
+                    maxHeartRate = lapHr.maxOrNull()?.toShort()
+                }
+
+                val lapCadence = lapPts.mapNotNull { it.cadence }
+                val nonZeroLapCadence = lapPts.filter { (it.cadence ?: 0) > 0 }.mapNotNull { it.cadence }
+                val lapAvgCadence = if (nonZeroLapCadence.isNotEmpty()) nonZeroLapCadence.average().toInt() else if (lapCadence.isNotEmpty()) lapCadence.average().toInt() else null
+                val lapMaxCadence = lapCadence.maxOrNull()
+
+                if (result.settings.sport == SportType.RUNNING) {
+                    lapAvgCadence?.let {
+                        avgCadence = (it / 2).toShort()
+                        avgFractionalCadence = if (it % 2 != 0) 0.5f else 0.0f
+                    }
+                    lapMaxCadence?.let {
+                        maxCadence = (it / 2).toShort()
+                        maxFractionalCadence = if (it % 2 != 0) 0.5f else 0.0f
+                    }
+                } else {
+                    lapAvgCadence?.let { avgCadence = it.toShort() }
+                    lapMaxCadence?.let { maxCadence = it.toShort() }
+                }
+
+                val lapPower = lapPts.mapNotNull { it.powerWatts }.filter { it > 0 }
+                if (lapPower.isNotEmpty()) {
+                    avgPower = lapPower.average().toInt()
+                    maxPower = lapPower.maxOrNull()
+                }
+
+                lapPts.mapNotNull { it.temperatureCelsius }.takeIf { it.isNotEmpty() }?.let {
+                    avgTemperature = it.average().toInt().toByte()
+                    maxTemperature = it.maxOrNull()?.toByte()
+                }
+
+                sport = if (result.settings.sport == SportType.CYCLING) Sport.CYCLING else Sport.RUNNING
+                subSport = SubSport.GENERIC
+            }
+            encoder.write(lapMesg)
+        }
 
         // 6. Session Message
         val sessionMesg = SessionMesg().apply {
@@ -212,10 +272,17 @@ object FitGenerator {
                 maxCadenceValue?.let { maxCadence = it.toShort() }
             }
 
+            result.averagePower?.let { avgPower = it }
+            result.maxPower?.let { maxPower = it }
+            result.normalizedPower?.let { normalizedPower = it }
+            result.totalCalories?.let { totalCalories = it }
+            result.averageTemperature?.let { avgTemperature = it.toByte() }
+            result.maxTemperature?.let { maxTemperature = it.toByte() }
+
             sport = if (result.settings.sport == SportType.CYCLING) Sport.CYCLING else Sport.RUNNING
             subSport = SubSport.GENERIC
             firstLapIndex = 0
-            numLaps = 1
+            numLaps = laps.size
 
             // Bounding box
             val minLat = points.minOf { it.latitude }

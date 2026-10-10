@@ -148,6 +148,7 @@ class MainActivity : ComponentActivity() {
                                     cursorDistanceMeters = uiState.cursorDistanceMeters,
                                     cursorPoint = uiState.cursorRoutePoint,
                                     onCursorMoved = { viewModel.setCursorDistance(it) },
+                                    onReverseRouteClicked = { viewModel.reverseCurrentTrack() },
                                     onConfirmRouteClicked = {
                                         navController.navigate(Screen.Settings.route)
                                     }

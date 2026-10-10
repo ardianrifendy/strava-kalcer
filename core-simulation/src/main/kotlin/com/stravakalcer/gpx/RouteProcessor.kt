@@ -193,4 +193,33 @@ object RouteProcessor {
             hasOriginalTimestamps = hasOriginalTimestamps
         )
     }
+
+    /**
+     * Reverses the track direction (finish becomes start) and recalculates all segment distances,
+     * smoothed gradients, elevation gains, and losses.
+     */
+    fun reverseTrack(track: RouteTrack): RouteTrack {
+        if (track.points.isEmpty()) return track
+
+        val rawPoints = track.points.reversed().map {
+            RawGpxPoint(
+                latitude = it.latitude,
+                longitude = it.longitude,
+                elevation = it.elevation,
+                timestampEpochMillis = null,
+                segmentIndex = 0
+            )
+        }
+        val newName = if (track.name.endsWith(" (Reversed)")) {
+            track.name.removeSuffix(" (Reversed)")
+        } else {
+            "${track.name} (Reversed)"
+        }
+        val reversedData = ParsedGpxData(
+            trackName = newName,
+            points = rawPoints,
+            segmentCount = 1
+        )
+        return process(reversedData)
+    }
 }

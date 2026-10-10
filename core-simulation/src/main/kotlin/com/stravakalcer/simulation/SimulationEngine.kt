@@ -133,19 +133,55 @@ object SimulationEngine {
             cadenceConfig = settings.cadenceConfig
         )
 
-        // 7. Attach HR and Cadence to SimulationPoints
+        // 7. Simulate continuous Power (Watts) and Ambient Temperature
+        val powerSeries = IntArray(n)
+        val tempSeries = IntArray(n)
+        var totalWorkJoules = 0L
+        val baseTemp = 27
+
+        for (i in 0 until n) {
+            val p = simulationPoints[i]
+            val isCoasting = isCycling && p.gradient <= params.coastingThresholdGradient
+            val watts = if (isCycling) {
+                com.stravakalcer.physiology.PowerEngine.calculateCyclingPowerWatts(
+                    speedMps = p.speedMps,
+                    gradientPercent = p.gradient,
+                    isStopped = p.isStopped,
+                    isCoasting = isCoasting
+                )
+            } else {
+                com.stravakalcer.physiology.PowerEngine.calculateRunningPowerWatts(
+                    speedMps = p.speedMps,
+                    gradientPercent = p.gradient,
+                    isStopped = p.isStopped
+                )
+            }
+            powerSeries[i] = watts
+
+            val dt = if (i == 0) 1.0 else (p.totalTimeSeconds - simulationPoints[i - 1].totalTimeSeconds).toDouble().coerceIn(0.5, 30.0)
+            if (!p.isStopped) {
+                totalWorkJoules += (watts * dt).toLong()
+            }
+
+            val progress = if (n > 1) i.toDouble() / (n - 1) else 0.0
+            tempSeries[i] = baseTemp + (progress * 2.0).toInt()
+        }
+
+        // 8. Attach HR, Cadence, Power, and Temperature to SimulationPoints
         val finalPoints = ArrayList<SimulationPoint>(n)
         for (i in 0 until n) {
             val p = simulationPoints[i]
             finalPoints.add(
                 p.copy(
                     heartRate = if (settings.hrConfig.enabled) hrSeries[i] else null,
-                    cadence = if (settings.cadenceConfig.enabled) cadenceSeries[i] else null
+                    cadence = if (settings.cadenceConfig.enabled) cadenceSeries[i] else null,
+                    powerWatts = powerSeries[i],
+                    temperatureCelsius = tempSeries[i]
                 )
             )
         }
 
-        // 8. Calculate summary statistics
+        // 9. Calculate summary statistics
         val finalMovingTimeSec = max(1L, cumulativeMovingTimeSec.roundToLong())
         val finalTotalTimeSec = max(1L, cumulativeTotalTimeSec.roundToLong())
         val avgMovingSpeedKmh = if (cumulativeMovingTimeSec > 0.0) {
@@ -170,6 +206,14 @@ object SimulationEngine {
             validCadence.average().toInt()
         } else null
 
+        val validPower = powerSeries.filter { it > 0 }
+        val avgPower = if (validPower.isNotEmpty()) validPower.average().toInt() else null
+        val maxPower = powerSeries.maxOrNull()
+        val normalizedPower = if (validPower.isNotEmpty()) com.stravakalcer.physiology.PowerEngine.calculateNormalizedPower(powerSeries) else null
+        val totalCalories = com.stravakalcer.physiology.PowerEngine.calculateCalories(totalWorkJoules, finalMovingTimeSec, avgHr, settings.sport)
+        val avgTemp = tempSeries.average().toInt()
+        val maxTemp = tempSeries.maxOrNull()
+
         return SimulationResult(
             settings = settings,
             points = finalPoints,
@@ -183,6 +227,13 @@ object SimulationEngine {
             averageHeartRate = avgHr,
             maxHeartRate = maxHr,
             averageCadence = avgCadence,
+            averagePower = avgPower,
+            maxPower = maxPower,
+            normalizedPower = normalizedPower,
+            totalWorkJoules = totalWorkJoules,
+            totalCalories = totalCalories,
+            averageTemperature = avgTemp,
+            maxTemperature = maxTemp,
             elevationGainMeters = track.elevationGainMeters,
             elevationLossMeters = track.elevationLossMeters,
             requestedTarget = solverResult.requestedTargetText,

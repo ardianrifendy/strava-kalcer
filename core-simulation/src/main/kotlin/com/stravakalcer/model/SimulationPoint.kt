@@ -18,6 +18,8 @@ data class SimulationPoint(
     val paceFormatted: String = GeoMath.formatPace(paceSecondsPerKm),
     val heartRate: Int? = null,
     val cadence: Int? = null,
+    val powerWatts: Int? = null,
+    val temperatureCelsius: Int? = null,
     val timestampEpochMillis: Long,
     val movingTimeSeconds: Long,
     val totalTimeSeconds: Long,
