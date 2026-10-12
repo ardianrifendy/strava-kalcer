@@ -1,0 +1,301 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D87E2F531023443FA47216E8 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A27901207C04ECEB67CC712 /* Models.swift */; };
+		87258533ADE149E4ACF67449 /* GeoMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 880E80825E9243B3B27BFFC9 /* GeoMath.swift */; };
+		62063C9AC0CA416980A55614 /* GpxParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21315D112154DE0962C003E /* GpxParser.swift */; };
+		76883C91DEB04915A2FBEDA1 /* Physiology.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF28FDF738544E288BA7BD90 /* Physiology.swift */; };
+		10BBC4DC2DE54D7FB6CFDED4 /* SimulationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CF31C300F0E48C483F71A7A /* SimulationEngine.swift */; };
+		7585142DD9DA49829AB82C4F /* DeviceProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB74C0448D454D64B1B6445F /* DeviceProfile.swift */; };
+		836BDA0DDA5B44FD97682EB0 /* FitEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B1621A3B1CB4FE5ABE6A611 /* FitEncoder.swift */; };
+		96AB32C8211E4C2AA8684F8A /* StravaApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEF715562544D68852C1353 /* StravaApiClient.swift */; };
+		5816F04CAA9447538FA82A39 /* RouteCreatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E573853214440D98CF8C974 /* RouteCreatorEngine.swift */; };
+		3369B754E7244FD892FF7E70 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE03D74D6D304047835BC4A6 /* AppViewModel.swift */; };
+		9DBAF2F3BBB14D2BB3A0FBE5 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC1EBE007AE4A5C81F88E0A /* Views.swift */; };
+		4DF5BCC09E1D4D1F909AEF1E /* FeedAndHistoryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D25C1D98794850B6319EB9 /* FeedAndHistoryViews.swift */; };
+		89CDED7C4CD44824B1A03E7E /* RouteStudioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B971FA938C46F3B65EC687 /* RouteStudioView.swift */; };
+		8F5FB969600F487194AC8932 /* StravaKalcerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C432C2803D04FBA9F12F059 /* StravaKalcerApp.swift */; };
+		0755293E03394CB3BD6BC47A /* sample_loop.gpx in Resources */ = {isa = PBXBuildFile; fileRef = 6322B7E76F7642F8ADB367DA /* sample_loop.gpx */; };
+		8EC3647AB1D9437FBDDED27B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4D428DDD1884A41A517F1E3 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7A27901207C04ECEB67CC712 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models.swift"; sourceTree = "<group>"; };
+		880E80825E9243B3B27BFFC9 /* GeoMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeoMath.swift"; sourceTree = "<group>"; };
+		E21315D112154DE0962C003E /* GpxParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GpxParser.swift"; sourceTree = "<group>"; };
+		AF28FDF738544E288BA7BD90 /* Physiology.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Physiology.swift"; sourceTree = "<group>"; };
+		1CF31C300F0E48C483F71A7A /* SimulationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SimulationEngine.swift"; sourceTree = "<group>"; };
+		DB74C0448D454D64B1B6445F /* DeviceProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeviceProfile.swift"; sourceTree = "<group>"; };
+		6B1621A3B1CB4FE5ABE6A611 /* FitEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FitEncoder.swift"; sourceTree = "<group>"; };
+		3AEF715562544D68852C1353 /* StravaApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StravaApiClient.swift"; sourceTree = "<group>"; };
+		4E573853214440D98CF8C974 /* RouteCreatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RouteCreatorEngine.swift"; sourceTree = "<group>"; };
+		DE03D74D6D304047835BC4A6 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppViewModel.swift"; sourceTree = "<group>"; };
+		5BC1EBE007AE4A5C81F88E0A /* Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views.swift"; sourceTree = "<group>"; };
+		61D25C1D98794850B6319EB9 /* FeedAndHistoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedAndHistoryViews.swift"; sourceTree = "<group>"; };
+		C2B971FA938C46F3B65EC687 /* RouteStudioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RouteStudioView.swift"; sourceTree = "<group>"; };
+		8C432C2803D04FBA9F12F059 /* StravaKalcerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StravaKalcerApp.swift"; sourceTree = "<group>"; };
+		E0D4CE5D35E94193A0D15C90 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
+		F4D428DDD1884A41A517F1E3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
+		6322B7E76F7642F8ADB367DA /* sample_loop.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "sample_loop.gpx"; sourceTree = "<group>"; };
+		A09E685E65C148868E60D3C0 /* StravaKalcer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "StravaKalcer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2F8146ECF0164ED6B05F21F3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		ED92FA02CF314AEFA099C6FB = {
+			isa = PBXGroup;
+			children = (
+				3E6EE7F007E24996B2860E29 /* StravaKalcerCore */,
+				493F8E5FD03A4BCEB900DB67 /* StravaKalcerApp */,
+				6322B7E76F7642F8ADB367DA /* sample_loop.gpx */,
+				B1B34697F8A743CB898B4BCF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3E6EE7F007E24996B2860E29 /* StravaKalcerCore */ = {
+			isa = PBXGroup;
+			children = (
+				7A27901207C04ECEB67CC712 /* Models.swift */,
+				880E80825E9243B3B27BFFC9 /* GeoMath.swift */,
+				E21315D112154DE0962C003E /* GpxParser.swift */,
+				AF28FDF738544E288BA7BD90 /* Physiology.swift */,
+				1CF31C300F0E48C483F71A7A /* SimulationEngine.swift */,
+				DB74C0448D454D64B1B6445F /* DeviceProfile.swift */,
+				6B1621A3B1CB4FE5ABE6A611 /* FitEncoder.swift */,
+				3AEF715562544D68852C1353 /* StravaApiClient.swift */,
+				4E573853214440D98CF8C974 /* RouteCreatorEngine.swift */,
+			);
+			path = Sources/StravaKalcerCore;
+			sourceTree = "<group>";
+		};
+		493F8E5FD03A4BCEB900DB67 /* StravaKalcerApp */ = {
+			isa = PBXGroup;
+			children = (
+				DE03D74D6D304047835BC4A6 /* AppViewModel.swift */,
+				5BC1EBE007AE4A5C81F88E0A /* Views.swift */,
+				61D25C1D98794850B6319EB9 /* FeedAndHistoryViews.swift */,
+				C2B971FA938C46F3B65EC687 /* RouteStudioView.swift */,
+				8C432C2803D04FBA9F12F059 /* StravaKalcerApp.swift */,
+				E0D4CE5D35E94193A0D15C90 /* Info.plist */,
+				F4D428DDD1884A41A517F1E3 /* Assets.xcassets */,
+			);
+			path = Sources/StravaKalcerApp;
+			sourceTree = "<group>";
+		};
+		B1B34697F8A743CB898B4BCF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A09E685E65C148868E60D3C0 /* StravaKalcer.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5E520C4400264978BCB8569E /* StravaKalcer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0C80EC18DF044DFB983353A2 /* Build configuration list for PBXNativeTarget "StravaKalcer" */;
+			buildPhases = (
+				096A9601A5514900903B9381 /* Sources */,
+				2F8146ECF0164ED6B05F21F3 /* Frameworks */,
+				CB9FA473CCB440638D7BB88D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = StravaKalcer;
+			productName = StravaKalcer;
+			productReference = A09E685E65C148868E60D3C0 /* StravaKalcer.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		20A75FB196DB4ED189000F85 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					5E520C4400264978BCB8569E = {
+						CreatedOnToolsVersion = 15.2;
+					};
+				};
+			};
+			buildConfigurationList = 24B90AEBDE04422685215A79 /* Build configuration list for PBXProject "StravaKalcer" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = ED92FA02CF314AEFA099C6FB;
+			productRefGroup = B1B34697F8A743CB898B4BCF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5E520C4400264978BCB8569E /* StravaKalcer */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CB9FA473CCB440638D7BB88D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0755293E03394CB3BD6BC47A /* sample_loop.gpx in Resources */,
+				8EC3647AB1D9437FBDDED27B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		096A9601A5514900903B9381 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D87E2F531023443FA47216E8 /* Models.swift in Sources */,
+				87258533ADE149E4ACF67449 /* GeoMath.swift in Sources */,
+				62063C9AC0CA416980A55614 /* GpxParser.swift in Sources */,
+				76883C91DEB04915A2FBEDA1 /* Physiology.swift in Sources */,
+				10BBC4DC2DE54D7FB6CFDED4 /* SimulationEngine.swift in Sources */,
+				7585142DD9DA49829AB82C4F /* DeviceProfile.swift in Sources */,
+				836BDA0DDA5B44FD97682EB0 /* FitEncoder.swift in Sources */,
+				96AB32C8211E4C2AA8684F8A /* StravaApiClient.swift in Sources */,
+				5816F04CAA9447538FA82A39 /* RouteCreatorEngine.swift in Sources */,
+				3369B754E7244FD892FF7E70 /* AppViewModel.swift in Sources */,
+				9DBAF2F3BBB14D2BB3A0FBE5 /* Views.swift in Sources */,
+				4DF5BCC09E1D4D1F909AEF1E /* FeedAndHistoryViews.swift in Sources */,
+				89CDED7C4CD44824B1A03E7E /* RouteStudioView.swift in Sources */,
+				8F5FB969600F487194AC8932 /* StravaKalcerApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3F16D997F63141DF8EDD66D9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8696C126964C4B758BB44E09 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = "wholemodule";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		68D7E32827774BD1BED10128 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KMXN9J6LFF;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sources/StravaKalcerApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ardianrifendy.StravaKalcer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5A54F737F7AC4177BCDF4DE1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KMXN9J6LFF;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Sources/StravaKalcerApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ardianrifendy.StravaKalcer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		24B90AEBDE04422685215A79 /* Build configuration list for PBXProject "StravaKalcer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F16D997F63141DF8EDD66D9 /* Debug */,
+				8696C126964C4B758BB44E09 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0C80EC18DF044DFB983353A2 /* Build configuration list for PBXNativeTarget "StravaKalcer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				68D7E32827774BD1BED10128 /* Debug */,
+				5A54F737F7AC4177BCDF4DE1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 20A75FB196DB4ED189000F85 /* Project object */;
+}

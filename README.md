@@ -1,16 +1,18 @@
-# Strava Kalcer — Native Android Fitness Simulation & FIT Engine
+# Strava Kalcer — Native Cross-Platform (Android & iOS) Fitness Simulation & FIT Engine
 
 [![Download APK](https://img.shields.io/badge/Download-APK%20(v1.0.0)-FF5722.svg?logo=android&logoColor=white)](https://github.com/ardianrifendy/strava-kalcer/releases/latest)
+[![iOS](https://img.shields.io/badge/iOS-17.0%2B-black.svg?logo=apple&logoColor=white)](ios/)
+[![Swift](https://img.shields.io/badge/Swift-5.0-FA7343.svg?logo=swift&logoColor=white)](ios/)
+[![SwiftUI](https://img.shields.io/badge/SwiftUI-MapKit-007AFF.svg)](ios/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-7F52FF.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![Android](https://img.shields.io/badge/Android-API%2034%20(UpsideDownCake)-3DDC84.svg?logo=android&logoColor=white)](https://developer.android.com/)
-[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4.svg?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Garmin FIT SDK](https://img.shields.io/badge/Garmin%20FIT%20SDK-v21.141.0-007ACC.svg)](https://developer.garmin.com/fit/overview/)
 [![Tests](https://img.shields.io/badge/Unit%20%26%20Integration%20Tests-33%2F33%20Passed-brightgreen.svg)](#panduan-build--menjalankan--how-to-build--test)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
 
-**Strava Kalcer** is a high-fidelity, native Android activity reconstruction and simulation engine built with **Kotlin**, **Jetpack Compose**, and the official **Garmin FIT SDK (`com.garmin:fit`)**.
+**Strava Kalcer** is a high-fidelity, native cross-platform (**Android & iOS**) activity reconstruction and simulation engine built with **Swift/SwiftUI (iOS)** and **Kotlin/Jetpack Compose (Android)**, producing fully compliant **Garmin FIT** files.
 
-Unlike simplistic GPX-to-FIT converters that merely stamp static speeds or arbitrary time intervals onto coordinates, **Strava Kalcer** runs a physics-driven numerical solver, continuous cardiovascular/neuromuscular models, power meter dynamics, and split interval structuring to transform raw GPX routes into realistic, internally consistent, and physiologically coherent sports activities.
+Unlike simplistic GPX-to-FIT converters that merely stamp static speeds or arbitrary time intervals onto coordinates, **Strava Kalcer** runs a physics-driven numerical solver, continuous cardiovascular/neuromuscular models, power meter dynamics, and split interval structuring to transform raw GPX routes into realistic, internally consistent, and physiologically coherent sports activities. Includes **Route Studio** with interactive MapKit road snapping, smart loop generator, and GPS localization.
 
 ---
 
