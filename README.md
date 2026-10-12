@@ -66,10 +66,16 @@ Perbandingan antara konverter GPX tradisional dengan simulasi cerdas Strava Kalc
 
 ## Arsitektur & Modularitas / Architecture
 
-Aplikasi dirancang dengan arsitektur multi-module yang bersih:
+Aplikasi dirancang dengan arsitektur multi-platform yang bersih dan modular:
 
-```
+```text
 Strava Kalcer
+├── ios/                      # Native Apple iOS App & Core Engine (Swift 5.0, SwiftUI, MapKit, CoreLocation)
+│   ├── Sources/StravaKalcerCore/  # Mesin fisika, RouteCreatorEngine, FitEncoder, fisiologi
+│   ├── Sources/StravaKalcerApp/   # SwiftUI Views, Route Studio, GPS Start, Floating Dock, Theme
+│   ├── StravaKalcer.xcodeproj/    # Proyek Xcode resmi (Target iOS 17.0+)
+│   └── README.md             # Dokumentasi khusus teknis iOS
+│
 ├── core-simulation/          # Pure Kotlin JVM library (independen dari Android UI/framework)
 │   ├── gpx/                  # GPX 1.1 parser, elevation quality auditor, RouteProcessor, GeoMath
 │   ├── intelligence/         # Route intelligence (kategorisasi tanjakan/turunan, grade smoothing)
@@ -121,6 +127,15 @@ flowchart TD
 
 ## Fitur Unggulan / Key Features
 
+- **Route Studio & GPX Builder Interaktif (iOS Native)**:
+  Fitur pembuatan rute mandiri langsung di atas kanvas peta Apple Maps MapKit:
+  - **Snap-to-Road Otomatis (`MKDirections`)**: Penarikan rute mengikuti jaringan aspal jalan nyata dalam **Mode Drive (`.automobile`)**.
+  - **Penghindaran Jalan Tol Aktif (`tollPreference = .avoid`)**: Jalur secara ketat menghindari jalan tol / jalan bebas hambatan, menjaga keamanan dan legalitas jalur untuk pesepeda dan pelari.
+  - **Generator Smart Loop**: Otomasi pembentukan rute memutar tertutup (*closed-loop*) berdasarkan jarak target (5 km, 10 km, 25 km, 40 km, dst.) dan orientasi derajat arah mata angin (*heading azimuth*).
+  - **Fitur GPS Start (`CoreLocation`)**: Satu ketukan tombol **Mulai dari Lokasi Saya (GPS Start)** memusatkan peta dan langsung menyetel titik awal rute di posisi GPS pengguna saat ini.
+  - **Cari Tempat (`MKLocalSearch`)**: Pencarian nama jalan, kafe, atau landmark kota langsung di peta.
+  - **Sintesis Elevasi Topografi Alami**: Model gelombang Fourier bertingkat dengan *5-point Rolling Gaussian Smoothing* untuk profil elevasi realistis.
+  - **Ekspor Berkas GPX 1.1**: Standar XML schema Topografix yang siap dibagikan ke platform navigasi manapun.
 - **Simulasi Power Meter (Watts & kJ)**:
   Perhitungan daya mekanik dinamis bersepeda berdasarkan hukum hambatan aerodinamis ($C_d A$), hambatan gelinding ban ($C_{rr}$), gradien kemiringan, dan efisiensi *drivetrain* (96.5%). Menghitung *Normalized Power (NP)* standar Coggan rolling 30 detik pangkat 4, serta total kerja mekanis (kJ). Model daya lari berbasis Stryd (1.04 W/kg per m/s + biaya elevasi).
 - **Auto-Lap Splits Terstruktur (1 km Running / 5 km Cycling)**:
@@ -204,6 +219,26 @@ Strava Kalcer menyertakan lebih dari 30 profil perangkat olahraga terverifikasi 
    ```powershell
    .\gradlew.bat installDebug
    ```
+
+### Pembangunan Proyek iOS (SwiftUI & MapKit)
+Panduan lengkap ada pada [**ios/README.md**](ios/README.md).
+
+- **Kebutuhan**: macOS Sonoma/Sequoia dengan Xcode 15.0+ (iOS 17.0+).
+- **Regenerasi Proyek Xcode (Opsional)**:
+  ```bash
+  cd ios
+  python3 generate_xcodeproj.py
+  ```
+- **Kompilasi Menggunakan xcodebuild**:
+  ```bash
+  cd ios
+  xcodebuild -project StravaKalcer.xcodeproj -scheme StravaKalcer -destination "generic/platform=iOS" build
+  ```
+- **Deploy ke iPhone Fisik**:
+  ```bash
+  xcrun devicectl device install app --device <DEVICE_UDID> build/Products/Debug-iphoneos/StravaKalcer.app
+  xcrun devicectl device process launch --device <DEVICE_UDID> com.ardianrifendy.StravaKalcer
+  ```
 
 ---
 
