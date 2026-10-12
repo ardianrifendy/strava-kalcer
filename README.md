@@ -1,6 +1,7 @@
 # Strava Kalcer — Native Cross-Platform (iOS & Android) Fitness Simulation & FIT Engine
 
-[![Download APK](https://img.shields.io/badge/Download-APK%20(v1.0.0)-FF5722.svg?logo=android&logoColor=white)](https://github.com/ardianrifendy/strava-kalcer/releases/latest)
+[![Download APK](https://img.shields.io/badge/Download-APK%20(Android)-FF5722.svg?logo=android&logoColor=white)](https://github.com/ardianrifendy/strava-kalcer/releases/latest)
+[![Download IPA](https://img.shields.io/badge/Download-IPA%20(iOS)-007AFF.svg?logo=apple&logoColor=white)](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0.ipa)
 [![iOS](https://img.shields.io/badge/iOS-17.0%2B-black.svg?logo=apple&logoColor=white)](ios/)
 [![Swift](https://img.shields.io/badge/Swift-5.0-FA7343.svg?logo=swift&logoColor=white)](ios/)
 [![SwiftUI](https://img.shields.io/badge/SwiftUI-MapKit-007AFF.svg)](ios/)
@@ -17,7 +18,9 @@ Berbeda dari konverter GPX tradisional yang hanya menempelkan kecepatan statis a
 ---
 
 ## Daftar Isi / Table of Contents
-1. [Unduh APK Android Siap Pakai](#unduh-apk-android-siap-pakai)
+1. [Unduh Aplikasi Siap Pakai (Android APK & iOS IPA)](#unduh-aplikasi-siap-pakai-android-apk--ios-ipa)
+   - [Cara Install di iOS](#cara-install-di-ios-iphone--ipad)
+   - [Cara Install di Android](#cara-instalasi-di-hp-android)
 2. [Perbandingan: Konverter Biasa vs Strava Kalcer](#perbandingan-konverter-biasa-vs-strava-kalcer)
 3. [Arsitektur Proyek Lintas Platform](#arsitektur-proyek-lintas-platform)
 4. [Alur Kerja Pipeline Simulasi](#alur-kerja-pipeline-simulasi)
@@ -37,19 +40,56 @@ Berbeda dari konverter GPX tradisional yang hanya menempelkan kecepatan statis a
 
 ---
 
-## Unduh APK Android Siap Pakai
+## Unduh Aplikasi Siap Pakai (Android APK & iOS IPA)
 
-Berkas instalasi APK Android yang sudah siap di-install (kompatibel untuk Android 8.0 Oreo ke atas / API 26+) tersedia di GitHub Releases:
+Berkas instalasi resmi yang siap digunakan tersedia di GitHub Releases:
 
-| Berkas Instalasi | Versi | Ukuran | Tautan Unduh Langsung |
-| :--- | :--- | :--- | :--- |
-| **Strava Kalcer Android APK** | `v1.0.0` | ~21.0 MB | [**Download StravaKalcer-v1.0.0-debug.apk**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0-debug.apk) |
+| Platform | Berkas Instalasi | Versi | Ukuran | Tautan Unduh Langsung |
+| :--- | :--- | :--- | :--- | :--- |
+| **Android** | `StravaKalcer-v1.0.0-debug.apk` | `v1.0.0` | ~21.0 MB | [**Download APK (Android)**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0-debug.apk) |
+| **iOS (iPhone/iPad)** | `StravaKalcer-v1.0.0.ipa` | `v1.0.0` | ~3.1 MB | [**Download IPA (iOS)**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0.ipa) |
 
-> [!TIP]
-> **Cara Instalasi di HP Android**:
-> 1. Unduh file APK di atas melalui browser HP Anda.
-> 2. Buka file `.apk` yang telah diunduh, lalu pilih **Install**.
-> 3. Jika muncul dialog perizinan, centang *Izinkan dari sumber ini*.
+---
+
+### Cara Install di iOS (iPhone / iPad)
+
+Terdapat 3 metode mudah untuk memasang aplikasi di iPhone Anda:
+
+#### Metode 1: Menggunakan Sideloadly (Paling Praktis via PC / Mac)
+1. Unduh aplikasi [**Sideloadly**](https://sideloadly.io/) (gratis untuk macOS dan Windows).
+2. Sambungkan iPhone ke komputer via kabel data / WiFi.
+3. Buka Sideloadly, lalu seret (*drag & drop*) berkas [**StravaKalcer-v1.0.0.ipa**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0.ipa) ke jendela Sideloadly.
+4. Masukkan Apple ID Anda pada kolom Apple ID (digunakan untuk menandatangani sertifikat sideload gratis dari Apple).
+5. Klik **Start**. Tunggu hingga proses selesai (~30 detik) dan aplikasi akan langsung muncul di layar utama iPhone.
+6. **Buka Izin Kepercayaan Developer di iPhone**:
+   - Masuk ke menu **Settings (Pengaturan) > General (Umum) > VPN & Device Management (Manajemen VPN & Perangkat)**.
+   - Ketuk akun Apple ID Anda di bawah *Developer App*, lalu pilih **Trust (Percayai)**.
+7. Aplikasi Strava Kalcer siap dibuka dan digunakan!
+
+#### Metode 2: Menggunakan AltStore / Scarlet / TrollStore (Langsung di iPhone)
+- **AltStore**: Buka aplikasi AltStore di iPhone > buka tab **My Apps** > ketuk ikon **`+`** di pojok kiri atas > pilih berkas `StravaKalcer-v1.0.0.ipa`.
+- **TrollStore** (jika versi iOS Anda kompatibel): Cukup buka berkas `.ipa` di aplikasi Files, bagikan ke TrollStore dan pilih *Install* (bebas batasan 7 hari).
+
+#### Metode 3: Langsung dari Mac Menggunakan Xcode / Terminal (Untuk Pengembang)
+Jika Anda memiliki Mac dan Xcode 15+, Anda dapat langsung mengompilasi dan memasang ke iPhone fisik:
+```bash
+git clone https://github.com/ardianrifendy/strava-kalcer.git
+cd strava-kalcer/ios
+
+# Kompilasi project Xcode
+xcodebuild -project StravaKalcer.xcodeproj -scheme StravaKalcer -destination "id=<UDID_IPHONE_ANDA>" -allowProvisioningUpdates build
+
+# Install dan luncurkan langsung di iPhone
+xcrun devicectl device install app --device <UDID_IPHONE_ANDA> build/Products/Debug-iphoneos/StravaKalcer.app
+xcrun devicectl device process launch --device <UDID_IPHONE_ANDA> com.ardianrifendy.StravaKalcer
+```
+
+---
+
+### Cara Instalasi di HP Android
+1. Unduh berkas [**StravaKalcer-v1.0.0-debug.apk**](https://github.com/ardianrifendy/strava-kalcer/releases/download/v1.0.0/StravaKalcer-v1.0.0-debug.apk) melalui browser HP Anda.
+2. Buka berkas `.apk` yang telah diunduh, lalu pilih **Install**.
+3. Jika muncul dialog keamanan, aktifkan *Install unknown apps* / *Izinkan dari sumber ini*.
 
 ---
 
