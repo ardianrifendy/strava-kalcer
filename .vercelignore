@@ -1,0 +1,14 @@
+.gradle/
+.idea/
+app/
+core-simulation/
+gradle/
+docs/
+samples/
+*.apk
+*.jar
+gradlew
+gradlew.bat
+build.gradle.kts
+settings.gradle.kts
+gradle.properties
