@@ -184,11 +184,18 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                     Pair(rev, intel)
                 }
 
+                val presetStops = if (_uiState.value.settings.smartStopPreset != SmartStopPreset.NONE) {
+                    SimulationSettings.generateStopsForPreset(_uiState.value.settings.smartStopPreset, reversedTrack.totalDistanceMeters)
+                } else {
+                    _uiState.value.settings.stops
+                }
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         currentTrack = reversedTrack,
                         intelligence = intelligence,
+                        settings = it.settings.copy(stops = presetStops),
                         cursorDistanceMeters = 0.0,
                         cursorRoutePoint = reversedTrack.points.firstOrNull(),
                         simulationResult = null,
@@ -222,14 +229,32 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateSettings(newSettings: SimulationSettings) {
-        val track = _uiState.value.currentTrack
-        val adjustedSettings = if (newSettings.smartStopPreset != _uiState.value.settings.smartStopPreset && track != null) {
+        val currentState = _uiState.value
+        val track = currentState.currentTrack
+        val adjustedSettings = if (newSettings.smartStopPreset != currentState.settings.smartStopPreset && track != null) {
             val generatedStops = SimulationSettings.generateStopsForPreset(newSettings.smartStopPreset, track.totalDistanceMeters)
             newSettings.copy(stops = generatedStops)
         } else {
             newSettings
         }
-        _uiState.update { it.copy(settings = adjustedSettings) }
+
+        // Update auto-title if sport or startEpochMillis changed and user is using a default time-of-day title
+        val defaultTitles = setOf(
+            "Morning Ride", "Lunch Ride", "Afternoon Ride", "Evening Ride", "Night Ride",
+            "Morning Run", "Lunch Run", "Afternoon Run", "Evening Run", "Night Run"
+        )
+        val updatedTitle = if (
+            (newSettings.sport != currentState.settings.sport || newSettings.startEpochMillis != currentState.settings.startEpochMillis) &&
+            currentState.activityTitle in defaultTitles
+        ) {
+            val timeOfDay = getTimeOfDayTitle(newSettings.startEpochMillis)
+            val sportName = if (newSettings.sport == SportType.CYCLING) "Ride" else "Run"
+            "$timeOfDay $sportName"
+        } else {
+            currentState.activityTitle
+        }
+
+        _uiState.update { it.copy(settings = adjustedSettings, activityTitle = updatedTitle) }
     }
 
     fun selectDeviceProfile(profile: DeviceProfile) {

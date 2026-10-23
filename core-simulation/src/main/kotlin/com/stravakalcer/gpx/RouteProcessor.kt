@@ -16,7 +16,7 @@ object RouteProcessor {
      * - Segment boundary handling
      * - Smoothed gradient calculations
      */
-    fun process(parsedData: ParsedGpxData): RouteTrack {
+    fun process(parsedData: ParsedGpxData, alreadySmoothed: Boolean = false): RouteTrack {
         val rawPoints = parsedData.points
 
         if (rawPoints.isEmpty()) {
@@ -134,7 +134,7 @@ object RouteProcessor {
         val smoothedGradients = GeoMath.smoothGradients(rawGradients, windowRadius = 3)
 
         // 6. Recalculate robust elevation gain / loss from smoothed elevations
-        val smoothedElevations = if (elevationQuality.isReliableForSimulation) {
+        val smoothedElevations = if (elevationQuality.isReliableForSimulation && !alreadySmoothed) {
             GeoMath.smoothElevations(resolvedElevations, windowRadius = 2)
         } else {
             resolvedElevations
@@ -220,6 +220,6 @@ object RouteProcessor {
             points = rawPoints,
             segmentCount = 1
         )
-        return process(reversedData)
+        return process(reversedData, alreadySmoothed = true)
     }
 }

@@ -75,6 +75,10 @@ object SimulationEngine {
             currentEpochMillis += (stepDurationSec * 1000.0).roundToLong()
 
             val speedMps = if (isStop) 0.0 else solvedSpeed
+            val solvedKmh = GeoMath.mpsToKmh(solvedSpeed)
+            val neutralEffortKmh = if (isCycling) (settings.targetAverageSpeedKmh ?: 28.0) else GeoMath.mpsToKmh(GeoMath.paceSecondsPerKmToMps(settings.targetAveragePaceSecondsPerKm ?: 330.0))
+            val profAdjKmh = neutralEffortKmh * (params.baseEffortFactor - 1.0)
+            val targAdjKmh = solvedKmh - neutralEffortKmh
 
             // Reason code explainability
             val reason = when {
@@ -105,7 +109,9 @@ object SimulationEngine {
                     isStopped = isStop,
                     stopDurationSeconds = stopDurationsSec[i],
                     stopReason = stopReasons[i],
-                    baselineSpeedKmh = GeoMath.mpsToKmh(solvedSpeedsMps[i]),
+                    baselineSpeedKmh = solvedKmh,
+                    profileAdjustmentKmh = profAdjKmh,
+                    targetAdjustmentKmh = targAdjKmh,
                     explainReason = reason
                 )
             )
@@ -207,9 +213,13 @@ object SimulationEngine {
         } else null
 
         val validPower = powerSeries.filter { it > 0 }
-        val avgPower = if (validPower.isNotEmpty()) validPower.average().toInt() else null
+        val avgPower = if (validPower.isNotEmpty() && finalMovingTimeSec > 0) {
+            (totalWorkJoules.toDouble() / finalMovingTimeSec).toInt().coerceAtLeast(1)
+        } else null
         val maxPower = powerSeries.maxOrNull()
-        val normalizedPower = if (validPower.isNotEmpty()) com.stravakalcer.physiology.PowerEngine.calculateNormalizedPower(powerSeries) else null
+        val normalizedPower = if (validPower.isNotEmpty()) {
+            com.stravakalcer.physiology.PowerEngine.calculateNormalizedPower(powerSeries, timeDeltasSec)
+        } else null
         val totalCalories = com.stravakalcer.physiology.PowerEngine.calculateCalories(totalWorkJoules, finalMovingTimeSec, avgHr, settings.sport)
         val avgTemp = tempSeries.average().toInt()
         val maxTemp = tempSeries.maxOrNull()

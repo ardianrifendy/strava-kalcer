@@ -154,7 +154,7 @@ object FitGenerator {
 
         val maxCadenceValue = points.mapNotNull { it.cadence }.maxOrNull()
 
-        // 5. Auto-Lap Splits (1 KM for Running, 5 KM for Cycling)
+        // 5. Auto-Lap Splits (1 KM for Running, 5 KM for Cycling) — zero-gap boundary splitting
         val lapIntervalMeters = if (result.settings.sport == SportType.CYCLING) 5000.0 else 1000.0
         val laps = mutableListOf<List<com.stravakalcer.model.SimulationPoint>>()
         var currentLapPoints = mutableListOf<com.stravakalcer.model.SimulationPoint>()
@@ -164,25 +164,32 @@ object FitGenerator {
             currentLapPoints.add(p)
             if (p.distanceFromStartMeters >= nextMilestoneMeters && currentLapPoints.size >= 5) {
                 laps.add(currentLapPoints)
-                currentLapPoints = mutableListOf()
+                // Seed next lap with the boundary point so zero distance/time is lost between laps
+                currentLapPoints = mutableListOf(p)
                 nextMilestoneMeters += lapIntervalMeters
             }
         }
-        if (currentLapPoints.isNotEmpty()) {
+        if (currentLapPoints.size > 1 || laps.isEmpty()) {
             laps.add(currentLapPoints)
         }
 
         for (lapIdx in laps.indices) {
             val lapPts = laps[lapIdx]
-            val lapStartEpoch = lapPts.first().timestampEpochMillis
-            val lapEndEpoch = lapPts.last().timestampEpochMillis
-            val lapDist = (lapPts.last().distanceFromStartMeters - lapPts.first().distanceFromStartMeters).coerceAtLeast(0.0)
-            val lapTimerTime = (lapPts.last().movingTimeSeconds - lapPts.first().movingTimeSeconds).coerceAtLeast(1L)
-            val lapElapsedTime = (lapPts.last().totalTimeSeconds - lapPts.first().totalTimeSeconds).coerceAtLeast(1L)
+            val firstPt = lapPts.first()
+            val lastPt = lapPts.last()
+            val lapStartEpoch = firstPt.timestampEpochMillis
+            val lapEndEpoch = lastPt.timestampEpochMillis
+            val lapDist = (lastPt.distanceFromStartMeters - firstPt.distanceFromStartMeters).coerceAtLeast(0.0)
+            val lapTimerTime = (lastPt.movingTimeSeconds - firstPt.movingTimeSeconds).coerceAtLeast(1L)
+            val lapElapsedTime = (lastPt.totalTimeSeconds - firstPt.totalTimeSeconds).coerceAtLeast(1L)
 
             val lapMesg = LapMesg().apply {
                 timestamp = DateTime(Date(lapEndEpoch))
                 startTime = DateTime(Date(lapStartEpoch))
+                startPositionLat = toSemicircles(firstPt.latitude)
+                startPositionLong = toSemicircles(firstPt.longitude)
+                endPositionLat = toSemicircles(lastPt.latitude)
+                endPositionLong = toSemicircles(lastPt.longitude)
                 totalElapsedTime = lapElapsedTime.toFloat()
                 totalTimerTime = lapTimerTime.toFloat()
                 totalMovingTime = lapTimerTime.toFloat()
@@ -202,8 +209,9 @@ object FitGenerator {
                 totalDescent = descent.toInt()
 
                 val lapHr = lapPts.mapNotNull { it.heartRate }
-                if (lapHr.isNotEmpty()) {
-                    avgHeartRate = lapHr.average().toInt().toShort()
+                val avgLapHrVal = if (lapHr.isNotEmpty()) lapHr.average().toInt() else null
+                if (avgLapHrVal != null) {
+                    avgHeartRate = avgLapHrVal.toShort()
                     maxHeartRate = lapHr.maxOrNull()?.toShort()
                 }
 
@@ -226,10 +234,15 @@ object FitGenerator {
                     lapMaxCadence?.let { maxCadence = it.toShort() }
                 }
 
-                val lapPower = lapPts.mapNotNull { it.powerWatts }.filter { it > 0 }
-                if (lapPower.isNotEmpty()) {
-                    avgPower = lapPower.average().toInt()
+                val lapPower = lapPts.mapNotNull { it.powerWatts }
+                if (lapPower.any { it > 0 }) {
+                    val lapAvgPwr = lapPower.average().toInt().coerceAtLeast(1)
+                    avgPower = lapAvgPwr
                     maxPower = lapPower.maxOrNull()
+                    val lapWorkJoules = (lapAvgPwr * lapTimerTime)
+                    totalCalories = com.stravakalcer.physiology.PowerEngine.calculateCalories(
+                        lapWorkJoules, lapTimerTime, avgLapHrVal, result.settings.sport
+                    )
                 }
 
                 lapPts.mapNotNull { it.temperatureCelsius }.takeIf { it.isNotEmpty() }?.let {

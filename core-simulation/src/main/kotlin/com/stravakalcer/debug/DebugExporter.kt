@@ -11,7 +11,7 @@ object DebugExporter {
      */
     fun exportToCsv(result: SimulationResult): String {
         val sw = StringWriter()
-        sw.appendLine("index,latitude,longitude,elevation,elevationSource,distance,gradient,terrainClass,baselineSpeed,profileAdjustment,targetAdjustment,finalSpeed,heartRate,cadence,timestamp,movingTime,totalTime,stopState")
+        sw.appendLine("index,latitude,longitude,elevation,elevationSource,distance,gradient,terrainClass,baselineSpeed,profileAdjustment,targetAdjustment,finalSpeed,heartRate,cadence,powerWatts,temperatureCelsius,timestamp,movingTime,totalTime,stopState")
 
         for (p in result.points) {
             val terrainClass = when {
@@ -36,6 +36,8 @@ object DebugExporter {
             sw.append("${"%.2f".format(p.speedKmh)},")
             sw.append("${p.heartRate ?: ""},")
             sw.append("${p.cadence ?: ""},")
+            sw.append("${p.powerWatts ?: ""},")
+            sw.append("${p.temperatureCelsius ?: ""},")
             sw.append("${p.timestampEpochMillis},")
             sw.append("${p.movingTimeSeconds},")
             sw.append("${p.totalTimeSeconds},")

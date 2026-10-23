@@ -64,25 +64,35 @@ object PowerEngine {
     }
 
     /**
-     * Computes Normalized Power (NP) using standard Coggan 30s rolling 4th-power algorithm.
+     * Computes Normalized Power (NP) using standard Coggan 30s rolling 4th-power algorithm
+     * with true chronological time deltas (in seconds).
      */
-    fun calculateNormalizedPower(powerSeries: IntArray): Int {
+    fun calculateNormalizedPower(powerSeries: IntArray, timeDeltasSec: DoubleArray? = null): Int {
         if (powerSeries.isEmpty()) return 0
         val nonZero = powerSeries.filter { it > 0 }
         if (nonZero.isEmpty()) return 0
 
-        // If activity is short, return average
-        if (powerSeries.size < 30) return nonZero.average().toInt()
+        // Expand or weight by actual elapsed seconds per segment to form a true 1Hz time series
+        val oneHzWatts = ArrayList<Double>(powerSeries.size * 4)
+        for (i in powerSeries.indices) {
+            val dt = timeDeltasSec?.getOrNull(i)?.coerceIn(1.0, 30.0)?.toInt() ?: 1
+            val w = powerSeries[i].toDouble()
+            for (s in 0 until dt) {
+                oneHzWatts.add(w)
+            }
+        }
 
-        // 30-second moving average window of power
+        if (oneHzWatts.size < 30) return oneHzWatts.average().toInt()
+
+        // 30-second rolling average window
         val windowSize = 30
         var windowSum = 0.0
-        val smoothed = ArrayList<Double>(powerSeries.size)
+        val smoothed = ArrayList<Double>(oneHzWatts.size)
 
-        for (i in powerSeries.indices) {
-            windowSum += powerSeries[i]
+        for (i in oneHzWatts.indices) {
+            windowSum += oneHzWatts[i]
             if (i >= windowSize) {
-                windowSum -= powerSeries[i - windowSize]
+                windowSum -= oneHzWatts[i - windowSize]
                 smoothed.add(windowSum / windowSize)
             } else {
                 smoothed.add(windowSum / (i + 1))

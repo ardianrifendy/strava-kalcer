@@ -193,8 +193,11 @@ fun DebugScreen(
                 DebugRow("Distance from start", "${"%.1f".format(p.distanceFromStartMeters)} m")
                 DebugRow("Speed / Pace", "${"%.2f".format(p.speedKmh)} km/h (${p.paceFormatted} min/km)")
                 DebugRow("Baseline vs Final", "${"%.2f".format(p.baselineSpeedKmh)} → ${"%.2f".format(p.speedKmh)} km/h")
+                DebugRow("Profile / Target Adj", "${"%+.2f".format(p.profileAdjustmentKmh)} / ${"%+.2f".format(p.targetAdjustmentKmh)} km/h")
                 DebugRow("Heart Rate", "${p.heartRate ?: "N/A"} bpm")
                 DebugRow("Cadence", "${p.cadence ?: "N/A"}")
+                DebugRow("Power", "${p.powerWatts ?: "N/A"} W")
+                DebugRow("Ambient Temp", "${p.temperatureCelsius ?: "N/A"} °C")
                 DebugRow("Moving / Total Time", "${p.movingTimeSeconds}s / ${p.totalTimeSeconds}s")
                 DebugRow("Stop State", if (p.isStopped) "STOPPED (${p.stopReason})" else "MOVING")
             }

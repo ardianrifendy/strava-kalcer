@@ -170,6 +170,82 @@ fun SimulationPreviewScreen(
             }
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Second Telemetry Row: Power, NP, Calories, Temperature
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (result.averagePower != null) {
+                MetricCard(
+                    label = "Avg Power",
+                    value = "${result.averagePower}",
+                    unit = "W",
+                    accentColor = KalcerAmber,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            if (result.normalizedPower != null) {
+                MetricCard(
+                    label = "Norm. Power",
+                    value = "${result.normalizedPower}",
+                    unit = "W",
+                    accentColor = KalcerAmber,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            MetricCard(
+                label = "Calories",
+                value = "${result.totalCalories}",
+                unit = "kcal",
+                accentColor = KalcerLime,
+                modifier = Modifier.weight(1f)
+            )
+            if (result.averageTemperature != null) {
+                MetricCard(
+                    label = "Temp",
+                    value = "${result.averageTemperature}",
+                    unit = "°C",
+                    accentColor = KalcerCyan,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        // Live Cursor Point Readout Bar
+        if (cursorPoint != null) {
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(DarkSurfaceVariant, RoundedCornerShape(8.dp))
+                    .border(1.dp, DarkBorder, RoundedCornerShape(8.dp))
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "CURSOR @ ${"%.2f".format(cursorPoint.distanceFromStartMeters / 1000.0)} km (${"%.1f".format(cursorPoint.gradient)}%)",
+                        color = KalcerCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = buildString {
+                            append(if (isCycling) "${"%.1f".format(cursorPoint.speedKmh)} km/h" else "${cursorPoint.paceFormatted}/km")
+                            cursorPoint.powerWatts?.let { append(" • ${it}W") }
+                            cursorPoint.heartRate?.let { append(" • ${it}bpm") }
+                            cursorPoint.cadence?.let { append(" • ${it}${if (isCycling) "rpm" else "spm"}") }
+                        },
+                        color = TextPrimary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Synchronized Map
@@ -271,6 +347,24 @@ fun SimulationPreviewScreen(
                 cursorDistanceMeters = cursorDistanceMeters,
                 currentValueAtCursor = cursorPoint?.cadence?.toDouble(),
                 accentColor = ChartCadence,
+                onCursorMoved = onCursorMoved
+            )
+        }
+
+        // Synchronized Power Chart (if enabled)
+        if (result.averagePower != null) {
+            Spacer(modifier = Modifier.height(12.dp))
+            val pwrPoints = result.points.mapNotNull { p ->
+                p.powerWatts?.let { ChartPoint(p.distanceFromStartMeters, it.toDouble()) }
+            }
+            SynchronizedChartCanvas(
+                title = "Power Output",
+                unit = "W",
+                dataPoints = pwrPoints,
+                totalDistanceMeters = result.totalDistanceMeters,
+                cursorDistanceMeters = cursorDistanceMeters,
+                currentValueAtCursor = cursorPoint?.powerWatts?.toDouble(),
+                accentColor = KalcerAmber,
                 onCursorMoved = onCursorMoved
             )
         }
