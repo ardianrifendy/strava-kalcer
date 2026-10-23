@@ -10,289 +10,281 @@
    ---------------------------------------------------------------------------- */
 const I18N = {
   en: {
-    brandSubtitle: "GPX to FIT Physics & Physiology Reconstruction Engine",
-    navRoute: "1. Route & GPX",
-    navConfig: "2. Simulation Setup",
-    navPreview: "3. Telemetry & Splits",
-    navExport: "4. Device & FIT Export",
-    navDebug: "5. Diagnostics",
-    mobNavRoute: "Route",
-    mobNavConfig: "Config",
-    mobNavPreview: "Preview",
-    mobNavExport: "Export",
-    mobNavDebug: "Debug",
-    btnUserGuide: "User Guide",
+    brandSubtitle: "Activity Studio",
+    navRoute: "1. Route",
+    navConfig: "2. Setup",
+    navPreview: "3. Telemetry",
+    navExport: "4. Export",
+    navDebug: "5. Debug",
+    mobNavRoute: "1. Route",
+    mobNavConfig: "2. Setup",
+    mobNavPreview: "3. Telemetry",
+    mobNavExport: "4. Export",
+    mobNavDebug: "5. Debug",
+    btnUserGuide: "Guide",
     btnClose: "Close",
-    btnHideGuide: "Hide Guide",
-    btnShowGuide: "Show Guide",
-    guideBannerTitle: "First-Time User Guide — How to Reconstruct & Upload to Strava for Free",
-    guideBannerSub: "Complete 4-step workflow from raw GPX route to verified Garmin .FIT telemetry without needing a paid Strava API subscription.",
-    step1Title: "Import GPX or Load Sample",
-    step1Desc: "Upload any .gpx route file or click \"Load Sample Route\" to test immediately. Use \"Reverse Route\" to flip start and finish points.",
-    step2Title: "Configure Physics & Physiology",
-    step2Desc: "Choose Cycling or Running, select an athlete profile, set your target average speed/pace, smart stops, HR, cadence, and power meter.",
-    step3Title: "Inspect Telemetry & Device",
-    step3Desc: "Verify your synchronized elevation, speed, watts, HR, and KM splits. Select from 34 authentic Garmin, Wahoo, or Coros devices.",
-    step4Title: "Download .FIT & Upload Free",
-    step4Desc: "Download the validated binary .fit file, then click \"UPLOAD TO STRAVA\" to upload on Strava Web for 100% free (no API subscription required).",
-    cardImportTitle: "GPX Route Source",
-    cardImportSub: "Import a GPX 1.1 track or load our built-in climb route",
-    dropzoneTitle: "Drag & Drop your .GPX file here",
-    dropzoneDesc: "Supports Strava, Komoot, Garmin Connect, RideWithGPS, and GPX Studio files",
-    btnSelectGpx: "Select .GPX File",
-    btnLoadSample: "Load Sample Route (Dago Pakar)",
-    lblActiveTrack: "ACTIVE TRACK NAME",
-    btnReverseRoute: "Reverse Route",
-    btnConfigureSim: "Configure Simulation",
-    cardRouteAuditTitle: "Route Telemetry & Elevation Audit",
-    lblTotalDist: "Total Distance",
-    lblEleGain: "Elevation Gain",
-    lblEleLoss: "Elevation Loss",
-    lblAltitudeRange: "Altitude Range",
-    lblMaxGrade: "Max Gradient",
-    lblTrackpoints: "Trackpoints",
-    cardRouteMapTitle: "Interactive Route Geometry",
-    chartElevationTitle: "Elevation Profile (m)",
-    cardRouteIntelTitle: "Route Intelligence & UCI Climb Detection",
-    lblFlatRatio: "Flat Terrain",
-    lblClimbRatio: "Climbing",
-    lblDescentRatio: "Descending",
-    cardSportProfileTitle: "Sport Type & Athlete Behavior Profile",
-    lblSportType: "Sport Type",
-    sportCycling: "Cycling (Ride)",
-    sportRunning: "Running (Run)",
-    lblActivityProfile: "Select Realistic Athlete Profile (13 Presets)",
-    cardTargetSolverTitle: "Target Speed / Pace Physics Solver",
-    lblTargetAvgSpeed: "Target Moving Average Speed",
-    lblDesiredMaxSpeed: "Inject Downhill Top Speed Opportunity",
-    lblTargetAvgPace: "Target Moving Average Pace",
-    lblDesiredBestPace: "Target Best Split / Surge Pace",
-    cardScheduleStopsTitle: "Activity Schedule & Smart Traffic Stops",
-    lblStartDate: "Activity Date",
-    lblStartTime: "Start Time",
-    lblActivityTitle: "Activity Title",
-    lblSmartStops: "Smart Traffic & Rest Stop Simulation",
-    stopNone: "No Stops — Continuous Non-Stop Effort",
-    stopLight: "Light Traffic — Brief Intersection Pauses (15-35s)",
-    stopCity: "City Commute — Red Lights & Junctions (25-60s)",
-    stopCoffee: "Scenic / Coffee Stop — Mid-Route Rest Break (2-5m)",
-    cardHrTitle: "Heart Rate Physiology (Asymmetric Lag Model)",
-    lblEnabled: "Enabled",
-    lblRestingHr: "Resting / Warmup Baseline HR",
-    lblTargetAvgHr: "Target Average Exercising HR",
-    lblMaxHr: "Physiological Ceiling (Max HR)",
-    cardCadenceTitle: "Cadence & Downhill Coasting Dynamics",
-    lblTargetCadence: "Target Flat Cadence",
-    lblCoastingMode: "Steep Downhill Coasting Mode (< -4.5% Grade)",
-    coastZero: "Freewheel Coasting (0 RPM on steep descents)",
-    coastSoft: "Soft Pedaling (~20 RPM light spin on descents)",
-    lblClimbingDrop: "Steep Climb Grinding RPM Drop",
-    cardPowerTitle: "Physics Power Meter (Watts, 30s NP & kJ)",
-    lblRiderWeight: "Rider Body Weight",
-    lblBikeWeight: "Bicycle & Gear Weight",
-    btnRunSim: "RUN PHYSICS SIMULATION & PREVIEW TELEMETRY",
-    btnTweakConfig: "Tweak Settings",
-    btnProceedExport: "Select Device & Export .FIT",
+    btnHideGuide: "Hide",
+    btnShowGuide: "Guide",
+    guideBannerTitle: "Quick Start",
+    guideBannerSub: "",
+    step1Title: "Select Route",
+    step1Desc: "Import GPX or draw on map.",
+    step2Title: "Setup",
+    step2Desc: "Set sport, target speed/pace & sensors.",
+    step3Title: "Telemetry",
+    step3Desc: "Review charts & 1 km splits.",
+    step4Title: "Export .FIT",
+    step4Desc: "Pick GPS device & upload to Strava.",
+    cardImportTitle: "Route",
+    cardImportSub: "",
+    dropzoneTitle: "Drop .GPX file here",
+    dropzoneDesc: "Strava, Komoot, Garmin, or custom GPX",
+    btnSelectGpx: "Choose File",
+    btnLoadSample: "Sample Route",
+    lblActiveTrack: "ACTIVE ROUTE",
+    btnReverseRoute: "Reverse",
+    btnConfigureSim: "Next: Setup",
+    cardRouteAuditTitle: "Route Summary",
+    lblTotalDist: "Distance",
+    lblEleGain: "Elev Gain",
+    lblEleLoss: "Elev Loss",
+    lblAltitudeRange: "Altitude",
+    lblMaxGrade: "Max Grade",
+    lblTrackpoints: "Points",
+    cardRouteMapTitle: "Route Map",
+    chartElevationTitle: "Elevation (m)",
+    cardRouteIntelTitle: "Terrain & Climbs",
+    lblFlatRatio: "Flat",
+    lblClimbRatio: "Climb",
+    lblDescentRatio: "Descent",
+    cardSportProfileTitle: "Sport & Profile",
+    lblSportType: "Sport",
+    sportCycling: "Cycling",
+    sportRunning: "Running",
+    lblActivityProfile: "Pacing Profile",
+    cardTargetSolverTitle: "Target Speed & Pace",
+    lblTargetAvgSpeed: "Average Speed",
+    lblDesiredMaxSpeed: "Max Speed",
+    lblTargetAvgPace: "Average Pace",
+    lblDesiredBestPace: "Best Pace",
+    cardScheduleStopsTitle: "Schedule & Details",
+    lblStartDate: "Date",
+    lblStartTime: "Time",
+    lblActivityTitle: "Activity Name",
+    lblSmartStops: "Auto-Pause",
+    stopNone: "None (Non-Stop)",
+    stopLight: "Light Traffic (15-35s)",
+    stopCity: "City Traffic (25-60s)",
+    stopCoffee: "Rest Break (2-5m)",
+    cardHrTitle: "Heart Rate",
+    lblEnabled: "On",
+    lblRestingHr: "Resting HR",
+    lblTargetAvgHr: "Average HR",
+    lblMaxHr: "Max HR",
+    cardCadenceTitle: "Cadence",
+    lblTargetCadence: "Average Cadence",
+    lblCoastingMode: "Downhill Coasting",
+    coastZero: "Freewheel (0 RPM)",
+    coastSoft: "Soft Spin (~20 RPM)",
+    lblClimbingDrop: "Climb Drop",
+    cardPowerTitle: "Power Meter",
+    lblRiderWeight: "Rider Weight",
+    lblBikeWeight: "Bike Weight",
+    btnRunSim: "Generate Telemetry",
+    btnTweakConfig: "Edit Setup",
+    btnProceedExport: "Next: Export .FIT",
     lblDistance: "Distance",
     lblMovingTime: "Moving Time",
-    lblAvgHr: "Avg / Max HR",
-    lblAvgCadence: "Avg Cadence",
+    lblAvgHr: "Heart Rate",
+    lblAvgCadence: "Cadence",
     lblAvgPower: "Avg Power",
     lblNormPower: "Normalized (NP)",
-    lblCalories: "Calories / Work",
-    lblAmbientTemp: "Ambient Temp",
-    cardSyncMapTitle: "Synchronized Telemetry Route Map",
-    lblDragChartsHint: "Hover or drag on any chart to scrub",
-    cardSplitsTitle: "Kilometer Splits (1.0 km Auto-Laps)",
-    thSplitSpeed: "Speed / Pace",
-    thSplitElev: "Elev Diff",
-    thSplitHr: "Avg HR",
+    lblCalories: "Calories",
+    lblAmbientTemp: "Temperature",
+    cardSyncMapTitle: "Activity Map",
+    lblDragChartsHint: "Drag chart to inspect",
+    cardSplitsTitle: "Splits (1 km)",
+    thSplitSpeed: "Pace / Speed",
+    thSplitElev: "Elev",
+    thSplitHr: "HR",
     thSplitCad: "Cadence",
-    thSplitPower: "Avg Power",
-    chartPowerTitle: "Power Output (Watts)",
+    thSplitPower: "Power",
+    chartPowerTitle: "Power (W)",
     chartHrTitle: "Heart Rate (bpm)",
-    cardDeviceTitle: "Authentic Hardware Device Signature (34 Models)",
-    cardDeviceSub: "Writes official Garmin FIT Manufacturer ID, Product ID & Firmware into FileIdMesg & DeviceInfoMesg",
-    lblSelectedHardware: "SELECTED GPS HARDWARE",
-    cardFitValidationTitle: "Garmin FIT Protocol 2.0 Binary Validation",
-    cardFitValidationSub: "Real-time binary encoder & parse-back CRC-16 verification",
-    lblFitSize: "Binary File Size",
-    lblFitRecords: "FIT Messages",
-    btnDownloadFit: "DOWNLOAD VALIDATED .FIT FILE",
-    stravaFreeTitle: "FREE STRAVA UPLOAD (NO API SUBSCRIPTION NEEDED)",
-    stravaStep1: "Click <strong>\"DOWNLOAD VALIDATED .FIT FILE\"</strong> above to save your activity file.",
-    stravaStep2: "Click <strong>\"UPLOAD TO STRAVA\"</strong> below to open Strava's official File Upload page.",
-    stravaStep3: "Select the downloaded <code>.fit</code> file — Strava will display your exact GPS device name, elevation, HR, cadence, watts, and laps!",
-    cardDiagSolverTitle: "Physics Solver State & Export CSV",
-    btnExportCsv: "Export Telemetry CSV",
-    cardDownhillCandTitle: "Downhill High-Speed Candidates",
-    cardPointInspectorTitle: "Point-by-Point Telemetry Inspector",
-    modalGuideTitle: "Complete User Guide — Strava Kalcer Web Studio",
+    cardDeviceTitle: "GPS Device",
+    cardDeviceSub: "",
+    lblSelectedHardware: "ACTIVE DEVICE",
+    cardFitValidationTitle: "Export .FIT File",
+    cardFitValidationSub: "",
+    lblFitSize: "File Size",
+    lblFitRecords: "Records",
+    btnDownloadFit: "Download .FIT File",
+    stravaFreeTitle: "Upload to Strava",
+    stravaStep1: "Download the <strong>.FIT</strong> file above.",
+    stravaStep2: "Click below and select the file on Strava.",
+    stravaStep3: "Your GPS device name, HR, power, and splits will appear automatically.",
+    cardDiagSolverTitle: "Solver Summary",
+    btnExportCsv: "Export CSV",
+    cardDownhillCandTitle: "Downhill Segments",
+    cardPointInspectorTitle: "Point Inspector",
+    modalGuideTitle: "Quick Guide — Strava Kalcer",
     guideModalHtml: `
-      <div style="display:flex; flex-direction:column; gap:14px;">
-        <div style="padding:12px 14px; border-radius:8px; background:var(--strava-orange-soft); border:1px solid var(--strava-orange-border);">
-          <strong>Why Use Strava Kalcer Web Studio?</strong><br/>
-          Strava Kalcer converts raw GPX routes into complete, physically realistic Garmin <code>.FIT</code> binary activity files with authentic hardware signatures, barometric elevation, asymmetric heart rate lag, cadence coasting, cycling power (Watts &amp; 30-second Normalized Power), and 1.0 km auto-laps.
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <strong>1. Route</strong>
+          <p style="color:var(--text-secondary);">Upload a <code>.gpx</code> file, draw a custom non-toll road route on the map, or use the sample route.</p>
         </div>
         <div>
-          <strong>Step 1: Import or Load Your Route (Tab 1)</strong>
-          <p style="color:var(--text-secondary);">Drag and drop any <code>.gpx</code> file exported from Strava Route Builder, Komoot, Garmin Connect, or GPX Studio. If you want to test immediately, click <strong>"Load Sample Route (Dago Pakar)"</strong>. Click <strong>"Reverse Route"</strong> if you want to flip the start and finish direction without losing elevation accuracy.</p>
+          <strong>2. Setup</strong>
+          <p style="color:var(--text-secondary);">Select <strong>Cycling</strong> or <strong>Running</strong>, choose a pacing profile, and set your target speed/pace, heart rate, cadence, and power.</p>
         </div>
         <div>
-          <strong>Step 2: Configure Physics &amp; Physiology (Tab 2)</strong>
-          <p style="color:var(--text-secondary);">Choose <strong>Cycling</strong> or <strong>Running</strong> and pick one of the 13 athlete profiles. Set your desired Moving Average Speed (km/h) or Pace (min/km). The 18-iteration physics root-solver automatically adjusts flat, uphill, and downhill speeds to hit your exact average while respecting gravity and aerodynamics. Configure Heart Rate, Cadence, Smart Traffic Stops, and Start Date/Time.</p>
+          <strong>3. Telemetry</strong>
+          <p style="color:var(--text-secondary);">Inspect elevation, speed, power, heart rate, and 1.0 km splits.</p>
         </div>
         <div>
-          <strong>Step 3: Review Synchronized Charts &amp; Splits (Tab 3)</strong>
-          <p style="color:var(--text-secondary);">Move your cursor across any chart (Elevation, Speed/Pace, Power, Heart Rate, Cadence) to inspect synchronized telemetry along the route map and verify your 1.0 km Strava splits.</p>
-        </div>
-        <div>
-          <strong>Step 4: Select GPS Hardware, Download .FIT &amp; Upload to Strava Free (Tab 4)</strong>
-          <p style="color:var(--text-secondary);">Choose from 34 official GPS devices (e.g. Garmin Edge 1040 Solar, Forerunner 965, Wahoo ELEMNT ROAM v2, Coros PACE 3). Click <strong>"DOWNLOAD VALIDATED .FIT FILE"</strong>, then click <strong>"UPLOAD TO STRAVA"</strong> (<code>strava.com/upload/select</code>) to upload your file for <strong>100% FREE</strong> without needing a paid Strava API subscription.</p>
+          <strong>4. Export .FIT</strong>
+          <p style="color:var(--text-secondary);">Select your GPS device (52 Cyclocomps &amp; 61 Sportwatches), download the <code>.fit</code> file, and upload directly to Strava.</p>
         </div>
       </div>
     `
   },
   id: {
-    brandSubtitle: "Studio Rekonstruksi Fisika & Fisiologi GPX ke Garmin .FIT",
-    navRoute: "1. Rute & GPX",
-    navConfig: "2. Pengaturan Simulasi",
-    navPreview: "3. Telemetri & Split",
-    navExport: "4. Perangkat & Ekspor FIT",
-    navDebug: "5. Diagnostik",
-    mobNavRoute: "Rute",
-    mobNavConfig: "Konfig",
-    mobNavPreview: "Pratinjau",
-    mobNavExport: "Ekspor",
-    mobNavDebug: "Debug",
-    btnUserGuide: "Panduan Pengguna",
+    brandSubtitle: "Studio Aktivitas",
+    navRoute: "1. Rute",
+    navConfig: "2. Pengaturan",
+    navPreview: "3. Telemetri",
+    navExport: "4. Ekspor",
+    navDebug: "5. Debug",
+    mobNavRoute: "1. Rute",
+    mobNavConfig: "2. Konfig",
+    mobNavPreview: "3. Grafik",
+    mobNavExport: "4. Ekspor",
+    mobNavDebug: "5. Debug",
+    btnUserGuide: "Panduan",
     btnClose: "Tutup",
-    btnHideGuide: "Sembunyikan Panduan",
-    btnShowGuide: "Tampilkan Panduan",
-    guideBannerTitle: "Panduan Pengguna Baru — Cara Rekonstruksi & Upload ke Strava Gratis",
-    guideBannerSub: "Alur kerja 4 langkah dari file rute GPX mentah menjadi file telemetri Garmin .FIT tervalidasi tanpa perlu langganan Strava API berbayar.",
-    step1Title: "Impor GPX atau Muat Rute Contoh",
-    step1Desc: "Unggah file rute .gpx Anda atau klik \"Muat Rute Contoh\" untuk langsung mencoba. Gunakan \"Balik Arah Rute\" untuk menukar titik start dan finis.",
-    step2Title: "Atur Fisika & Fisiologi",
-    step2Desc: "Pilih Bersepeda atau Lari, pilih profil atlet, atur target kecepatan/pace rata-rata, pemberhentian lampu merah, detak jantung (HR), cadence, dan power meter.",
-    step3Title: "Periksa Telemetri & Pilih Perangkat",
-    step3Desc: "Periksa grafik elevasi, kecepatan, watt, HR, dan split per KM. Pilih dari 34 perangkat resmi Garmin, Wahoo, Coros, Suunto, atau Polar.",
-    step4Title: "Unduh .FIT & Upload Gratis",
-    step4Desc: "Unduh file biner .fit yang telah tervalidasi, lalu klik \"UPLOAD TO STRAVA\" untuk mengunggah di Web Strava 100% gratis (tanpa langganan API).",
-    cardImportTitle: "Sumber Rute GPX",
-    cardImportSub: "Impor file trek GPX 1.1 atau gunakan rute tanjakan bawaan kami",
-    dropzoneTitle: "Tarik & Lepas file .GPX Anda di sini",
-    dropzoneDesc: "Mendukung file GPX dari Strava, Komoot, Garmin Connect, RideWithGPS, dan GPX Studio",
-    btnSelectGpx: "Pilih File .GPX",
-    btnLoadSample: "Muat Rute Contoh (Dago Pakar)",
-    lblActiveTrack: "NAMA TREK AKTIF",
-    btnReverseRoute: "Balik Arah Rute",
-    btnConfigureSim: "Atur Simulasi",
-    cardRouteAuditTitle: "Telemetri Rute & Audit Kualitas Elevasi",
-    lblTotalDist: "Total Jarak",
-    lblEleGain: "Total Tanjakan (Gain)",
-    lblEleLoss: "Total Turunan (Loss)",
-    lblAltitudeRange: "Rentang Ketinggian",
+    btnHideGuide: "Tutup",
+    btnShowGuide: "Panduan",
+    guideBannerTitle: "Panduan Singkat",
+    guideBannerSub: "",
+    step1Title: "Pilih Rute",
+    step1Desc: "Impor GPX atau buat di peta.",
+    step2Title: "Pengaturan",
+    step2Desc: "Atur olahraga, kecepatan/pace & sensor.",
+    step3Title: "Telemetri",
+    step3Desc: "Cek grafik & split per 1 km.",
+    step4Title: "Ekspor .FIT",
+    step4Desc: "Pilih device GPS & unggah ke Strava.",
+    cardImportTitle: "Rute",
+    cardImportSub: "",
+    dropzoneTitle: "Tarik file .GPX ke sini",
+    dropzoneDesc: "Strava, Komoot, Garmin, atau GPX kustom",
+    btnSelectGpx: "Pilih File",
+    btnLoadSample: "Rute Contoh",
+    lblActiveTrack: "RUTE AKTIF",
+    btnReverseRoute: "Balik Arah",
+    btnConfigureSim: "Lanjut",
+    cardRouteAuditTitle: "Ringkasan Rute",
+    lblTotalDist: "Jarak",
+    lblEleGain: "Tanjakan",
+    lblEleLoss: "Turunan",
+    lblAltitudeRange: "Ketinggian",
     lblMaxGrade: "Gradien Maks",
-    lblTrackpoints: "Titik Koordinat",
-    cardRouteMapTitle: "Peta Geometri Rute Interaktif",
-    chartElevationTitle: "Profil Elevasi (m)",
-    cardRouteIntelTitle: "Intelijen Rute & Deteksi Tanjakan UCI",
-    lblFlatRatio: "Medan Datar",
-    lblClimbRatio: "Menanjak",
-    lblDescentRatio: "Menurun",
-    cardSportProfileTitle: "Jenis Olahraga & Profil Perilaku Atlet",
-    lblSportType: "Jenis Olahraga",
-    sportCycling: "Bersepeda (Ride)",
-    sportRunning: "Lari (Run)",
-    lblActivityProfile: "Pilih Profil Perilaku Atlet Realistis (13 Preset)",
-    cardTargetSolverTitle: "Solver Fisika Target Kecepatan / Pace",
-    lblTargetAvgSpeed: "Target Kecepatan Rata-Rata Bergerak (Avg Speed)",
-    lblDesiredMaxSpeed: "Suntikkan Peluang Top Speed di Turunan",
-    lblTargetAvgPace: "Target Pace Rata-Rata Bergerak (Avg Pace)",
-    lblDesiredBestPace: "Target Best Split / Surge Pace",
-    cardScheduleStopsTitle: "Jadwal Aktivitas & Simulasi Berhenti Cerdas",
-    lblStartDate: "Tanggal Aktivitas",
-    lblStartTime: "Waktu Mulai",
-    lblActivityTitle: "Judul Aktivitas",
-    lblSmartStops: "Simulasi Berhenti Lampu Merah & Istirahat",
-    stopNone: "Tanpa Berhenti — Usaha Kontinu Non-Stop",
-    stopLight: "Lalu Lintas Ringan — Jeda Persimpangan Singkat (15-35 dtk)",
-    stopCity: "Komuter Kota — Lampu Merah & Persimpangan (25-60 dtk)",
-    stopCoffee: "Istirahat Foto / Kopi — Jeda Pertengahan Rute (2-5 mnt)",
-    cardHrTitle: "Fisiologi Detak Jantung (Model Lag Asimetris)",
+    lblTrackpoints: "Titik",
+    cardRouteMapTitle: "Peta Rute",
+    chartElevationTitle: "Elevasi (m)",
+    cardRouteIntelTitle: "Medan & Tanjakan",
+    lblFlatRatio: "Datar",
+    lblClimbRatio: "Tanjakan",
+    lblDescentRatio: "Turunan",
+    cardSportProfileTitle: "Olahraga & Profil",
+    lblSportType: "Olahraga",
+    sportCycling: "Sepeda",
+    sportRunning: "Lari",
+    lblActivityProfile: "Profil Pace",
+    cardTargetSolverTitle: "Target Kecepatan & Pace",
+    lblTargetAvgSpeed: "Kecepatan Rata-Rata",
+    lblDesiredMaxSpeed: "Kecepatan Maks",
+    lblTargetAvgPace: "Pace Rata-Rata",
+    lblDesiredBestPace: "Pace Terbaik",
+    cardScheduleStopsTitle: "Jadwal & Detail",
+    lblStartDate: "Tanggal",
+    lblStartTime: "Waktu",
+    lblActivityTitle: "Nama Aktivitas",
+    lblSmartStops: "Berhenti Otomatis",
+    stopNone: "Tanpa Berhenti",
+    stopLight: "Lalu Lintas Ringan (15-35d)",
+    stopCity: "Dalam Kota (25-60d)",
+    stopCoffee: "Istirahat Singkat (2-5m)",
+    cardHrTitle: "Detak Jantung",
     lblEnabled: "Aktif",
-    lblRestingHr: "Detak Jantung Istirahat / Pemanasan",
-    lblTargetAvgHr: "Target Detak Jantung Rata-Rata",
-    lblMaxHr: "Batas Maksimum Fisiologis (Max HR)",
-    cardCadenceTitle: "Dinamika Cadence & Coasting Turunan",
-    lblTargetCadence: "Target Cadence Medan Datar",
-    lblCoastingMode: "Mode Coasting Turunan Curam (< -4.5% Gradien)",
-    coastZero: "Freewheel Coasting (0 RPM saat meluncur di turunan curam)",
-    coastSoft: "Soft Pedaling (~20 RPM kayuhan ringan di turunan)",
-    lblClimbingDrop: "Penurunan RPM Saat Menanjak Curam",
-    cardPowerTitle: "Power Meter Fisika (Watt, 30s NP & kJ)",
-    lblRiderWeight: "Berat Badan Atlet",
-    lblBikeWeight: "Berat Sepeda & Perlengkapan",
-    btnRunSim: "JALANKAN SIMULASI FISIKA & LIHAT TELEMETRI",
-    btnTweakConfig: "Ubah Pengaturan",
-    btnProceedExport: "Pilih Perangkat & Ekspor .FIT",
-    lblDistance: "Jarak Tempuh",
-    lblMovingTime: "Waktu Bergerak",
-    lblAvgHr: "HR Rata-Rata / Maks",
-    lblAvgCadence: "Cadence Rata-Rata",
-    lblAvgPower: "Power Rata-Rata",
+    lblRestingHr: "HR Istirahat",
+    lblTargetAvgHr: "HR Rata-Rata",
+    lblMaxHr: "HR Maksimum",
+    cardCadenceTitle: "Cadence",
+    lblTargetCadence: "Cadence Rata-Rata",
+    lblCoastingMode: "Coasting Turunan",
+    coastZero: "Freewheel (0 RPM)",
+    coastSoft: "Kayuhan Ringan (~20 RPM)",
+    lblClimbingDrop: "Turun RPM Tanjakan",
+    cardPowerTitle: "Power Meter",
+    lblRiderWeight: "Berat Atlet",
+    lblBikeWeight: "Berat Sepeda",
+    btnRunSim: "Buat Telemetri",
+    btnTweakConfig: "Ubah",
+    btnProceedExport: "Lanjut: Ekspor .FIT",
+    lblDistance: "Jarak",
+    lblMovingTime: "Waktu Gerak",
+    lblAvgHr: "Detak Jantung",
+    lblAvgCadence: "Cadence",
+    lblAvgPower: "Avg Power",
     lblNormPower: "Normalized (NP)",
-    lblCalories: "Kalori / Kerja",
-    lblAmbientTemp: "Suhu Lingkungan",
-    cardSyncMapTitle: "Peta Rute Telemetri Tersinkronisasi",
-    lblDragChartsHint: "Arahkan atau geser pada grafik untuk memeriksa titik",
-    cardSplitsTitle: "Split Kilometer (Auto-Lap 1.0 km)",
-    thSplitSpeed: "Kecepatan / Pace",
-    thSplitElev: "Selisih Elev",
-    thSplitHr: "HR Rata-Rata",
+    lblCalories: "Kalori",
+    lblAmbientTemp: "Suhu",
+    cardSyncMapTitle: "Peta Aktivitas",
+    lblDragChartsHint: "Geser grafik untuk cek titik",
+    cardSplitsTitle: "Split (1 km)",
+    thSplitSpeed: "Pace / Speed",
+    thSplitElev: "Elev",
+    thSplitHr: "HR",
     thSplitCad: "Cadence",
-    thSplitPower: "Power Rata-Rata",
-    chartPowerTitle: "Output Daya / Power (Watt)",
+    thSplitPower: "Power",
+    chartPowerTitle: "Power (W)",
     chartHrTitle: "Detak Jantung (bpm)",
-    cardDeviceTitle: "Tanda Tangan Perangkat GPS Resmi (34 Model)",
-    cardDeviceSub: "Menulis ID Manufaktur, ID Produk & Firmware resmi Garmin FIT ke dalam FileIdMesg & DeviceInfoMesg",
-    lblSelectedHardware: "PERANGKAT KERAS GPS TERPILIH",
-    cardFitValidationTitle: "Validasi Biner Garmin FIT Protokol 2.0",
-    cardFitValidationSub: "Enkoder biner real-time & verifikasi parse-back CRC-16",
-    lblFitSize: "Ukuran File Biner",
-    lblFitRecords: "Pesan FIT",
-    btnDownloadFit: "UNDUH FILE .FIT TERVALIDASI",
-    stravaFreeTitle: "UPLOAD STRAVA GRATIS (TANPA LANGGANAN API)",
-    stravaStep1: "Klik tombol <strong>\"UNDUH FILE .FIT TERVALIDASI\"</strong> di atas untuk menyimpan file aktivitas Anda.",
-    stravaStep2: "Klik tombol <strong>\"UPLOAD TO STRAVA\"</strong> di bawah untuk membuka halaman Upload File resmi Strava.",
-    stravaStep3: "Pilih file <code>.fit</code> yang baru diunduh — Strava akan menampilkan nama perangkat GPS, elevasi, HR, cadence, watt, dan split Anda secara lengkap!",
-    cardDiagSolverTitle: "Status Solver Fisika & Ekspor CSV",
-    btnExportCsv: "Ekspor CSV Telemetri",
-    cardDownhillCandTitle: "Kandidat Turunan Kecepatan Tinggi",
-    cardPointInspectorTitle: "Inspektur Telemetri Titik-demi-Titik",
-    modalGuideTitle: "Panduan Lengkap Pengguna — Strava Kalcer Web Studio",
+    cardDeviceTitle: "Perangkat GPS",
+    cardDeviceSub: "",
+    lblSelectedHardware: "PERANGKAT AKTIF",
+    cardFitValidationTitle: "Ekspor File .FIT",
+    cardFitValidationSub: "",
+    lblFitSize: "Ukuran File",
+    lblFitRecords: "Total Data",
+    btnDownloadFit: "Unduh File .FIT",
+    stravaFreeTitle: "Unggah ke Strava",
+    stravaStep1: "Unduh file <strong>.FIT</strong> di atas.",
+    stravaStep2: "Klik tombol di bawah dan pilih file tersebut di Strava.",
+    stravaStep3: "Nama perangkat GPS, HR, power, dan split akan langsung tampil.",
+    cardDiagSolverTitle: "Ringkasan Solver",
+    btnExportCsv: "Ekspor CSV",
+    cardDownhillCandTitle: "Segmen Turunan",
+    cardPointInspectorTitle: "Inspeksi Titik",
+    modalGuideTitle: "Panduan Singkat — Strava Kalcer",
     guideModalHtml: `
-      <div style="display:flex; flex-direction:column; gap:14px;">
-        <div style="padding:12px 14px; border-radius:8px; background:var(--strava-orange-soft); border:1px solid var(--strava-orange-border);">
-          <strong>Mengapa Menggunakan Strava Kalcer Web Studio?</strong><br/>
-          Strava Kalcer mengubah rute GPX mentah menjadi file biner Garmin <code>.FIT</code> yang utuh dan realistis secara fisika, lengkap dengan identitas perangkat keras resmi, elevasi barometrik, respons detak jantung lag asimetris, cadence coasting, power meter sepeda (Watt &amp; 30-detik Normalized Power), serta auto-lap setiap 1.0 km.
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <strong>1. Rute</strong>
+          <p style="color:var(--text-secondary);">Unggah file <code>.gpx</code>, gambar rute jalan raya bebas tol di peta, atau gunakan rute contoh.</p>
         </div>
         <div>
-          <strong>Langkah 1: Impor atau Muat Rute Anda (Tab 1)</strong>
-          <p style="color:var(--text-secondary);">Tarik dan lepas file <code>.gpx</code> dari Strava Route Builder, Komoot, Garmin Connect, atau GPX Studio. Jika ingin langsung mencoba tanpa file, klik <strong>"Muat Rute Contoh (Dago Pakar)"</strong>. Gunakan tombol <strong>"Balik Arah Rute"</strong> untuk membalik start menjadi finis tanpa mengurangi akurasi elevasi.</p>
+          <strong>2. Pengaturan</strong>
+          <p style="color:var(--text-secondary);">Pilih <strong>Sepeda</strong> atau <strong>Lari</strong>, pilih profil pace, lalu atur target kecepatan/pace, detak jantung, cadence, dan power.</p>
         </div>
         <div>
-          <strong>Langkah 2: Konfigurasi Fisika &amp; Fisiologi (Tab 2)</strong>
-          <p style="color:var(--text-secondary);">Pilih olahraga <strong>Bersepeda (Ride)</strong> atau <strong>Lari (Run)</strong> serta pilih salah satu dari 13 profil atlet. Atur target Kecepatan Rata-Rata (km/h) atau Pace (mnt/km). Solver fisika 18-iterasi akan menyesuaikan kecepatan datar, tanjakan, dan turunan secara otomatis. Atur juga Detak Jantung, Cadence, Berhenti Lampu Merah, dan Waktu Mulai.</p>
+          <strong>3. Telemetri</strong>
+          <p style="color:var(--text-secondary);">Periksa grafik elevasi, kecepatan, power, detak jantung, dan tabel split per 1 km.</p>
         </div>
         <div>
-          <strong>Langkah 3: Periksa Grafik Tersinkronisasi &amp; Split KM (Tab 3)</strong>
-          <p style="color:var(--text-secondary);">Geser kursor di atas grafik (Elevasi, Kecepatan/Pace, Power, Detak Jantung, Cadence) untuk melihat posisi dan telemetri secara sinkron di peta rute serta tabel split per 1.0 km.</p>
-        </div>
-        <div>
-          <strong>Langkah 4: Pilih Perangkat GPS, Unduh .FIT &amp; Upload Gratis ke Strava (Tab 4)</strong>
-          <p style="color:var(--text-secondary);">Pilih dari 34 perangkat GPS resmi (seperti Garmin Edge 1040 Solar, Forerunner 965, Wahoo ELEMNT ROAM v2, Coros PACE 3). Klik <strong>"UNDUH FILE .FIT TERVALIDASI"</strong>, kemudian klik <strong>"UPLOAD TO STRAVA"</strong> (<code>strava.com/upload/select</code>) untuk mengunggah secara <strong>100% GRATIS</strong> tanpa perlu berlangganan API Strava.</p>
+          <strong>4. Ekspor .FIT</strong>
+          <p style="color:var(--text-secondary);">Pilih perangkat GPS (52 Cyclocomp &amp; 61 Sportwatch), unduh file <code>.fit</code>, lalu unggah ke Strava.</p>
         </div>
       </div>
     `
@@ -303,19 +295,19 @@ const I18N = {
    2. ACTIVITY PROFILES (13 REALISTIC ATHLETE PRESETS)
    ---------------------------------------------------------------------------- */
 const ACTIVITY_PROFILES = [
-  { id: "CASUAL_RIDE", sport: "CYCLING", nameEn: "Casual Ride", nameId: "Gowes Santai", descEn: "Relaxed aerobic spin with gentle pacing on climbs and safe descents.", descId: "Kayuhan aerobik santai dengan ritme ringan di tanjakan dan turunan aman.", defaultSpeedKmh: 22.0, noiseFactor: 0.035, climbSensitivity: 1.05, descentSensitivity: 0.85 },
-  { id: "ENDURANCE_RIDE", sport: "CYCLING", nameEn: "Endurance Zone 2", nameId: "Endurance Zona 2", descEn: "Steady aerobic base ride with disciplined power output and smooth cadence.", descId: "Bersepeda daya tahan stabil di Zona 2 dengan output watt dan cadence rapi.", defaultSpeedKmh: 28.0, noiseFactor: 0.025, climbSensitivity: 0.95, descentSensitivity: 1.0 },
-  { id: "CLIMB_FOCUSED", sport: "CYCLING", nameEn: "Mountain Climber", nameId: "Spesialis Tanjakan", descEn: "High power-to-weight ratio, strong sustained speed on steep gradients.", descId: "Rasio power-to-weight tinggi, kecepatan kuat dan stabil di tanjakan curam.", defaultSpeedKmh: 26.5, noiseFactor: 0.028, climbSensitivity: 0.78, descentSensitivity: 1.05 },
-  { id: "URBAN_STOP_AND_GO", sport: "CYCLING", nameEn: "Urban Stop & Go", nameId: "Komuter Perkotaan", descEn: "Dynamic city riding with brisk accelerations and intersection slowdowns.", descId: "Gowes dalam kota dinamis dengan akselerasi cepat selepas persimpangan.", defaultSpeedKmh: 24.0, noiseFactor: 0.055, climbSensitivity: 1.0, descentSensitivity: 0.90 },
-  { id: "FAST_GROUP_RIDE", sport: "CYCLING", nameEn: "Fast Peloton / Group Ride", nameId: "Peloton / Group Ride Cepat", descEn: "High-speed drafting dynamics on flats and rollers with strong surges.", descId: "Kecepatan tinggi efek drafting peloton di jalur datar dan rolling.", defaultSpeedKmh: 35.5, noiseFactor: 0.042, climbSensitivity: 0.88, descentSensitivity: 1.18 },
-  { id: "TIME_TRIAL", sport: "CYCLING", nameEn: "Aero Time Trial (TT)", nameId: "Time Trial Aero (TT)", descEn: "Ultra-consistent threshold effort with minimal speed variance.", descId: "Usaha ambang batas (threshold) super konsisten dengan posisi aerodinamis.", defaultSpeedKmh: 38.0, noiseFactor: 0.015, climbSensitivity: 0.85, descentSensitivity: 1.15 },
-  { id: "EASY_RUN", sport: "RUNNING", nameEn: "Easy Recovery Run", nameId: "Lari Santai / Recovery", descEn: "Conversational Zone 2 jog with natural grade-adjusted slowing on hills.", descId: "Lari santai Zona 2 dengan penyesuaian pace alami saat menanjak.", defaultPaceSec: 360, noiseFactor: 0.030, climbSensitivity: 1.05, descentSensitivity: 0.90 },
-  { id: "STEADY_RUN", sport: "RUNNING", nameEn: "Steady Aerobic Run", nameId: "Lari Aerobik Stabil", descEn: "Balanced daily training run with consistent rhythm and cadence.", descId: "Lari latihan harian seimbang dengan ritme dan langkah kaki konsisten.", defaultPaceSec: 315, noiseFactor: 0.022, climbSensitivity: 1.0, descentSensitivity: 0.95 },
-  { id: "TEMPO_RUN", sport: "RUNNING", nameEn: "Threshold Tempo Run", nameId: "Lari Tempo Threshold", descEn: "Controlled lactate-threshold effort with tight pace discipline.", descId: "Lari tempo ambang laktat terkontrol dengan disiplin pace yang ketat.", defaultPaceSec: 265, noiseFactor: 0.016, climbSensitivity: 0.92, descentSensitivity: 1.0 },
-  { id: "INTERVAL_RUN", sport: "RUNNING", nameEn: "Fartlek / Surge Run", nameId: "Lari Interval / Fartlek", descEn: "Alternating brisk surges and active recovery segments across the route.", descId: "Kombinasi lonjakan pace cepat (surge) dan pemulihan aktif sepanjang rute.", defaultPaceSec: 280, noiseFactor: 0.065, climbSensitivity: 0.95, descentSensitivity: 1.05 },
-  { id: "LONG_RUN", sport: "RUNNING", nameEn: "Marathon Long Run", nameId: "Long Run Maraton", descEn: "Extended endurance pacing with subtle late-stage cardiac drift.", descId: "Pace daya tahan jarak jauh dengan simulasi cardiac drift yang realistis.", defaultPaceSec: 330, noiseFactor: 0.020, climbSensitivity: 1.02, descentSensitivity: 0.94 },
-  { id: "TRAIL_EFFORT", sport: "RUNNING", nameEn: "Mountain Trail Run", nameId: "Lari Trail Pegunungan", descEn: "Aggressive elevation adaptation, power-hiking steep climbs and agile descents.", descId: "Adaptasi elevasi agresif untuk jalur berbukit dan turunan teknikal.", defaultPaceSec: 380, noiseFactor: 0.048, climbSensitivity: 1.20, descentSensitivity: 0.92 },
-  { id: "RACE_PACE", sport: "RUNNING", nameEn: "Road Race Effort", nameId: "Pace Lomba (Race Effort)", descEn: "High-intensity competitive racing pace with fast final kilometer push.", descId: "Pace kompetitif intensitas tinggi dengan dorongan kuat menuju garis finis.", defaultPaceSec: 240, noiseFactor: 0.018, climbSensitivity: 0.88, descentSensitivity: 1.06 }
+  { id: "CASUAL_RIDE", sport: "CYCLING", nameEn: "Casual Ride", nameId: "Gowes Santai", descEn: "Relaxed aerobic pace", descId: "Kayuhan santai stabil", defaultSpeedKmh: 22.0, noiseFactor: 0.035, climbSensitivity: 1.05, descentSensitivity: 0.85 },
+  { id: "ENDURANCE_RIDE", sport: "CYCLING", nameEn: "Endurance Zone 2", nameId: "Endurance Zona 2", descEn: "Steady base effort", descId: "Daya tahan Zona 2", defaultSpeedKmh: 28.0, noiseFactor: 0.025, climbSensitivity: 0.95, descentSensitivity: 1.0 },
+  { id: "CLIMB_FOCUSED", sport: "CYCLING", nameEn: "Mountain Climber", nameId: "Spesialis Tanjakan", descEn: "Strong uphill pacing", descId: "Kuat di tanjakan", defaultSpeedKmh: 26.5, noiseFactor: 0.028, climbSensitivity: 0.78, descentSensitivity: 1.05 },
+  { id: "URBAN_STOP_AND_GO", sport: "CYCLING", nameEn: "Urban Commute", nameId: "Komuter Kota", descEn: "City stop-and-go", descId: "Dinamis dalam kota", defaultSpeedKmh: 24.0, noiseFactor: 0.055, climbSensitivity: 1.0, descentSensitivity: 0.90 },
+  { id: "FAST_GROUP_RIDE", sport: "CYCLING", nameEn: "Fast Group Ride", nameId: "Group Ride Cepat", descEn: "High-speed peloton", descId: "Drafting cepat", defaultSpeedKmh: 35.5, noiseFactor: 0.042, climbSensitivity: 0.88, descentSensitivity: 1.18 },
+  { id: "TIME_TRIAL", sport: "CYCLING", nameEn: "Time Trial (TT)", nameId: "Time Trial (TT)", descEn: "Steady threshold power", descId: "Kecepatan konstan", defaultSpeedKmh: 38.0, noiseFactor: 0.015, climbSensitivity: 0.85, descentSensitivity: 1.15 },
+  { id: "EASY_RUN", sport: "RUNNING", nameEn: "Easy Run", nameId: "Lari Santai", descEn: "Light recovery jog", descId: "Lari pemulihan ringan", defaultPaceSec: 360, noiseFactor: 0.030, climbSensitivity: 1.05, descentSensitivity: 0.90 },
+  { id: "STEADY_RUN", sport: "RUNNING", nameEn: "Steady Run", nameId: "Lari Stabil", descEn: "Consistent daily pace", descId: "Ritme harian stabil", defaultPaceSec: 315, noiseFactor: 0.022, climbSensitivity: 1.0, descentSensitivity: 0.95 },
+  { id: "TEMPO_RUN", sport: "RUNNING", nameEn: "Tempo Run", nameId: "Lari Tempo", descEn: "Threshold pace effort", descId: "Pace ambang laktat", defaultPaceSec: 265, noiseFactor: 0.016, climbSensitivity: 0.92, descentSensitivity: 1.0 },
+  { id: "INTERVAL_RUN", sport: "RUNNING", nameEn: "Interval / Fartlek", nameId: "Interval / Fartlek", descEn: "Alternating speed surges", descId: "Variasi lonjakan pace", defaultPaceSec: 280, noiseFactor: 0.065, climbSensitivity: 0.95, descentSensitivity: 1.05 },
+  { id: "LONG_RUN", sport: "RUNNING", nameEn: "Long Run", nameId: "Long Run", descEn: "Marathon endurance pace", descId: "Daya tahan jarak jauh", defaultPaceSec: 330, noiseFactor: 0.020, climbSensitivity: 1.02, descentSensitivity: 0.94 },
+  { id: "TRAIL_EFFORT", sport: "RUNNING", nameEn: "Trail Run", nameId: "Lari Trail", descEn: "Technical hill pacing", descId: "Adaptasi jalur bukit", defaultPaceSec: 380, noiseFactor: 0.048, climbSensitivity: 1.20, descentSensitivity: 0.92 },
+  { id: "RACE_PACE", sport: "RUNNING", nameEn: "Race Effort", nameId: "Pace Lomba", descEn: "Fast competitive pace", descId: "Kecepatan kompetitif", defaultPaceSec: 240, noiseFactor: 0.018, climbSensitivity: 0.88, descentSensitivity: 1.06 }
 ];
 
 /* ----------------------------------------------------------------------------
@@ -1753,25 +1745,9 @@ const FitBinaryCodec = {
       fitBytes[11] === 0x54;
 
     checks.push({
-      nameEn: "14-Byte Garmin .FIT Header & Protocol 2.0 Signature",
-      nameId: "Header 14-Byte Garmin .FIT & Tanda Tangan Protokol 2.0",
-      passed: headerOk,
-      detail: `Header: 14B, Magic: ".FIT", Protocol: 0x20`
-    });
-
-    const dataSize =
-      fitBytes[4] |
-      (fitBytes[5] << 8) |
-      (fitBytes[6] << 16) |
-      (fitBytes[7] << 24);
-    const expectedCrc = this.computeCrc16(fitBytes, 0, 14 + dataSize);
-    const actualCrc = fitBytes[14 + dataSize] | (fitBytes[15 + dataSize] << 8);
-    const crcOk = expectedCrc === actualCrc;
-
-    checks.push({
-      nameEn: "Binary File CRC-16 Checksum Integrity",
-      nameId: "Integritas Checksum Biner CRC-16",
-      passed: crcOk,
+      nameEn: "FIT 2.0 Binary & CRC-16",
+      nameId: "Biner FIT 2.0 & CRC-16",
+      passed: headerOk && crcOk,
       detail: `CRC-16: 0x${actualCrc.toString(16).toUpperCase().padStart(4, "0")}`
     });
 
@@ -1780,49 +1756,35 @@ const FitBinaryCodec = {
       `${deviceProfile.manufacturer} ${deviceProfile.modelName}`;
 
     checks.push({
-      nameEn: "Hardware Identity (FileIdMesg, FileCreatorMesg & DeviceInfoMesg)",
-      nameId: "Identitas Perangkat Keras (FileIdMesg, FileCreatorMesg & DeviceInfoMesg)",
+      nameEn: "Device Signature",
+      nameId: "Identitas Perangkat",
       passed: true,
-      detail: `Strava Display: "${stravaDisplayStr}" • Mfr ${deviceProfile.fitMfrId} / Prod ${deviceProfile.fitProdId}`
+      detail: `${stravaDisplayStr} (ID ${deviceProfile.fitMfrId}/${deviceProfile.fitProdId})`
     });
 
     const monotonicOk = result.points.every(
       (p, idx) => idx === 0 || p.timestampEpochMillis >= result.points[idx - 1].timestampEpochMillis
     );
     checks.push({
-      nameEn: "Monotonic Timestamp & Distance Progression",
-      nameId: "Progresi Timestamp & Jarak Monotonik",
+      nameEn: "GPS & 3D Elevation",
+      nameId: "GPS & Elevasi 3D",
       passed: monotonicOk,
-      detail: `${result.points.length} RecordMesg trackpoints verified`
+      detail: `${result.points.length} pts • +${result.elevationGainMeters.toFixed(0)}m / -${result.elevationLossMeters.toFixed(0)}m`
     });
 
     checks.push({
-      nameEn: "3D Barometric Altitude & Semicircle Coordinates",
-      nameId: "Ketinggian Barometrik 3D & Koordinat Semicircle",
+      nameEn: "Sensors (HR, Cadence, Power)",
+      nameId: "Sensor (HR, Cadence, Power)",
       passed: true,
-      detail: `Gain: +${result.elevationGainMeters.toFixed(0)}m / Loss: -${result.elevationLossMeters.toFixed(0)}m`
-    });
-
-    checks.push({
-      nameEn: "Heart Rate & Cadence Telemetry Stream",
-      nameId: "Aliran Telemetri Detak Jantung & Cadence",
-      passed: true,
-      detail: `HR: ${result.averageHeartRate || "OFF"} bpm • Cadence: ${result.averageCadence || "OFF"}`
-    });
-
-    checks.push({
-      nameEn: "Physics Power Meter, 30s Normalized Power & Work",
-      nameId: "Power Meter Fisika, 30s Normalized Power & Kerja (kJ)",
-      passed: true,
-      detail: `Avg: ${result.averagePower}W • NP: ${result.normalizedPower}W • Work: ${(result.totalWorkJoules / 1000).toFixed(0)} kJ`
+      detail: `${result.averageHeartRate || "-"} bpm • ${result.averageCadence || "-"} rpm • ${result.averagePower}W (NP ${result.normalizedPower}W)`
     });
 
     const lapsCount = Math.max(1, Math.ceil(result.totalDistanceMeters / 1000.0));
     checks.push({
-      nameEn: "Zero-Gap Auto-Lap Splits & Session Summary",
-      nameId: "Split Auto-Lap Tanpa Celah & Ringkasan Sesi",
+      nameEn: "Splits & Session",
+      nameId: "Split & Sesi",
       passed: true,
-      detail: `${lapsCount} LapMesg records + SessionMesg + ActivityMesg`
+      detail: `${lapsCount} km splits`
     });
 
     return {
@@ -2252,7 +2214,7 @@ function renderRouteAndIntelligence() {
   document.getElementById("routePointCount").textContent = track.points.length.toString();
 
   const eleBadge = document.getElementById("eleSourceBadge");
-  eleBadge.textContent = track.elevationQuality.source;
+  eleBadge.textContent = track.elevationQuality.isReliableForSimulation ? "3D GPS" : "FLAT";
   eleBadge.className = "status-badge " + (track.elevationQuality.isReliableForSimulation ? "badge-green" : "badge-amber");
 
   document.getElementById("eleAuditNote").textContent =
@@ -2394,13 +2356,12 @@ function renderSimulationPreview() {
 
   const isCycling = res.settings.sport === "CYCLING";
   const feasBadge = document.getElementById("feasibilityBadge");
-  feasBadge.textContent = res.targetFeasible ? "TARGET ACHIEVED" : "FEASIBILITY LIMIT";
+  feasBadge.textContent = res.targetFeasible ? "READY" : "LIMIT";
   feasBadge.className = "status-badge " + (res.targetFeasible ? "badge-green" : "badge-amber");
 
   document.getElementById("feasibilityTargetSummary").textContent =
-    `Target: ${res.requestedTarget} → Achieved: ${res.achievedTarget}`;
-  document.getElementById("feasibilityNoteText").textContent =
-    AppState.lang === "id" ? res.feasibilityNoteId : res.feasibilityNoteEn;
+    `${res.achievedTarget}`;
+  document.getElementById("feasibilityNoteText").textContent = "";
 
   document.getElementById("simDistVal").textContent = (res.totalDistanceMeters / 1000.0).toFixed(2);
   document.getElementById("simMovingTimeVal").textContent = formatDuration(res.movingTimeSeconds);
@@ -2435,16 +2396,16 @@ function renderSimulationPreview() {
   const pt = res.points[safeIdx];
 
   document.getElementById("simCursorPositionText").textContent =
-    `CURSOR @ ${(pt.distanceFromStartMeters / 1000.0).toFixed(2)} km (${pt.gradient.toFixed(1)}% grade • ${pt.elevation.toFixed(1)}m)`;
+    `${(pt.distanceFromStartMeters / 1000.0).toFixed(2)} km • ${pt.gradient.toFixed(1)}% • ${pt.elevation.toFixed(0)}m`;
 
   const spdStr = isCycling ? `${pt.speedKmh.toFixed(1)} km/h` : `${pt.paceFormatted} /km`;
   const hrStr = pt.heartRate !== null ? ` • ${pt.heartRate} bpm` : "";
   const cadStr = pt.cadence !== null ? ` • ${pt.cadence} ${isCycling ? "rpm" : "spm"}` : "";
   document.getElementById("simCursorTelemetryText").textContent =
-    `${spdStr} • ${pt.powerWatts} W${hrStr}${cadStr} • ${pt.temperatureCelsius}°C`;
+    `${spdStr} • ${pt.powerWatts} W${hrStr}${cadStr}`;
 
   document.getElementById("chartReadoutEle").textContent = `${pt.elevation.toFixed(1)} m (${pt.gradient.toFixed(1)}%)`;
-  document.getElementById("chartTitleSpeed").textContent = isCycling ? "Cycling Speed (km/h)" : "Running Velocity (km/h)";
+  document.getElementById("chartTitleSpeed").textContent = isCycling ? "Speed (km/h)" : "Pace / Speed";
   document.getElementById("chartReadoutSpeed").textContent = isCycling
     ? `${pt.speedKmh.toFixed(1)} km/h`
     : `${pt.paceFormatted} /km (${pt.speedKmh.toFixed(1)} km/h)`;
@@ -2492,48 +2453,32 @@ function renderDeviceAndFitExport() {
 
   // 1. Update Selected Device Summary in Tab 4
   document.getElementById("selectedDeviceTitle").textContent = `${device.manufacturer} ${device.modelName}`;
-  document.getElementById("selectedDeviceIdsBadge").textContent = `MFR: ${device.fitMfrId} • PROD: ${device.fitProdId}`;
+  document.getElementById("selectedDeviceIdsBadge").textContent = `ID ${device.fitMfrId}/${device.fitProdId}`;
 
   const stravaNameEl = document.getElementById("selectedDeviceStravaName");
   if (stravaNameEl) {
-    stravaNameEl.textContent = isId
-      ? `Tampilan di Strava: "${stravaDisplay}"`
-      : `Strava Display: "${stravaDisplay}"`;
+    stravaNameEl.textContent = `Strava: ${stravaDisplay} • ${device.barometric ? "Barometer" : "GPS"}`;
   }
 
   const typeBadgeEl = document.getElementById("selectedDeviceTypeBadge");
   if (typeBadgeEl) {
     if (isCyclocomp) {
-      typeBadgeEl.textContent = isId ? "CYCLOCOMP • KHUSUS SEPEDA (CYCLING)" : "CYCLOCOMP • FOR CYCLING";
+      typeBadgeEl.textContent = "CYCLOCOMP";
       typeBadgeEl.className = "status-badge badge-cyan";
-    } else if (device.category === "RUNNING_WATCH") {
-      typeBadgeEl.textContent = isId ? "SPORTWATCH • JAM LARI (RUNNING)" : "SPORTWATCH • FOR RUNNING";
-      typeBadgeEl.className = "status-badge badge-green";
     } else {
-      typeBadgeEl.textContent = isId ? "SPORTWATCH • MULTISPORT (LARI & SEPEDA)" : "SPORTWATCH • MULTISPORT (RUN & RIDE)";
+      typeBadgeEl.textContent = "SPORTWATCH";
       typeBadgeEl.className = "status-badge badge-green";
     }
   }
-
-  const catLabel = isCyclocomp
-    ? (isId ? "Cyclocomputer (Sepeda)" : "Bike Computer (Cyclocomp)")
-    : (device.category === "RUNNING_WATCH"
-      ? (isId ? "Sportwatch Lari (Running)" : "Running Sportwatch")
-      : (isId ? "Sportwatch Multisport (Lari & Sepeda)" : "Multisport Watch (Run & Ride)"));
-
-  document.getElementById("selectedDeviceSpecs").textContent =
-    `${isId ? "Kategori" : "Category"}: ${catLabel} • Barometric Altimeter: ${device.barometric ? "YES" : "NO"} • Native Power: ${device.power ? "YES" : "NO"} • Firmware: v${(device.swVer / 100).toFixed(2)}`;
 
   // 2. Update Quick Active Device Bar in Tab 2
   const quickNameEl = document.getElementById("configQuickDeviceName");
   const quickBadgeEl = document.getElementById("configQuickDeviceTypeBadge");
   if (quickNameEl) {
-    quickNameEl.textContent = `${device.manufacturer} ${device.modelName} (Strava: "${stravaDisplay}")`;
+    quickNameEl.textContent = `${device.manufacturer} ${device.modelName}`;
   }
   if (quickBadgeEl) {
-    quickBadgeEl.textContent = isCyclocomp
-      ? (isId ? "CYCLOCOMP • SEPEDA" : "CYCLOCOMP • CYCLING")
-      : (isId ? "SPORTWATCH • LARI" : "SPORTWATCH • RUNNING");
+    quickBadgeEl.textContent = isCyclocomp ? "CYCLOCOMP" : "SPORTWATCH";
     quickBadgeEl.className = "status-badge " + (isCyclocomp ? "badge-cyan" : "badge-green");
   }
 
@@ -2545,8 +2490,8 @@ function renderDeviceAndFitExport() {
     warnBanner.style.display = isRunningWithCyclocomp ? "flex" : "none";
     if (isRunningWithCyclocomp) {
       warnText.textContent = isId
-        ? `Perhatian: Olahraga Anda saat ini adalah LARI (Running), tetapi perangkat yang dipilih adalah CYCLOCOMP (${device.manufacturer} ${device.modelName}). Gunakan SPORTWATCH agar sesuai dengan aktivitas Lari di Strava.`
-        : `Notice: Your active sport is RUNNING, but a CYCLOCOMP Bike Computer (${device.manufacturer} ${device.modelName}) is selected. Switch to a Running Sportwatch for authentic Strava Running display.`;
+        ? `Mode Lari aktif, tetapi perangkat saat ini adalah Cyclocomp (${device.modelName}).`
+        : `Running mode active with a Bike Computer (${device.modelName}) selected.`;
     }
   }
 
@@ -2613,21 +2558,17 @@ function renderDeviceAndFitExport() {
       .map((d) => {
         const active = d.id === AppState.selectedDeviceId;
         const dIsCyclo = d.deviceType === "CYCLOCOMP";
-        const badgeText = dIsCyclo
-          ? (isId ? "CYCLOCOMP • SEPEDA" : "CYCLOCOMP • CYCLING")
-          : (d.category === "RUNNING_WATCH"
-            ? (isId ? "SPORTWATCH • LARI" : "SPORTWATCH • RUNNING")
-            : (isId ? "SPORTWATCH • LARI & SEPEDA" : "SPORTWATCH • RUN & RIDE"));
+        const badgeText = dIsCyclo ? "CYCLOCOMP" : "SPORTWATCH";
         const badgeCls = dIsCyclo ? "device-tag-cyclo" : "device-tag-watch";
         const dispName = d.fitProductName || `${d.manufacturer} ${d.modelName}`;
         return `
           <div class="profile-item device-card-item ${active ? "active" : ""}" data-device-id="${d.id}">
             <div class="device-card-top">
               <span class="device-type-tag ${badgeCls}">${badgeText}</span>
-              <span class="device-fit-id-tag">ID ${d.fitMfrId}/${d.fitProdId}</span>
+              <span class="device-fit-id-tag">${d.barometric ? "Barometer" : "GPS"}</span>
             </div>
             <div class="profile-item-title">${d.manufacturer} ${d.modelName}</div>
-            <div class="profile-item-desc">Strava: <strong>"${dispName}"</strong> • ${d.barometric ? "Barometer" : "GPS Ele"}</div>
+            <div class="profile-item-desc">Strava: ${dispName}</div>
           </div>
         `;
       })
@@ -3191,55 +3132,55 @@ document.addEventListener("DOMContentLoaded", initApp);
    11. INTERACTIVE MAP ROUTE BUILDER (CREATE GPX ON MAP WITH ROAD SNAP & 3D DEM)
    ---------------------------------------------------------------------------- */
 Object.assign(I18N.en, {
-  brandSubtitle: "GPX Builder & FIT Physics Reconstruction Engine",
-  navRoute: "1. Route & GPX Builder",
-  guideBannerTitle: "First-Time User Guide — Create or Import GPX & Upload to Strava for Free",
-  guideBannerSub: "Complete 4-step workflow: Draw a custom route on the map (or import .gpx), simulate realistic physics, and export a verified Garmin .FIT file.",
-  step1Title: "Create GPX on Map or Import",
-  step1Desc: "Click \"Create GPX on Map\" to draw your own route with road-snapping & 3D elevation, upload a .gpx file, or load the sample route.",
-  cardImportTitle: "GPX Route Source & Free Route Builder",
-  cardImportSub: "Import an existing .GPX file or draw a brand-new route on the interactive road map",
-  tabModeImport: "Import .GPX / Sample Route",
-  tabModeCreate: "Create GPX on Map (Route Builder)",
-  btnOpenBuilderQuick: "Create GPX on Map",
+  brandSubtitle: "Activity Studio",
+  navRoute: "1. Route",
+  guideBannerTitle: "Quick Start",
+  guideBannerSub: "",
+  step1Title: "Select Route",
+  step1Desc: "Import GPX or draw on map.",
+  cardImportTitle: "Route",
+  cardImportSub: "",
+  tabModeImport: "Import GPX",
+  tabModeCreate: "Draw on Map",
+  btnOpenBuilderQuick: "Draw Route",
   btnSearchPlace: "Search",
   btnMyLocation: "My Location",
-  lblQuickJump: "Quick Jump:",
-  optFollowRoads: "Auto-Follow Roads (Snap to Street)",
-  optDirectLine: "Direct Line (Off-Road / Trail)",
-  builderHintClick: "Click anywhere on the map to place Start Point, then click subsequent points to trace your route.",
-  lblWaypoints: "Waypoints:",
+  lblQuickJump: "City:",
+  optFollowRoads: "Road (No Toll)",
+  optDirectLine: "Direct Line",
+  builderHintClick: "Click map to add points.",
+  lblWaypoints: "Points:",
   btnUndoPoint: "Undo",
-  btnLoopToStart: "Loop to Start",
+  btnLoopToStart: "Loop",
   btnClearMap: "Clear",
-  btnUseBuiltRoute: "USE THIS ROUTE FOR SIMULATION (.FIT)",
-  btnDownloadCreatedGpx: "DOWNLOAD .GPX FILE"
+  btnUseBuiltRoute: "Use Route",
+  btnDownloadCreatedGpx: "Download .GPX"
 });
 
 Object.assign(I18N.id, {
-  brandSubtitle: "Pembuat Rute GPX & Mesin Rekonstruksi Fisika Garmin .FIT",
-  navRoute: "1. Rute & Buat GPX",
-  guideBannerTitle: "Panduan Pengguna Baru — Buat atau Impor GPX & Upload ke Strava Gratis",
-  guideBannerSub: "Alur 4 langkah: Gambar rute sendiri di peta interaktif (atau impor .gpx), simulasikan fisika, dan unduh file Garmin .FIT tervalidasi.",
-  step1Title: "Buat GPX di Peta atau Impor",
-  step1Desc: "Klik \"Buat GPX di Peta\" untuk menggambar rute jalan raya lengkap dengan elevasi 3D otomatis, unggah file .gpx, atau muat rute contoh.",
-  cardImportTitle: "Sumber Rute GPX & Pembuat Rute Gratis",
-  cardImportSub: "Impor file .GPX yang ada atau gambar rute baru langsung di peta jalan interaktif",
-  tabModeImport: "Impor .GPX / Rute Contoh",
-  tabModeCreate: "Buat GPX di Peta (Route Builder)",
-  btnOpenBuilderQuick: "Buat GPX di Peta",
+  brandSubtitle: "Studio Aktivitas",
+  navRoute: "1. Rute",
+  guideBannerTitle: "Panduan Singkat",
+  guideBannerSub: "",
+  step1Title: "Pilih Rute",
+  step1Desc: "Impor GPX atau buat di peta.",
+  cardImportTitle: "Rute",
+  cardImportSub: "",
+  tabModeImport: "Impor GPX",
+  tabModeCreate: "Buat di Peta",
+  btnOpenBuilderQuick: "Buat Rute",
   btnSearchPlace: "Cari",
   btnMyLocation: "Lokasi Saya",
-  lblQuickJump: "Lompat Cepat:",
-  optFollowRoads: "Ikuti Jalan Raya Otomatis (Snap to Road)",
-  optDirectLine: "Garis Lurus (Off-Road / Trail)",
-  builderHintClick: "Klik di mana saja pada peta untuk menaruh Titik Start, lalu klik titik berikutnya untuk membuat rute jalan.",
-  lblWaypoints: "Titik Waypoint:",
+  lblQuickJump: "Kota:",
+  optFollowRoads: "Jalan Raya (Non-Tol)",
+  optDirectLine: "Garis Lurus",
+  builderHintClick: "Klik peta untuk menambah titik rute.",
+  lblWaypoints: "Titik:",
   btnUndoPoint: "Urungkan",
-  btnLoopToStart: "Kembali ke Start",
-  btnClearMap: "Bersihkan",
-  btnUseBuiltRoute: "GUNAKAN RUTE INI UNTUK SIMULASI (.FIT)",
-  btnDownloadCreatedGpx: "UNDUH FILE .GPX"
+  btnLoopToStart: "Loop",
+  btnClearMap: "Hapus",
+  btnUseBuiltRoute: "Gunakan Rute",
+  btnDownloadCreatedGpx: "Unduh .GPX"
 });
 
 const RouteBuilderEngine = {
@@ -3727,15 +3668,15 @@ document.addEventListener("DOMContentLoaded", () => {
    12. REAL LEAFLET MAPS FOR GEOMETRY & TELEMETRY + NON-TOLL DRIVE ROUTING
    ---------------------------------------------------------------------------- */
 Object.assign(I18N.en, {
-  optDriveNoToll: "Drive Road Mode — Avoid Toll Roads (Non-Tol)",
-  optBikeRoad: "Cycling / Running Road Network (Non-Tol)",
-  optDirectLine: "Direct Line (Off-Road / Trail)"
+  optDriveNoToll: "Road (Avoid Toll)",
+  optBikeRoad: "Cycling / Running Path",
+  optDirectLine: "Direct Line"
 });
 
 Object.assign(I18N.id, {
-  optDriveNoToll: "Mode Jalan Raya (Drive) — Hindari Jalan Tol",
-  optBikeRoad: "Jalur Sepeda / Lari (Non-Tol)",
-  optDirectLine: "Garis Lurus (Off-Road / Trail)"
+  optDriveNoToll: "Jalan Raya (Non-Tol)",
+  optBikeRoad: "Jalur Sepeda / Lari",
+  optDirectLine: "Garis Lurus"
 });
 
 function decodeValhallaPolyline6(str) {
@@ -4010,27 +3951,22 @@ document.addEventListener("DOMContentLoaded", () => {
 Object.assign(I18N.en, {
   mobNavRoute: "1. Route",
   mobNavConfig: "2. Setup",
-  mobNavPreview: "3. Preview",
+  mobNavPreview: "3. Telemetry",
   mobNavExport: "4. Export",
   mobNavDebug: "5. Debug",
-  btnConfigureSim: "Next: Configure Simulation",
-  btnProceedExport: "Next: Select Device & Export .FIT",
-  modalGuideTitle: "Complete User Guide — Strava Kalcer",
-  stepBar1: "Choose an existing GPX file or draw a custom non-toll route on the map.",
-  stepBar2: "Configure your sport, target speed/pace, heart rate, cadence, and power settings.",
-  stepBar3: "Inspect your simulated telemetry, scrub charts, and review 1.0 km splits.",
-  stepBar4: "Choose your GPS device signature (Cyclocomp for Cycling vs Sportwatch for Running), download .FIT, and upload to Strava.",
-  stepBar5: "Inspect point-by-point physics adjustments, downhill scoring, and export CSV.",
-  cardDeviceTitle: "Authentic Hardware Device Signature (113 Famous Models)",
-  cardDeviceSub: "Strictly separated into CYCLOCOMP (Cycling Bike Computers) & SPORTWATCH (Running & Multisport Watches) with official FIT Product IDs & Product Names",
-  tabDevCyclocompTitle: "CYCLOCOMP (FOR CYCLING)",
-  tabDevCyclocompSub: "52 Bike Computers • Garmin Edge, Wahoo ROAM 3/BOLT 3, Karoo 3, Bryton, iGPSPORT, Magene, COROS DURA",
-  tabDevSportwatchTitle: "SPORTWATCH (FOR RUNNING)",
-  tabDevSportwatchSub: "61 Running & Multisport Watches • COROS PACE 4/Pro/3, Nomad, Forerunner 970/965, Fenix 8, Suunto, Polar",
-  tabDevAllTitle: "ALL DEVICES (113)",
-  tabDevAllSub: "Complete Registry",
-  btnChangeDeviceQuick: "Change Device (113 Models)",
-  btnSwitchToRunningWatch: "Switch to COROS PACE 4 / PACE 3 (Running Watch)"
+  btnConfigureSim: "Next: Setup",
+  btnProceedExport: "Next: Export .FIT",
+  modalGuideTitle: "Quick Guide — Strava Kalcer",
+  cardDeviceTitle: "GPS Device",
+  cardDeviceSub: "",
+  tabDevCyclocompTitle: "Cyclocomp",
+  tabDevCyclocompSub: "Cycling (52)",
+  tabDevSportwatchTitle: "Sportwatch",
+  tabDevSportwatchSub: "Running (61)",
+  tabDevAllTitle: "All",
+  tabDevAllSub: "113 Models",
+  btnChangeDeviceQuick: "Change Device",
+  btnSwitchToRunningWatch: "Switch to COROS PACE 4"
 });
 
 Object.assign(I18N.id, {
@@ -4039,24 +3975,19 @@ Object.assign(I18N.id, {
   mobNavPreview: "3. Grafik",
   mobNavExport: "4. Ekspor",
   mobNavDebug: "5. Debug",
-  btnConfigureSim: "Lanjut: Atur Simulasi",
-  btnProceedExport: "Lanjut: Pilih Device & Ekspor .FIT",
-  modalGuideTitle: "Panduan Lengkap Pengguna — Strava Kalcer",
-  stepBar1: "Pilih file GPX Anda atau gambar rute baru bebas tol di peta interaktif.",
-  stepBar2: "Atur jenis olahraga, target kecepatan/pace, detak jantung, cadence, dan power.",
-  stepBar3: "Periksa hasil grafik telemetri tersinkronisasi dan tabel split per 1.0 km.",
-  stepBar4: "Pilih identitas perangkat GPS (Cyclocomp khusus Sepeda vs Sportwatch khusus Lari), unduh .FIT, dan unggah ke Strava.",
-  stepBar5: "Inspeksi perhitungan fisika titik-demi-titik dan ekspor data ke CSV.",
-  cardDeviceTitle: "Identitas Perangkat GPS Resmi (113 Model Ternama)",
-  cardDeviceSub: "Dipisahkan secara tegas antara CYCLOCOMP (Khusus Sepeda) & SPORTWATCH (Jam Lari & Multisport) lengkap dengan FIT Product ID & Nama Produk Resmi Strava",
-  tabDevCyclocompTitle: "CYCLOCOMP (KHUSUS SEPEDA)",
-  tabDevCyclocompSub: "52 Cyclocomputer • Garmin Edge, Wahoo ROAM 3/BOLT 3, Karoo 3, Bryton, iGPSPORT, Magene, COROS DURA",
-  tabDevSportwatchTitle: "SPORTWATCH (KHUSUS LARI)",
-  tabDevSportwatchSub: "61 Jam Lari & Multisport • COROS PACE 4/Pro/3, Nomad, Forerunner 970/965, Fenix 8, Suunto, Polar",
-  tabDevAllTitle: "SEMUA DEVICE (113)",
-  tabDevAllSub: "Katalog Lengkap",
-  btnChangeDeviceQuick: "Ganti Device (113 Model)",
-  btnSwitchToRunningWatch: "Ganti ke COROS PACE 4 / PACE 3 (Jam Lari)"
+  btnConfigureSim: "Lanjut",
+  btnProceedExport: "Lanjut: Ekspor .FIT",
+  modalGuideTitle: "Panduan Singkat — Strava Kalcer",
+  cardDeviceTitle: "Perangkat GPS",
+  cardDeviceSub: "",
+  tabDevCyclocompTitle: "Cyclocomp",
+  tabDevCyclocompSub: "Sepeda (52)",
+  tabDevSportwatchTitle: "Sportwatch",
+  tabDevSportwatchSub: "Lari (61)",
+  tabDevAllTitle: "Semua",
+  tabDevAllSub: "113 Model",
+  btnChangeDeviceQuick: "Ganti Device",
+  btnSwitchToRunningWatch: "Ganti ke COROS PACE 4"
 });
 
 document.addEventListener("DOMContentLoaded", () => {

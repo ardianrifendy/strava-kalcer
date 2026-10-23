@@ -143,9 +143,7 @@ html, body {
 }
 
 .brand-subtitle {
-  font-size: 11px;
-  color: var(--text-secondary);
-  font-weight: 500;
+  display: none;
 }
 
 /* Desktop Navigation Tabs in Top Bar */
@@ -281,15 +279,7 @@ html, body {
 }
 
 .step-context-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-card);
+  display: none;
 }
 
 .step-pill {
@@ -356,9 +346,7 @@ html, body {
 }
 
 .onboarding-subtitle {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-top: 2px;
+  display: none;
 }
 
 .onboarding-close-btn {
@@ -497,10 +485,13 @@ html, body {
 }
 
 .card-subtitle {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-top: 3px;
-  line-height: 1.4;
+  display: none;
+}
+
+.audit-note-box,
+#feasibilityNoteText,
+#selectedDeviceSpecs {
+  display: none;
 }
 
 /* ============================================================================

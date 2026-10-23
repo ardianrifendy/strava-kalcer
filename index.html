@@ -202,7 +202,7 @@
                 <div class="builder-toolbar">
                   <!-- Search City / Place + GPS Button -->
                   <div class="builder-search-row">
-                    <input type="text" class="form-input" id="builderSearchInput" placeholder="Search city, street, or landmark (e.g. Sudirman Jakarta, Malioboro, Bali)..." />
+                    <input type="text" class="form-input" id="builderSearchInput" placeholder="Search city or street..." />
                     <div class="builder-search-btns">
                       <button type="button" class="btn btn-secondary" id="builderSearchBtn">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1052,21 +1052,21 @@
                 <button type="button" class="device-type-btn active" data-devtype="CYCLOCOMP" id="btnDevTypeCyclocomp">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></svg>
                   <div class="device-type-btn-text">
-                    <span class="device-type-btn-title" data-i18n="tabDevCyclocompTitle">CYCLOCOMP (FOR CYCLING)</span>
-                    <span class="device-type-btn-sub" data-i18n="tabDevCyclocompSub">52 Bike Computers • Garmin Edge, Wahoo ROAM 3/BOLT 3, Karoo 3, Bryton, iGPSPORT, Magene, COROS DURA</span>
+                    <span class="device-type-btn-title" data-i18n="tabDevCyclocompTitle">Cyclocomp</span>
+                    <span class="device-type-btn-sub" data-i18n="tabDevCyclocompSub">Cycling (52)</span>
                   </div>
                 </button>
                 <button type="button" class="device-type-btn" data-devtype="SPORTWATCH" id="btnDevTypeSportwatch">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><polyline points="12 9 12 12 13.5 13.5"/><path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"/></svg>
                   <div class="device-type-btn-text">
-                    <span class="device-type-btn-title" data-i18n="tabDevSportwatchTitle">SPORTWATCH (FOR RUNNING)</span>
-                    <span class="device-type-btn-sub" data-i18n="tabDevSportwatchSub">61 Running &amp; Multisport Watches • COROS PACE 4/Pro/3, Nomad, Forerunner 970/965, Fenix 8, Suunto, Polar</span>
+                    <span class="device-type-btn-title" data-i18n="tabDevSportwatchTitle">Sportwatch</span>
+                    <span class="device-type-btn-sub" data-i18n="tabDevSportwatchSub">Running (61)</span>
                   </div>
                 </button>
                 <button type="button" class="device-type-btn device-type-btn-compact" data-devtype="ALL" id="btnDevTypeAll">
                   <div class="device-type-btn-text">
-                    <span class="device-type-btn-title" data-i18n="tabDevAllTitle">ALL DEVICES (113)</span>
-                    <span class="device-type-btn-sub" data-i18n="tabDevAllSub">Complete Registry</span>
+                    <span class="device-type-btn-title" data-i18n="tabDevAllTitle">All</span>
+                    <span class="device-type-btn-sub" data-i18n="tabDevAllSub">113 Models</span>
                   </div>
                 </button>
               </div>
@@ -1074,7 +1074,7 @@
               <!-- 2. Instant Search Input -->
               <div class="device-search-wrap">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" class="form-input device-search-input" id="deviceSearchInput" placeholder="Search device model or brand (e.g. COROS PACE 4, PACE 3, Edge 1050, Karoo 3, Roam 3, Forerunner 970)..." />
+                <input type="text" class="form-input device-search-input" id="deviceSearchInput" placeholder="Search device..." />
               </div>
 
               <!-- 3. Dynamic Brand Filter Pills -->
@@ -1154,14 +1154,13 @@
               <div class="strava-free-upload-box">
                 <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                   <div style="font-size:13px; font-weight:800; color:var(--strava-orange);" data-i18n="stravaFreeTitle">
-                    FREE STRAVA UPLOAD (NO API SUBSCRIPTION NEEDED)
+                    Upload to Strava
                   </div>
-                  <span class="status-badge badge-orange">100% FREE</span>
+                  <span class="status-badge badge-orange">FREE</span>
                 </div>
                 <ol class="strava-upload-steps">
-                  <li data-i18n="stravaStep1">Click <strong>"DOWNLOAD VALIDATED .FIT FILE"</strong> above to save your activity file.</li>
-                  <li data-i18n="stravaStep2">Click <strong>"UPLOAD TO STRAVA"</strong> below to open Strava's official File Upload page.</li>
-                  <li data-i18n="stravaStep3">Select the downloaded <code>.fit</code> file — Strava will display your exact GPS device name, elevation, HR, cadence, watts, and laps!</li>
+                  <li data-i18n="stravaStep1">Download the <strong>.FIT</strong> file above.</li>
+                  <li data-i18n="stravaStep2">Click below and select the file on Strava.</li>
                 </ol>
                 <a href="https://www.strava.com/upload/select" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block btn-lg" id="uploadToStravaWebBtn">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
