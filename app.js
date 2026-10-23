@@ -3388,3 +3388,284 @@ document.addEventListener("DOMContentLoaded", () => {
   setupRouteBuilderEvents();
   applyLanguageAndTheme();
 });
+
+/* ----------------------------------------------------------------------------
+   12. REAL LEAFLET MAPS FOR GEOMETRY & TELEMETRY + NON-TOLL DRIVE ROUTING
+   ---------------------------------------------------------------------------- */
+Object.assign(I18N.en, {
+  optDriveNoToll: "Drive Road Mode — Avoid Toll Roads (Non-Tol)",
+  optBikeRoad: "Cycling / Running Road Network (Non-Tol)",
+  optDirectLine: "Direct Line (Off-Road / Trail)"
+});
+
+Object.assign(I18N.id, {
+  optDriveNoToll: "Mode Jalan Raya (Drive) — Hindari Jalan Tol",
+  optBikeRoad: "Jalur Sepeda / Lari (Non-Tol)",
+  optDirectLine: "Garis Lurus (Off-Road / Trail)"
+});
+
+function decodeValhallaPolyline6(str) {
+  let index = 0, lat = 0, lng = 0;
+  const coordinates = [];
+  const factor = 1e6;
+
+  while (index < str.length) {
+    let byte = null, shift = 0, result = 0;
+    do {
+      byte = str.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20);
+    const latitudeChange = (result & 1) ? ~(result >> 1) : (result >> 1);
+
+    shift = result = 0;
+    do {
+      byte = str.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20);
+    const longitudeChange = (result & 1) ? ~(result >> 1) : (result >> 1);
+
+    lat += latitudeChange;
+    lng += longitudeChange;
+    coordinates.push({ lat: lat / factor, lon: lng / factor, ele: null });
+  }
+  return coordinates;
+}
+
+/* Upgrade RouteBuilderEngine to Drive Non-Toll Default + Live Re-routing */
+RouteBuilderEngine.routingMode = "DRIVE_NO_TOLL";
+
+RouteBuilderEngine.routeBetweenPoints = async function (p1, p2) {
+  if (this.routingMode === "DRIVE_NO_TOLL") {
+    // 1. Primary: OpenStreetMap Valhalla Drive Non-Toll (motor_scooter costing strictly forbids motorways & toll roads while using normal driving roads)
+    try {
+      const body = {
+        locations: [
+          { lat: p1.lat, lon: p1.lon },
+          { lat: p2.lat, lon: p2.lon }
+        ],
+        costing: "motor_scooter",
+        costing_options: {
+          motor_scooter: {
+            use_tolls: 0.0,
+            use_highways: 0.0,
+            use_primary: 1.0,
+            use_hills: 0.5
+          }
+        },
+        units: "kilometers"
+      };
+      const resp = await fetch("https://valhalla1.openstreetmap.de/route", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.trip && data.trip.legs && data.trip.legs[0] && data.trip.legs[0].shape) {
+          const decoded = decodeValhallaPolyline6(data.trip.legs[0].shape);
+          if (decoded.length >= 2) return decoded;
+        }
+      }
+    } catch (_) {
+      // Fall through to secondary non-toll router
+    }
+  }
+
+  if (this.routingMode === "DRIVE_NO_TOLL" || this.routingMode === "BIKE_ROAD") {
+    // 2. Secondary Non-Toll Router: OpenStreetMap.de Routed-Bike (100% toll-free road & street network)
+    try {
+      const url = `https://routing.openstreetmap.de/routed-bike/route/v1/driving/${p1.lon.toFixed(6)},${p1.lat.toFixed(6)};${p2.lon.toFixed(6)},${p2.lat.toFixed(6)}?overview=full&geometries=geojson`;
+      const resp = await fetch(url);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.routes && data.routes[0] && data.routes[0].geometry && data.routes[0].geometry.coordinates) {
+          return data.routes[0].geometry.coordinates.map((c) => ({
+            lon: c[0],
+            lat: c[1],
+            ele: null
+          }));
+        }
+      }
+    } catch (_) {
+      // Fall through
+    }
+  }
+
+  // 3. Direct Line (Off-Road / Trail or offline fallback)
+  const dist = GeoMath.haversineDistanceMeters(p1.lat, p1.lon, p2.lat, p2.lon);
+  const steps = Math.max(2, Math.min(80, Math.ceil(dist / 25.0)));
+  const pts = [];
+  for (let i = 0; i <= steps; i++) {
+    const f = i / steps;
+    pts.push({
+      lat: p1.lat + (p2.lat - p1.lat) * f,
+      lon: p1.lon + (p2.lon - p1.lon) * f,
+      ele: null
+    });
+  }
+  return pts;
+};
+
+RouteBuilderEngine.rerouteAllWaypoints = async function () {
+  if (this.waypoints.length < 2 || this.isRoutingBusy) return;
+  this.isRoutingBusy = true;
+  this.setStatus(
+    "Re-calculating non-toll road route & 3D elevation...",
+    "Menghitung ulang jalur jalan raya bebas tol & elevasi 3D..."
+  );
+  this.segmentsCoords = [];
+  for (let i = 1; i < this.waypoints.length; i++) {
+    const seg = await this.routeBetweenPoints(this.waypoints[i - 1], this.waypoints[i]);
+    this.segmentsCoords.push(seg);
+  }
+  this.refreshMarkersAndPolyline();
+  await this.rebuildAndPreviewTrack();
+  this.isRoutingBusy = false;
+};
+
+/* Interactive Leaflet Map Renderer for Tab 1 (Overview) & Tab 3 (Synchronized Telemetry) */
+const PreviewLeafletMaps = {
+  instances: {},
+
+  renderOrUpdate(containerId, track, cursorIdx) {
+    const container = document.getElementById(containerId);
+    if (!container || typeof L === "undefined" || !track || !track.points || track.points.length === 0) return;
+
+    let state = this.instances[containerId];
+    if (!state) {
+      const map = L.map(containerId, {
+        center: [track.points[0].latitude, track.points[0].longitude],
+        zoom: 13,
+        zoomControl: true
+      });
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap"
+      }).addTo(map);
+
+      state = {
+        map,
+        trackKey: null,
+        casingLine: null,
+        routeLine: null,
+        startMarker: null,
+        endMarker: null,
+        cursorMarker: null
+      };
+      this.instances[containerId] = state;
+    }
+
+    const pts = track.points;
+    const newTrackKey = `${track.name}_${pts.length}_${pts[0].latitude.toFixed(5)}_${pts[pts.length - 1].latitude.toFixed(5)}`;
+
+    // Rebuild route polyline & bounds only when track changes
+    if (state.trackKey !== newTrackKey) {
+      state.trackKey = newTrackKey;
+      if (state.casingLine) state.map.removeLayer(state.casingLine);
+      if (state.routeLine) state.map.removeLayer(state.routeLine);
+      if (state.startMarker) state.map.removeLayer(state.startMarker);
+      if (state.endMarker) state.map.removeLayer(state.endMarker);
+
+      const latlngs = pts.map((p) => [p.latitude, p.longitude]);
+
+      state.casingLine = L.polyline(latlngs, {
+        color: "#FFFFFF",
+        weight: 7,
+        opacity: 0.85
+      }).addTo(state.map);
+
+      state.routeLine = L.polyline(latlngs, {
+        color: "#FC4C02",
+        weight: 4.2,
+        opacity: 0.96
+      }).addTo(state.map);
+
+      const startIcon = L.divIcon({
+        className: "",
+        html: `<div class="builder-marker-pin" style="background:#12B76A;">S</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+      const endIcon = L.divIcon({
+        className: "",
+        html: `<div class="builder-marker-pin" style="background:#1F1F24;">F</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+
+      state.startMarker = L.marker([pts[0].latitude, pts[0].longitude], { icon: startIcon }).addTo(state.map);
+      state.endMarker = L.marker([pts[pts.length - 1].latitude, pts[pts.length - 1].longitude], { icon: endIcon }).addTo(state.map);
+
+      setTimeout(() => {
+        state.map.invalidateSize();
+        state.map.fitBounds(state.routeLine.getBounds(), { padding: [24, 24] });
+      }, 60);
+    }
+
+    // Update Synchronized Cursor Marker Position
+    const safeIdx = Math.max(0, Math.min(pts.length - 1, cursorIdx || 0));
+    const curPt = pts[safeIdx];
+    const cursorIcon = L.divIcon({
+      className: "",
+      html: `<div class="sync-cursor-dot"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+
+    if (!state.cursorMarker) {
+      state.cursorMarker = L.marker([curPt.latitude, curPt.longitude], {
+        icon: cursorIcon,
+        zIndexOffset: 1000
+      }).addTo(state.map);
+    } else {
+      state.cursorMarker.setLatLng([curPt.latitude, curPt.longitude]);
+    }
+  },
+
+  invalidateAll() {
+    Object.values(this.instances).forEach((st) => {
+      if (st && st.map) {
+        setTimeout(() => {
+          st.map.invalidateSize();
+          if (st.routeLine) {
+            st.map.fitBounds(st.routeLine.getBounds(), { padding: [24, 24] });
+          }
+        }, 80);
+      }
+    });
+  }
+};
+
+// Override CanvasRenderer.drawRouteMap to use real OpenStreetMap Leaflet maps
+CanvasRenderer.drawRouteMap = function (canvasId, track, cursorIdx) {
+  if (canvasId === "routeOverviewMapCanvas") {
+    PreviewLeafletMaps.renderOrUpdate("routeOverviewLeafletMap", track, cursorIdx);
+  } else if (canvasId === "simSyncMapCanvas") {
+    PreviewLeafletMaps.renderOrUpdate("simSyncLeafletMap", track, cursorIdx);
+  }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  const modeSelect = document.getElementById("builderRoutingModeSelect");
+  if (modeSelect) {
+    modeSelect.addEventListener("change", () => {
+      RouteBuilderEngine.routingMode = modeSelect.value;
+      RouteBuilderEngine.rerouteAllWaypoints();
+    });
+  }
+
+  document.querySelectorAll(".nav-tab-btn, .mobile-nav-btn, #runSimulationBtn, #brandHomeBtn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      PreviewLeafletMaps.invalidateAll();
+    });
+  });
+
+  // Trigger initial render on real Leaflet maps
+  if (AppState.currentTrack) {
+    renderRouteAndIntelligence();
+    renderSimulationPreview();
+  }
+});

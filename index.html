@@ -226,7 +226,8 @@
                     </div>
                     <div style="min-width:195px;">
                       <select class="form-select" id="builderRoutingModeSelect">
-                        <option value="ROAD_OSRM" data-i18n="optFollowRoads">Auto-Follow Roads (Snap to Street)</option>
+                        <option value="DRIVE_NO_TOLL" data-i18n="optDriveNoToll">Drive Road Mode — Avoid Toll Roads (Non-Tol)</option>
+                        <option value="BIKE_ROAD" data-i18n="optBikeRoad">Cycling / Running Road Network (Non-Tol)</option>
                         <option value="DIRECT_LINE" data-i18n="optDirectLine">Direct Line (Off-Road / Trail)</option>
                       </select>
                     </div>
@@ -372,7 +373,8 @@
               </div>
 
               <div class="canvas-container" style="margin-bottom: 12px;">
-                <canvas id="routeOverviewMapCanvas" class="map-canvas"></canvas>
+                <div id="routeOverviewLeafletMap" class="map-canvas" style="z-index:1;"></div>
+                <canvas id="routeOverviewMapCanvas" class="map-canvas" style="display:none;"></canvas>
               </div>
 
               <div class="chart-card" style="margin-bottom: 0;">
@@ -766,7 +768,8 @@
                 <span style="font-size:11px; color:var(--text-secondary);" data-i18n="lblDragChartsHint">Hover or drag on any chart to scrub</span>
               </div>
               <div class="canvas-container">
-                <canvas id="simSyncMapCanvas" class="map-canvas"></canvas>
+                <div id="simSyncLeafletMap" class="map-canvas" style="z-index:1;"></div>
+                <canvas id="simSyncMapCanvas" class="map-canvas" style="display:none;"></canvas>
               </div>
             </div>
 
