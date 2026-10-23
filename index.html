@@ -462,6 +462,162 @@
                   </button>
                 </div>
 
+                <!-- Live Animated Vector Cyclist & Runner Telemetry Stage -->
+                <div class="sport-motion-stage" id="sportMotionStage">
+                  <!-- CYCLING ANIMATION SCENE -->
+                  <div class="motion-scene" id="motionSceneCycling">
+                    <svg viewBox="0 0 500 140" class="motion-svg" aria-label="Animated Road Cyclist">
+                      <defs>
+                        <linearGradient id="uiCyanArea" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stop-color="#0096C7" stop-opacity="0.28" />
+                          <stop offset="100%" stop-color="#0096C7" stop-opacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M 0 112 Q 95 76, 185 96 T 360 68 T 500 92 L 500 132 L 0 132 Z" fill="url(#uiCyanArea)" />
+                      <path d="M 0 112 Q 95 76, 185 96 T 360 68 T 500 92" fill="none" stroke="#0096C7" stroke-width="1.8" stroke-opacity="0.6" />
+
+                      <!-- Wind Slipstream Lines -->
+                      <g stroke="#38BDF8" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+                        <line x1="360" y1="36" x2="420" y2="36">
+                          <animate attributeName="x1" values="430;40" dur="1.0s" repeatCount="indefinite" />
+                          <animate attributeName="x2" values="485;95" dur="1.0s" repeatCount="indefinite" />
+                          <animate attributeName="opacity" values="0;0.75;0" dur="1.0s" repeatCount="indefinite" />
+                        </line>
+                        <line x1="390" y1="68" x2="440" y2="68">
+                          <animate attributeName="x1" values="450;20" dur="0.8s" repeatCount="indefinite" />
+                          <animate attributeName="x2" values="495;65" dur="0.8s" repeatCount="indefinite" />
+                          <animate attributeName="opacity" values="0;0.65;0" dur="0.8s" repeatCount="indefinite" />
+                        </line>
+                      </g>
+
+                      <!-- Moving Road Surface -->
+                      <line x1="10" y1="122" x2="490" y2="122" stroke="currentColor" stroke-opacity="0.25" stroke-width="2" />
+                      <line x1="10" y1="126" x2="490" y2="126" stroke="#FC4C02" stroke-width="2" stroke-dasharray="16 24">
+                        <animate attributeName="stroke-dashoffset" from="0" to="80" dur="0.52s" repeatCount="indefinite" />
+                      </line>
+
+                      <!-- Aero Road Cyclist Group -->
+                      <g transform="translate(170, 14) scale(0.86)">
+                        <animateTransform attributeName="transform" type="translate" values="170,14; 170,12.5; 170,14" dur="0.45s" repeatCount="indefinite" additive="replace" />
+                        <g transform="scale(0.86)">
+                          <!-- Rear Wheel -->
+                          <g transform="translate(36, 98)">
+                            <circle cx="0" cy="0" r="30" fill="none" stroke="currentColor" stroke-opacity="0.75" stroke-width="5.5" />
+                            <circle cx="0" cy="0" r="26" fill="none" stroke="#0096C7" stroke-width="1.8" stroke-dasharray="9 7">
+                              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.62s" repeatCount="indefinite" />
+                            </circle>
+                            <g stroke="currentColor" stroke-opacity="0.45" stroke-width="1.3">
+                              <line x1="-26" y1="0" x2="26" y2="0" /><line x1="0" y1="-26" x2="0" y2="26" />
+                              <line x1="-18" y1="-18" x2="18" y2="18" /><line x1="-18" y1="18" x2="18" y2="-18" />
+                              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.62s" repeatCount="indefinite" />
+                            </g>
+                            <circle cx="0" cy="0" r="4" fill="#FC4C02" />
+                          </g>
+                          <!-- Front Wheel -->
+                          <g transform="translate(148, 98)">
+                            <circle cx="0" cy="0" r="30" fill="none" stroke="currentColor" stroke-opacity="0.75" stroke-width="5.5" />
+                            <circle cx="0" cy="0" r="26" fill="none" stroke="#0096C7" stroke-width="1.8" stroke-dasharray="9 7">
+                              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.62s" repeatCount="indefinite" />
+                            </circle>
+                            <g stroke="currentColor" stroke-opacity="0.45" stroke-width="1.3">
+                              <line x1="-26" y1="0" x2="26" y2="0" /><line x1="0" y1="-26" x2="0" y2="26" />
+                              <line x1="-18" y1="-18" x2="18" y2="18" /><line x1="-18" y1="18" x2="18" y2="-18" />
+                              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.62s" repeatCount="indefinite" />
+                            </g>
+                            <circle cx="0" cy="0" r="4" fill="#FC4C02" />
+                          </g>
+                          <!-- Far Leg -->
+                          <path d="M 65 44 L 88 68 L 76 108" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+                            <animate attributeName="d" values="M 65 44 L 88 68 L 76 108; M 65 44 L 95 62 L 94 96; M 65 44 L 86 56 L 80 86; M 65 44 L 76 66 L 66 98; M 65 44 L 88 68 L 76 108" dur="0.72s" repeatCount="indefinite" />
+                          </path>
+                          <!-- Bike Frame -->
+                          <g fill="none" stroke="#FC4C02" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="36" y1="98" x2="80" y2="98" /><line x1="36" y1="98" x2="68" y2="54" />
+                            <line x1="80" y1="98" x2="64" y2="46" /><line x1="80" y1="98" x2="128" y2="56" />
+                            <line x1="66" y1="54" x2="126" y2="54" /><line x1="148" y1="98" x2="124" y2="46" />
+                          </g>
+                          <line x1="56" y1="45" x2="71" y2="45" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+                          <path d="M 124 46 L 137 46 C 144 46, 145 56, 136 58" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" />
+                          <rect x="139" y="40" width="9" height="4.5" rx="1.5" fill="#0096C7" />
+                          <!-- Crankset -->
+                          <circle cx="80" cy="98" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+                          <g transform="translate(80, 98)">
+                            <line x1="0" y1="-10" x2="0" y2="10" stroke="#FC4C02" stroke-width="2.5" stroke-linecap="round">
+                              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.72s" repeatCount="indefinite" />
+                            </line>
+                          </g>
+                          <!-- Near Leg -->
+                          <path d="M 65 44 L 86 56 L 80 86" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+                            <animate attributeName="d" values="M 65 44 L 86 56 L 80 86; M 65 44 L 76 66 L 66 98; M 65 44 L 88 68 L 76 108; M 65 44 L 95 62 L 94 96; M 65 44 L 86 56 L 80 86" dur="0.72s" repeatCount="indefinite" />
+                          </path>
+                          <!-- Torso, Arm & Helmet -->
+                          <path d="M 65 43 Q 88 24, 114 28" fill="none" stroke="#FC4C02" stroke-width="9" stroke-linecap="round" />
+                          <path d="M 112 29 L 124 46 L 136 53" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+                          <circle cx="123" cy="20" r="8" fill="currentColor" />
+                          <path d="M 111 17 Q 124 8, 134 19 Z" fill="#0096C7" />
+                        </g>
+                      </g>
+                    </svg>
+                  </div>
+
+                  <!-- RUNNING ANIMATION SCENE -->
+                  <div class="motion-scene" id="motionSceneRunning" style="display:none;">
+                    <svg viewBox="0 0 500 140" class="motion-svg" aria-label="Animated Marathon Runner">
+                      <defs>
+                        <linearGradient id="uiGreenArea" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stop-color="#12B76A" stop-opacity="0.28" />
+                          <stop offset="100%" stop-color="#12B76A" stop-opacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M 0 110 Q 105 82, 210 98 T 390 72 T 500 94 L 500 132 L 0 132 Z" fill="url(#uiGreenArea)" />
+                      <path d="M 0 110 Q 105 82, 210 98 T 390 72 T 500 94" fill="none" stroke="#12B76A" stroke-width="1.8" stroke-opacity="0.65" />
+
+                      <!-- Live Heart Rate ECG Waveform -->
+                      <path d="M 340 54 L 370 54 L 378 38 L 386 70 L 394 28 L 402 76 L 410 46 L 418 54 L 460 54" fill="none" stroke="#D92D20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="150" stroke-dashoffset="0">
+                        <animate attributeName="stroke-dashoffset" values="150;0;-150" dur="1.5s" repeatCount="indefinite" />
+                      </path>
+
+                      <!-- Moving Track Surface -->
+                      <line x1="10" y1="122" x2="490" y2="122" stroke="currentColor" stroke-opacity="0.25" stroke-width="2" />
+                      <line x1="10" y1="126" x2="490" y2="126" stroke="#12B76A" stroke-width="2" stroke-dasharray="14 22">
+                        <animate attributeName="stroke-dashoffset" from="0" to="72" dur="0.62s" repeatCount="indefinite" />
+                      </line>
+
+                      <!-- Marathon Runner Group -->
+                      <g transform="translate(215, 16)">
+                        <g transform="scale(0.86)">
+                          <animateTransform attributeName="transform" type="translate" values="0,0; 0,-6; 0,0; 0,-6; 0,0" dur="0.66s" repeatCount="indefinite" additive="sum" />
+                          <!-- Back Arm -->
+                          <path d="M 28 32 L 12 46 L 24 56" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+                            <animate attributeName="d" values="M 28 32 L 12 46 L 24 56; M 28 32 L 26 48 L 42 44; M 28 32 L 38 44 L 52 34; M 28 32 L 26 48 L 42 44; M 28 32 L 12 46 L 24 56" dur="0.66s" repeatCount="indefinite" />
+                          </path>
+                          <!-- Back Leg -->
+                          <path d="M 22 68 L 44 90 L 56 118" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+                            <animate attributeName="d" values="M 22 68 L 44 90 L 56 118; M 22 68 L 26 94 L 12 118; M 22 68 L 6 92 L -14 106; M 22 68 L 28 84 L 18 104; M 22 68 L 44 90 L 56 118" dur="0.66s" repeatCount="indefinite" />
+                          </path>
+                          <!-- Runner Torso -->
+                          <line x1="22" y1="68" x2="30" y2="28" stroke="#FC4C02" stroke-width="9.5" stroke-linecap="round" />
+                          <!-- Head & Visor -->
+                          <circle cx="34" cy="14" r="8.5" fill="currentColor" />
+                          <path d="M 26 11 Q 35 5, 46 12" fill="none" stroke="#12B76A" stroke-width="3.2" stroke-linecap="round" />
+                          <!-- Foreground Leg -->
+                          <path d="M 22 68 L 6 92 L -14 106" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
+                            <animate attributeName="d" values="M 22 68 L 6 92 L -14 106; M 22 68 L 28 84 L 18 104; M 22 68 L 44 90 L 56 118; M 22 68 L 26 94 L 12 118; M 22 68 L 6 92 L -14 106" dur="0.66s" repeatCount="indefinite" />
+                          </path>
+                          <!-- Foreground Arm + Glowing GPS Watch -->
+                          <path d="M 28 32 L 38 44 L 52 34" fill="none" stroke="currentColor" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round">
+                            <animate attributeName="d" values="M 28 32 L 38 44 L 52 34; M 28 32 L 26 48 L 42 44; M 28 32 L 12 46 L 24 56; M 28 32 L 26 48 L 42 44; M 28 32 L 38 44 L 52 34" dur="0.66s" repeatCount="indefinite" />
+                          </path>
+                          <circle cx="48" cy="36" r="3.6" fill="#12B76A">
+                            <animate attributeName="cx" values="48;38;22;38;48" dur="0.66s" repeatCount="indefinite" />
+                            <animate attributeName="cy" values="36;45;54;45;36" dur="0.66s" repeatCount="indefinite" />
+                          </circle>
+                        </g>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+
                 <!-- Quick Active Hardware Indicator synced with Sport Type -->
                 <div class="config-device-quickbar" id="configDeviceQuickbar">
                   <div class="config-device-quickbar-info">

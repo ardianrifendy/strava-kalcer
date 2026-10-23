@@ -2337,10 +2337,18 @@ function renderProfileSelector() {
     });
   });
 
-  // Toggle Cycling vs Running UI sections
+  // Toggle Cycling vs Running UI sections & Animated Vector Stage
   const isCycling = sport === "CYCLING";
   document.getElementById("sportCyclingBtn").classList.toggle("active", isCycling);
   document.getElementById("sportRunningBtn").classList.toggle("active", !isCycling);
+
+  const sceneCycling = document.getElementById("motionSceneCycling");
+  const sceneRunning = document.getElementById("motionSceneRunning");
+  if (sceneCycling && sceneRunning) {
+    sceneCycling.style.display = isCycling ? "block" : "none";
+    sceneRunning.style.display = isCycling ? "none" : "block";
+  }
+
   document.getElementById("cyclingSolverControls").style.display = isCycling ? "block" : "none";
   document.getElementById("runningSolverControls").style.display = isCycling ? "none" : "block";
   document.getElementById("coastingModeGroup").style.display = isCycling ? "block" : "none";

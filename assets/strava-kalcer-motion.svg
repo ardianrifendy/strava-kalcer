@@ -1,0 +1,292 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 310" width="100%" height="100%" role="img" aria-label="Strava Kalcer — Animated Cycling and Running Telemetry Engine">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E0E12" />
+      <stop offset="50%" stop-color="#15151C" />
+      <stop offset="100%" stop-color="#0E0E12" />
+    </linearGradient>
+    <linearGradient id="stravaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FC4C02" />
+      <stop offset="100%" stop-color="#FF7A33" />
+    </linearGradient>
+    <linearGradient id="cyanArea" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0096C7" stop-opacity="0.32" />
+      <stop offset="100%" stop-color="#0096C7" stop-opacity="0.0" />
+    </linearGradient>
+    <linearGradient id="greenArea" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#12B76A" stop-opacity="0.32" />
+      <stop offset="100%" stop-color="#12B76A" stop-opacity="0.0" />
+    </linearGradient>
+    <pattern id="techGrid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#FFFFFF" stroke-width="0.6" stroke-opacity="0.045" />
+    </pattern>
+  </defs>
+
+  <!-- Main Dark Telemetry Canvas -->
+  <rect width="1120" height="310" rx="16" fill="url(#bgGrad)" stroke="#2A2A35" stroke-width="1.5" />
+  <rect width="1120" height="310" rx="16" fill="url(#techGrid)" />
+
+  <!-- Top Header Bar -->
+  <rect x="0" y="0" width="1120" height="44" rx="16" fill="#181820" />
+  <line x1="0" y1="44" x2="1120" y2="44" stroke="#2A2A35" stroke-width="1" />
+
+  <!-- Mirrored Strava Logo Badge -->
+  <rect x="18" y="8" width="28" height="28" rx="6" fill="#FC4C02" />
+  <g transform="translate(42, 8) scale(-1, 1)">
+    <path d="M12.3 4.5L6.8 15.2h3.3l2.2-4.4 2.2 4.4h3.3L12.3 4.5z" fill="#FFFFFF" />
+    <path d="M15.6 15.2l-1.9 3.8-1.9-3.8H9.5l4.2 8.3 4.2-8.3h-2.3z" fill="#FFBFA3" />
+  </g>
+  <text x="56" y="27" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" letter-spacing="0.8">STRAVA KALCER — PHYSICS &amp; PHYSIOLOGY TELEMETRY ENGINE</text>
+  <text x="1100" y="27" text-anchor="end" fill="#FC4C02" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="800" letter-spacing="0.6">GARMIN FIT 2.0 • 105 GPS DEVICES</text>
+
+  <!-- Center Vertical Divider -->
+  <line x1="560" y1="44" x2="560" y2="310" stroke="#2A2A35" stroke-width="1.5" stroke-dasharray="5 5" />
+
+  <!-- ======================================================================
+       LEFT STAGE: CYCLING SIMULATION (CYCLOCOMP — 49 MODELS)
+       ====================================================================== -->
+  <g transform="translate(20, 56)">
+    <!-- Stage Card Background -->
+    <rect x="0" y="0" width="520" height="236" rx="12" fill="#121218" stroke="#262632" stroke-width="1" />
+
+    <!-- Elevation Contour Curve -->
+    <path d="M 0 185 Q 90 140, 180 162 T 360 128 T 520 155 L 520 210 L 0 210 Z" fill="url(#cyanArea)" />
+    <path d="M 0 185 Q 90 140, 180 162 T 360 128 T 520 155" fill="none" stroke="#0096C7" stroke-width="2" stroke-opacity="0.65" />
+
+    <!-- Top Stage Header & Telemetry Readouts -->
+    <rect x="14" y="12" width="194" height="22" rx="5" fill="#0096C7" fill-opacity="0.16" stroke="#0096C7" stroke-width="1" />
+    <text x="24" y="27" fill="#38BDF8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.5">CYCLOCOMP • FOR CYCLING (49)</text>
+
+    <text x="506" y="26" text-anchor="end" fill="#E4E4EE" font-family="monospace" font-size="11.5" font-weight="700">34.8 km/h • 275 W • 92 RPM</text>
+    <text x="14" y="50" fill="#A0A0B4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="600">Garmin Edge 1050 / 1040 • Wahoo ROAM v2 • Karoo 3 • COROS DURA</text>
+
+    <!-- Animated Aero Wind Slipstream Lines -->
+    <g stroke="#38BDF8" stroke-width="1.6" stroke-linecap="round" opacity="0.55">
+      <line x1="360" y1="92" x2="430" y2="92">
+        <animate attributeName="x1" values="420;60" dur="1.1s" repeatCount="indefinite" />
+        <animate attributeName="x2" values="485;125" dur="1.1s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0;0.7;0" dur="1.1s" repeatCount="indefinite" />
+      </line>
+      <line x1="390" y1="122" x2="450" y2="122">
+        <animate attributeName="x1" values="460;40" dur="0.85s" repeatCount="indefinite" />
+        <animate attributeName="x2" values="510;90" dur="0.85s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0;0.6;0" dur="0.85s" repeatCount="indefinite" />
+      </line>
+      <line x1="320" y1="150" x2="375" y2="150">
+        <animate attributeName="x1" values="440;50" dur="1.3s" repeatCount="indefinite" />
+        <animate attributeName="x2" values="495;105" dur="1.3s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0;0.5;0" dur="1.3s" repeatCount="indefinite" />
+      </line>
+    </g>
+
+    <!-- Road Surface & Moving Asphalt Dashes -->
+    <line x1="12" y1="196" x2="508" y2="196" stroke="#323242" stroke-width="2.5" />
+    <line x1="12" y1="201" x2="508" y2="201" stroke="#FC4C02" stroke-width="2" stroke-dasharray="18 26">
+      <animate attributeName="stroke-dashoffset" from="0" to="88" dur="0.55s" repeatCount="indefinite" />
+    </line>
+
+    <!-- ====================================================================
+         ANIMATED AERO ROAD CYCLIST
+         ==================================================================== -->
+    <g transform="translate(175, 66)">
+      <!-- Subtle Road Vibration Bounce -->
+      <animateTransform attributeName="transform" type="translate" values="175,66; 175,64.5; 175,66" dur="0.45s" repeatCount="indefinite" />
+
+      <!-- Rear Wheel (x=36, y=98, r=31) -->
+      <g transform="translate(36, 98)">
+        <circle cx="0" cy="0" r="31" fill="none" stroke="#1E1E28" stroke-width="6.5" />
+        <circle cx="0" cy="0" r="28" fill="none" stroke="#38BDF8" stroke-width="1.8" stroke-dasharray="10 8">
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.65s" repeatCount="indefinite" />
+        </circle>
+        <g stroke="#8E8EA2" stroke-width="1.3">
+          <line x1="-27" y1="0" x2="27" y2="0" />
+          <line x1="0" y1="-27" x2="0" y2="27" />
+          <line x1="-19" y1="-19" x2="19" y2="19" />
+          <line x1="-19" y1="19" x2="19" y2="-19" />
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.65s" repeatCount="indefinite" />
+        </g>
+        <circle cx="0" cy="0" r="4.5" fill="#FC4C02" />
+      </g>
+
+      <!-- Front Wheel (x=148, y=98, r=31) -->
+      <g transform="translate(148, 98)">
+        <circle cx="0" cy="0" r="31" fill="none" stroke="#1E1E28" stroke-width="6.5" />
+        <circle cx="0" cy="0" r="28" fill="none" stroke="#38BDF8" stroke-width="1.8" stroke-dasharray="10 8">
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.65s" repeatCount="indefinite" />
+        </circle>
+        <g stroke="#8E8EA2" stroke-width="1.3">
+          <line x1="-27" y1="0" x2="27" y2="0" />
+          <line x1="0" y1="-27" x2="0" y2="27" />
+          <line x1="-19" y1="-19" x2="19" y2="19" />
+          <line x1="-19" y1="19" x2="19" y2="-19" />
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.65s" repeatCount="indefinite" />
+        </g>
+        <circle cx="0" cy="0" r="4.5" fill="#FC4C02" />
+      </g>
+
+      <!-- Far Leg (Back Pedal Stroke) -->
+      <g stroke="#9898AE" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M 65 44 L 88 68 L 76 108">
+          <animate attributeName="d"
+            values="M 65 44 L 88 68 L 76 108;
+                    M 65 44 L 95 62 L 94 96;
+                    M 65 44 L 86 56 L 80 86;
+                    M 65 44 L 76 66 L 66 98;
+                    M 65 44 L 88 68 L 76 108"
+            dur="0.75s" repeatCount="indefinite" />
+        </path>
+      </g>
+
+      <!-- Carbon Aero Road Bike Frame -->
+      <g fill="none" stroke="#FC4C02" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Chainstay & Seatstay -->
+        <line x1="36" y1="98" x2="80" y2="98" />
+        <line x1="36" y1="98" x2="68" y2="54" />
+        <!-- Seat Tube & Seatpost -->
+        <line x1="80" y1="98" x2="64" y2="46" />
+        <!-- Down Tube & Top Tube -->
+        <line x1="80" y1="98" x2="128" y2="56" />
+        <line x1="66" y1="54" x2="126" y2="54" />
+        <!-- Front Fork & Head Tube -->
+        <line x1="148" y1="98" x2="124" y2="46" />
+      </g>
+      <!-- Saddle & Aero Drop Handlebars + Out-Front Cyclocomp Mount -->
+      <line x1="56" y1="45" x2="71" y2="45" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+      <path d="M 124 46 L 137 46 C 144 46, 145 56, 136 58" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" />
+      <!-- Glowing Cyclocomp on Out-Front Mount -->
+      <rect x="139" y="40" width="9" height="4.5" rx="1.5" fill="#38BDF8" />
+
+      <!-- Crankset & Rotating Chainring (x=80, y=98) -->
+      <circle cx="80" cy="98" r="9.5" fill="#181822" stroke="#FFFFFF" stroke-width="2" />
+      <g transform="translate(80, 98)">
+        <line x1="0" y1="-11" x2="0" y2="11" stroke="#FC4C02" stroke-width="2.5" stroke-linecap="round">
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.75s" repeatCount="indefinite" />
+        </line>
+      </g>
+
+      <!-- Near Leg (Foreground Power Stroke) -->
+      <g stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <path d="M 65 44 L 86 56 L 80 86">
+          <animate attributeName="d"
+            values="M 65 44 L 86 56 L 80 86;
+                    M 65 44 L 76 66 L 66 98;
+                    M 65 44 L 88 68 L 76 108;
+                    M 65 44 L 95 62 L 94 96;
+                    M 65 44 L 86 56 L 80 86"
+            dur="0.75s" repeatCount="indefinite" />
+        </path>
+      </g>
+
+      <!-- Cyclist Torso, Arms & Aero Helmet -->
+      <path d="M 65 43 Q 88 24, 114 28" fill="none" stroke="#FC4C02" stroke-width="9" stroke-linecap="round" />
+      <path d="M 112 29 L 124 46 L 136 53" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+      <!-- Aero Helmet & Head -->
+      <circle cx="123" cy="20" r="8.5" fill="#FFFFFF" />
+      <path d="M 111 17 Q 124 8, 134 19 Z" fill="#38BDF8" />
+    </g>
+
+    <!-- Bottom Status Strip -->
+    <text x="14" y="224" fill="#38BDF8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700">PHYSICS POWER METER (WATTS &amp; 30S NP) • FREEWHEEL COASTING • UCI CLIMBS</text>
+  </g>
+
+  <!-- ======================================================================
+       RIGHT STAGE: RUNNING SIMULATION (SPORTWATCH — 56 MODELS)
+       ====================================================================== -->
+  <g transform="translate(580, 56)">
+    <!-- Stage Card Background -->
+    <rect x="0" y="0" width="520" height="236" rx="12" fill="#121218" stroke="#262632" stroke-width="1" />
+
+    <!-- Running Grade-Adjusted Terrain Curve -->
+    <path d="M 0 182 Q 110 155, 220 170 T 410 138 T 520 165 L 520 210 L 0 210 Z" fill="url(#greenArea)" />
+    <path d="M 0 182 Q 110 155, 220 170 T 410 138 T 520 165" fill="none" stroke="#12B76A" stroke-width="2" stroke-opacity="0.7" />
+
+    <!-- Top Stage Header & Telemetry Readouts -->
+    <rect x="14" y="12" width="204" height="22" rx="5" fill="#12B76A" fill-opacity="0.16" stroke="#12B76A" stroke-width="1" />
+    <text x="24" y="27" fill="#34D399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.5">SPORTWATCH • FOR RUNNING (56)</text>
+
+    <text x="506" y="26" text-anchor="end" fill="#E4E4EE" font-family="monospace" font-size="11.5" font-weight="700">4:15 /km • 178 SPM • 162 BPM</text>
+    <text x="14" y="50" fill="#A0A0B4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="600">COROS PACE 3 (ID 294/804) • Forerunner 965 • Fenix 8 • Suunto Race • Polar V3</text>
+
+    <!-- Live Heart Rate ECG Waveform -->
+    <path d="M 355 112 L 385 112 L 393 96 L 401 128 L 409 84 L 417 134 L 425 105 L 433 112 L 475 112" fill="none" stroke="#F43F5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="160" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" values="160;0;-160" dur="1.6s" repeatCount="indefinite" />
+    </path>
+    <text x="415" y="148" text-anchor="middle" fill="#F43F5E" font-family="monospace" font-size="10" font-weight="700">HR LAG τ=12s/26s</text>
+
+    <!-- Track Surface & Moving Stride Markers -->
+    <line x1="12" y1="196" x2="508" y2="196" stroke="#323242" stroke-width="2.5" />
+    <line x1="12" y1="201" x2="508" y2="201" stroke="#12B76A" stroke-width="2" stroke-dasharray="14 24">
+      <animate attributeName="stroke-dashoffset" from="0" to="76" dur="0.65s" repeatCount="indefinite" />
+    </line>
+
+    <!-- ====================================================================
+         ANIMATED MARATHON RUNNER (DYNAMIC STRIDE BIOMECHANICS)
+         ==================================================================== -->
+    <g transform="translate(215, 72)">
+      <!-- Vertical Running Oscilliation (Bounce) -->
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0,0; 0,-6; 0,0; 0,-6; 0,0" dur="0.68s" repeatCount="indefinite" />
+
+        <!-- Back Arm (Swinging Opposite to Near Leg) -->
+        <path d="M 28 32 L 14 48 L 26 56" fill="none" stroke="#9898AE" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <animate attributeName="d"
+            values="M 28 32 L 12 46 L 24 56;
+                    M 28 32 L 26 48 L 42 44;
+                    M 28 32 L 38 44 L 52 34;
+                    M 28 32 L 26 48 L 42 44;
+                    M 28 32 L 12 46 L 24 56"
+            dur="0.68s" repeatCount="indefinite" />
+        </path>
+
+        <!-- Back Leg (Alternating Stride) -->
+        <path d="M 22 68 L 42 92 L 30 120" fill="none" stroke="#9898AE" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+          <animate attributeName="d"
+            values="M 22 68 L 44 90 L 56 118;
+                    M 22 68 L 26 94 L 12 118;
+                    M 22 68 L 6 92 L -14 106;
+                    M 22 68 L 28 84 L 18 104;
+                    M 22 68 L 44 90 L 56 118"
+            dur="0.68s" repeatCount="indefinite" />
+        </path>
+
+        <!-- Runner Torso (Slight Forward Athletic Lean) -->
+        <line x1="22" y1="68" x2="30" y2="28" stroke="#FC4C02" stroke-width="9.5" stroke-linecap="round" />
+
+        <!-- Runner Head -->
+        <circle cx="34" cy="14" r="9" fill="#FFFFFF" />
+        <!-- Sport Visor Cap -->
+        <path d="M 26 11 Q 35 5, 46 12" fill="none" stroke="#12B76A" stroke-width="3.2" stroke-linecap="round" />
+
+        <!-- Foreground Leg (Primary Drive & Knee Lift) -->
+        <path d="M 22 68 L 6 92 L -14 106" fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
+          <animate attributeName="d"
+            values="M 22 68 L 6 92 L -14 106;
+                    M 22 68 L 28 84 L 18 104;
+                    M 22 68 L 44 90 L 56 118;
+                    M 22 68 L 26 94 L 12 118;
+                    M 22 68 L 6 92 L -14 106"
+            dur="0.68s" repeatCount="indefinite" />
+        </path>
+
+        <!-- Foreground Arm + Glowing GPS Sportwatch on Wrist -->
+        <path d="M 28 32 L 38 44 L 52 34" fill="none" stroke="#FFFFFF" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round">
+          <animate attributeName="d"
+            values="M 28 32 L 38 44 L 52 34;
+                    M 28 32 L 26 48 L 42 44;
+                    M 28 32 L 12 46 L 24 56;
+                    M 28 32 L 26 48 L 42 44;
+                    M 28 32 L 38 44 L 52 34"
+            dur="0.68s" repeatCount="indefinite" />
+        </path>
+        <!-- Glowing COROS / Garmin GPS Watch on Runner Wrist -->
+        <circle cx="48" cy="36" r="3.6" fill="#12B76A">
+          <animate attributeName="cx" values="48;38;22;38;48" dur="0.68s" repeatCount="indefinite" />
+          <animate attributeName="cy" values="36;45;54;45;36" dur="0.68s" repeatCount="indefinite" />
+        </circle>
+      </g>
+    </g>
+
+    <!-- Bottom Status Strip -->
+    <text x="14" y="224" fill="#34D399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700">GRADE-ADJUSTED PACE (MINETTI) • RUNNING STRIDE CADENCE • 1.0 KM AUTO-SPLITS</text>
+  </g>
+</svg>
