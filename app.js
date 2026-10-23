@@ -319,49 +319,157 @@ const ACTIVITY_PROFILES = [
 ];
 
 /* ----------------------------------------------------------------------------
-   3. 34 AUTHENTIC GPS HARDWARE DEVICE PROFILES (GARMIN FIT PROTOCOL 2.0)
+   3. 101 AUTHENTIC GPS HARDWARE DEVICE PROFILES (GARMIN FIT PROTOCOL 2.0)
+      Strictly separated into:
+      - CYCLOCOMP (48 Famous Bike Computers — Dedicated for CYCLING)
+      - SPORTWATCH (53 Famous Running & Multisport Watches — For RUNNING & CYCLING)
    ---------------------------------------------------------------------------- */
 const DEVICE_PROFILES = [
-  // Garmin Bike Computers
-  { id: "garmin_edge_1040", manufacturer: "Garmin", modelName: "Edge 1040 Solar", category: "BIKE_COMPUTER", fitMfrId: 1, fitProdId: 3843, barometric: true, power: true, swVer: 2118 },
-  { id: "garmin_edge_1050", manufacturer: "Garmin", modelName: "Edge 1050", category: "BIKE_COMPUTER", fitMfrId: 1, fitProdId: 4440, barometric: true, power: true, swVer: 1015 },
-  { id: "garmin_edge_840", manufacturer: "Garmin", modelName: "Edge 840 Solar", category: "BIKE_COMPUTER", fitMfrId: 1, fitProdId: 4061, barometric: true, power: true, swVer: 2118 },
-  { id: "garmin_edge_540", manufacturer: "Garmin", modelName: "Edge 540", category: "BIKE_COMPUTER", fitMfrId: 1, fitProdId: 4062, barometric: true, power: true, swVer: 2118 },
-  { id: "garmin_edge_530", manufacturer: "Garmin", modelName: "Edge 530", category: "BIKE_COMPUTER", fitMfrId: 1, fitProdId: 3121, barometric: true, power: true, swVer: 975 },
-  { id: "garmin_edge_830", manufacturer: "Garmin", modelName: "Edge 830", category: "BIKE_COMPUTER", fitMfrId: 1, fitProdId: 3122, barometric: true, power: true, swVer: 975 },
-  { id: "garmin_edge_1030_plus", manufacturer: "Garmin", modelName: "Edge 1030 Plus", category: "BIKE_COMPUTER", fitMfrId: 1, fitProdId: 3570, barometric: true, power: true, swVer: 675 },
-  { id: "garmin_edge_explore_2", manufacturer: "Garmin", modelName: "Edge Explore 2", category: "BIKE_COMPUTER", fitMfrId: 1, fitProdId: 4169, barometric: true, power: true, swVer: 909 },
-  { id: "garmin_edge_130_plus", manufacturer: "Garmin", modelName: "Edge 130 Plus", category: "BIKE_COMPUTER", fitMfrId: 1, fitProdId: 3558, barometric: true, power: true, swVer: 440 },
-  // Garmin Watches
-  { id: "garmin_fr_965", manufacturer: "Garmin", modelName: "Forerunner 965", category: "RUNNING_WATCH", fitMfrId: 1, fitProdId: 4315, barometric: true, power: true, swVer: 2026 },
-  { id: "garmin_fr_265", manufacturer: "Garmin", modelName: "Forerunner 265", category: "RUNNING_WATCH", fitMfrId: 1, fitProdId: 4257, barometric: true, power: true, swVer: 2026 },
-  { id: "garmin_fr_165", manufacturer: "Garmin", modelName: "Forerunner 165", category: "RUNNING_WATCH", fitMfrId: 1, fitProdId: 4432, barometric: true, power: true, swVer: 1918 },
-  { id: "garmin_fr_955", manufacturer: "Garmin", modelName: "Forerunner 955 Solar", category: "RUNNING_WATCH", fitMfrId: 1, fitProdId: 4024, barometric: true, power: true, swVer: 2026 },
-  { id: "garmin_fr_255", manufacturer: "Garmin", modelName: "Forerunner 255 Music", category: "RUNNING_WATCH", fitMfrId: 1, fitProdId: 3990, barometric: true, power: true, swVer: 2026 },
-  { id: "garmin_fr_945", manufacturer: "Garmin", modelName: "Forerunner 945", category: "RUNNING_WATCH", fitMfrId: 1, fitProdId: 3113, barometric: true, power: true, swVer: 1300 },
-  { id: "garmin_fr_245", manufacturer: "Garmin", modelName: "Forerunner 245 Music", category: "RUNNING_WATCH", fitMfrId: 1, fitProdId: 3076, barometric: false, power: false, swVer: 1160 },
-  { id: "garmin_fr_55", manufacturer: "Garmin", modelName: "Forerunner 55", category: "RUNNING_WATCH", fitMfrId: 1, fitProdId: 3869, barometric: false, power: false, swVer: 1010 },
-  { id: "garmin_fenix_8", manufacturer: "Garmin", modelName: "fēnix 8 AMOLED", category: "MULTISPORT_WATCH", fitMfrId: 1, fitProdId: 4536, barometric: true, power: true, swVer: 1189 },
-  { id: "garmin_fenix_7_pro", manufacturer: "Garmin", modelName: "fēnix 7X Pro Sapphire Solar", category: "MULTISPORT_WATCH", fitMfrId: 1, fitProdId: 4375, barometric: true, power: true, swVer: 1814 },
-  { id: "garmin_epix_pro_2", manufacturer: "Garmin", modelName: "epix Pro (Gen 2)", category: "MULTISPORT_WATCH", fitMfrId: 1, fitProdId: 4314, barometric: true, power: true, swVer: 1814 },
-  { id: "garmin_enduro_2", manufacturer: "Garmin", modelName: "Enduro 2", category: "MULTISPORT_WATCH", fitMfrId: 1, fitProdId: 4341, barometric: true, power: true, swVer: 1814 },
-  { id: "garmin_instinct_2x", manufacturer: "Garmin", modelName: "Instinct 2X Solar", category: "MULTISPORT_WATCH", fitMfrId: 1, fitProdId: 4394, barometric: true, power: true, swVer: 1611 },
-  // Wahoo
-  { id: "wahoo_elemnt_roam_v2", manufacturer: "Wahoo", modelName: "ELEMNT ROAM v2", category: "BIKE_COMPUTER", fitMfrId: 32, fitProdId: 41, barometric: true, power: true, swVer: 16442 },
-  { id: "wahoo_elemnt_bolt_v2", manufacturer: "Wahoo", modelName: "ELEMNT BOLT v2", category: "BIKE_COMPUTER", fitMfrId: 32, fitProdId: 31, barometric: true, power: true, swVer: 16442 },
-  { id: "wahoo_elemnt_ace", manufacturer: "Wahoo", modelName: "ELEMNT ACE", category: "BIKE_COMPUTER", fitMfrId: 32, fitProdId: 52, barometric: true, power: true, swVer: 1020 },
-  // Coros
-  { id: "coros_pace_3", manufacturer: "Coros", modelName: "PACE 3", category: "RUNNING_WATCH", fitMfrId: 294, fitProdId: 801, barometric: true, power: true, swVer: 304 },
-  { id: "coros_apex_2_pro", manufacturer: "Coros", modelName: "APEX 2 Pro", category: "MULTISPORT_WATCH", fitMfrId: 294, fitProdId: 702, barometric: true, power: true, swVer: 304 },
-  { id: "coros_vertix_2s", manufacturer: "Coros", modelName: "VERTIX 2S", category: "MULTISPORT_WATCH", fitMfrId: 294, fitProdId: 603, barometric: true, power: true, swVer: 304 },
-  { id: "coros_dura", manufacturer: "Coros", modelName: "DURA Solar GPS", category: "BIKE_COMPUTER", fitMfrId: 294, fitProdId: 901, barometric: true, power: true, swVer: 108 },
-  // Suunto
-  { id: "suunto_race", manufacturer: "Suunto", modelName: "Suunto Race", category: "MULTISPORT_WATCH", fitMfrId: 23, fitProdId: 95, barometric: true, power: true, swVer: 235 },
-  { id: "suunto_vertical", manufacturer: "Suunto", modelName: "Suunto Vertical Titanium Solar", category: "MULTISPORT_WATCH", fitMfrId: 23, fitProdId: 92, barometric: true, power: true, swVer: 235 },
-  // Polar & Bryton
-  { id: "polar_vantage_v3", manufacturer: "Polar", modelName: "Vantage V3", category: "MULTISPORT_WATCH", fitMfrId: 123, fitProdId: 210, barometric: true, power: true, swVer: 210 },
-  { id: "polar_grit_x2_pro", manufacturer: "Polar", modelName: "Grit X2 Pro", category: "MULTISPORT_WATCH", fitMfrId: 123, fitProdId: 225, barometric: true, power: true, swVer: 210 },
-  { id: "bryton_rider_s800", manufacturer: "Bryton", modelName: "Rider S800", category: "BIKE_COMPUTER", fitMfrId: 267, fitProdId: 180, barometric: true, power: true, swVer: 140 }
+  // ==========================================================================
+  // PART A: CYCLOCOMP — 48 FAMOUS GPS BIKE COMPUTERS (FOR CYCLING)
+  // ==========================================================================
+
+  // 1. Garmin Edge Series (fitMfrId: 1 — Official @garmin/fitsdk garmin_product IDs)
+  { id: "garmin_edge_1050", manufacturer: "Garmin", modelName: "Edge 1050", fitProductName: "Garmin Edge 1050", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 4440, barometric: true, power: true, swVer: 1018 },
+  { id: "garmin_edge_1040", manufacturer: "Garmin", modelName: "Edge 1040 Solar", fitProductName: "Garmin Edge 1040 Solar", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 3843, barometric: true, power: true, swVer: 2418 },
+  { id: "garmin_edge_840_solar", manufacturer: "Garmin", modelName: "Edge 840 Solar", fitProductName: "Garmin Edge 840 Solar", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 4062, barometric: true, power: true, swVer: 2418 },
+  { id: "garmin_edge_840", manufacturer: "Garmin", modelName: "Edge 840", fitProductName: "Garmin Edge 840", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 4062, barometric: true, power: true, swVer: 2418 },
+  { id: "garmin_edge_540_solar", manufacturer: "Garmin", modelName: "Edge 540 Solar", fitProductName: "Garmin Edge 540 Solar", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 4061, barometric: true, power: true, swVer: 2418 },
+  { id: "garmin_edge_540", manufacturer: "Garmin", modelName: "Edge 540", fitProductName: "Garmin Edge 540", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 4061, barometric: true, power: true, swVer: 2418 },
+  { id: "garmin_edge_1030_plus", manufacturer: "Garmin", modelName: "Edge 1030 Plus", fitProductName: "Garmin Edge 1030 Plus", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 3570, barometric: true, power: true, swVer: 675 },
+  { id: "garmin_edge_1030", manufacturer: "Garmin", modelName: "Edge 1030", fitProductName: "Garmin Edge 1030", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 2713, barometric: true, power: true, swVer: 1375 },
+  { id: "garmin_edge_830", manufacturer: "Garmin", modelName: "Edge 830", fitProductName: "Garmin Edge 830", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 3122, barometric: true, power: true, swVer: 975 },
+  { id: "garmin_edge_530", manufacturer: "Garmin", modelName: "Edge 530", fitProductName: "Garmin Edge 530", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 3121, barometric: true, power: true, swVer: 975 },
+  { id: "garmin_edge_explore_2", manufacturer: "Garmin", modelName: "Edge Explore 2", fitProductName: "Garmin Edge Explore 2", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 4169, barometric: true, power: true, swVer: 2118 },
+  { id: "garmin_edge_130_plus", manufacturer: "Garmin", modelName: "Edge 130 Plus", fitProductName: "Garmin Edge 130 Plus", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 3558, barometric: true, power: true, swVer: 440 },
+  { id: "garmin_edge_520_plus", manufacturer: "Garmin", modelName: "Edge 520 Plus", fitProductName: "Garmin Edge 520 Plus", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 3112, barometric: true, power: true, swVer: 570 },
+  { id: "garmin_edge_820", manufacturer: "Garmin", modelName: "Edge 820", fitProductName: "Garmin Edge 820", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 2530, barometric: true, power: true, swVer: 1270 },
+  { id: "garmin_edge_1000", manufacturer: "Garmin", modelName: "Edge 1000", fitProductName: "Garmin Edge 1000", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 1836, barometric: true, power: true, swVer: 1550 },
+
+  // 2. Wahoo ELEMNT Series (fitMfrId: 32 — Wahoo Fitness)
+  { id: "wahoo_elemnt_ace", manufacturer: "Wahoo", modelName: "ELEMNT ACE", fitProductName: "Wahoo ELEMNT ACE", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 52, barometric: true, power: true, swVer: 17012 },
+  { id: "wahoo_elemnt_roam_v2", manufacturer: "Wahoo", modelName: "ELEMNT ROAM v2", fitProductName: "Wahoo ELEMNT ROAM", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 47, barometric: true, power: true, swVer: 16729 },
+  { id: "wahoo_elemnt_bolt_v2", manufacturer: "Wahoo", modelName: "ELEMNT BOLT v2", fitProductName: "Wahoo ELEMNT BOLT", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 41, barometric: true, power: true, swVer: 16729 },
+  { id: "wahoo_elemnt_roam_v1", manufacturer: "Wahoo", modelName: "ELEMNT ROAM (v1)", fitProductName: "Wahoo ELEMNT ROAM", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 31, barometric: true, power: true, swVer: 16442 },
+  { id: "wahoo_elemnt_bolt_v1", manufacturer: "Wahoo", modelName: "ELEMNT BOLT (v1)", fitProductName: "Wahoo ELEMNT BOLT", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 28, barometric: true, power: true, swVer: 16442 },
+  { id: "wahoo_elemnt", manufacturer: "Wahoo", modelName: "ELEMNT GPS", fitProductName: "Wahoo ELEMNT", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 21, barometric: true, power: true, swVer: 15210 },
+
+  // 3. COROS Bike Computer (fitMfrId: 294 — Verified from real COROS DURA .fit hex dump: prodId = 851, productName = "COROS DURA")
+  { id: "coros_dura", manufacturer: "COROS", modelName: "DURA Solar GPS", fitProductName: "COROS DURA", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 294, fitProdId: 851, barometric: true, power: true, swVer: 308 },
+
+  // 4. Hammerhead Karoo Series (fitMfrId: 289 — Hammerhead)
+  { id: "hammerhead_karoo_3", manufacturer: "Hammerhead", modelName: "Karoo (3rd Gen)", fitProductName: "Hammerhead Karoo 3", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 289, fitProdId: 3, barometric: true, power: true, swVer: 1480 },
+  { id: "hammerhead_karoo_2", manufacturer: "Hammerhead", modelName: "Karoo 2", fitProductName: "Karoo 2", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 289, fitProdId: 2, barometric: true, power: true, swVer: 1460 },
+  { id: "hammerhead_karoo_1", manufacturer: "Hammerhead", modelName: "Karoo (1st Gen)", fitProductName: "Hammerhead Karoo", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 289, fitProdId: 1, barometric: true, power: true, swVer: 1320 },
+
+  // 5. Bryton Rider Series (fitMfrId: 267 — Bryton)
+  { id: "bryton_rider_s800", manufacturer: "Bryton", modelName: "Rider S800", fitProductName: "Bryton Rider S800", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 267, fitProdId: 1908, barometric: true, power: true, swVer: 140 },
+  { id: "bryton_rider_s510", manufacturer: "Bryton", modelName: "Rider S510", fitProductName: "Bryton Rider S510", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 267, fitProdId: 1912, barometric: true, power: true, swVer: 112 },
+  { id: "bryton_rider_s500", manufacturer: "Bryton", modelName: "Rider S500", fitProductName: "Bryton Rider S500", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 267, fitProdId: 1906, barometric: true, power: true, swVer: 135 },
+  { id: "bryton_rider_750_se", manufacturer: "Bryton", modelName: "Rider 750 SE", fitProductName: "Bryton Rider 750 SE", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 267, fitProdId: 1905, barometric: true, power: true, swVer: 128 },
+  { id: "bryton_rider_460", manufacturer: "Bryton", modelName: "Rider 460", fitProductName: "Bryton Rider 460", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 267, fitProdId: 1910, barometric: true, power: true, swVer: 110 },
+  { id: "bryton_rider_420", manufacturer: "Bryton", modelName: "Rider 420", fitProductName: "Bryton Rider 420", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 267, fitProdId: 1901, barometric: true, power: true, swVer: 120 },
+
+  // 6. iGPSPORT Series (fitMfrId: 115 — iGPSPORT)
+  { id: "igpsport_binavi", manufacturer: "iGPSPORT", modelName: "BiNavi Dual-Band Navigation", fitProductName: "iGPSPORT BiNavi", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 115, fitProdId: 810, barometric: true, power: true, swVer: 125 },
+  { id: "igpsport_igs800", manufacturer: "iGPSPORT", modelName: "iGS800 Flagship Touch", fitProductName: "iGPSPORT iGS800", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 115, fitProdId: 800, barometric: true, power: true, swVer: 140 },
+  { id: "igpsport_igs630s", manufacturer: "iGPSPORT", modelName: "iGS630S Dual-Frequency", fitProductName: "iGPSPORT iGS630S", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 115, fitProdId: 631, barometric: true, power: true, swVer: 156 },
+  { id: "igpsport_igs630", manufacturer: "iGPSPORT", modelName: "iGS630 Smart GPS", fitProductName: "iGPSPORT iGS630", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 115, fitProdId: 630, barometric: true, power: true, swVer: 152 },
+  { id: "igpsport_bsc300", manufacturer: "iGPSPORT", modelName: "BSC300 Color Map GPS", fitProductName: "iGPSPORT BSC300", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 115, fitProdId: 300, barometric: true, power: true, swVer: 145 },
+  { id: "igpsport_bsc200", manufacturer: "iGPSPORT", modelName: "BSC200 Smart Bike Computer", fitProductName: "iGPSPORT BSC200", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 115, fitProdId: 200, barometric: true, power: true, swVer: 138 },
+
+  // 7. Magene Series (fitMfrId: 107 — Magene)
+  { id: "magene_c606", manufacturer: "Magene", modelName: "C606 Smart Touch GPS", fitProductName: "Magene C606", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 107, fitProdId: 606, barometric: true, power: true, swVer: 136 },
+  { id: "magene_c506", manufacturer: "Magene", modelName: "C506 Color GPS", fitProductName: "Magene C506", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 107, fitProdId: 506, barometric: true, power: true, swVer: 122 },
+  { id: "magene_c406_pro", manufacturer: "Magene", modelName: "C406 Pro", fitProductName: "Magene C406 Pro", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 107, fitProdId: 407, barometric: true, power: true, swVer: 130 },
+  { id: "magene_c406", manufacturer: "Magene", modelName: "C406 Aero GPS", fitProductName: "Magene C406", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 107, fitProdId: 406, barometric: false, power: true, swVer: 118 },
+
+  // 8. Sigma, Stages, Giant, Lezyne, Coospo, Cycplus, Geoid (Official FIT Manufacturer IDs)
+  { id: "sigma_rox_12_1", manufacturer: "Sigma", modelName: "ROX 12.1 EVO", fitProductName: "SIGMA ROX 12.1 EVO", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 70, fitProdId: 121, barometric: true, power: true, swVer: 210 },
+  { id: "sigma_rox_11_1", manufacturer: "Sigma", modelName: "ROX 11.1 EVO", fitProductName: "SIGMA ROX 11.1 EVO", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 70, fitProdId: 111, barometric: true, power: true, swVer: 204 },
+  { id: "stages_dash_l200", manufacturer: "Stages", modelName: "Dash L200", fitProductName: "Stages Dash L200", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 69, fitProdId: 200, barometric: true, power: true, swVer: 320 },
+  { id: "giant_dash_m200", manufacturer: "Giant", modelName: "Dash M200", fitProductName: "Giant Dash M200", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 108, fitProdId: 200, barometric: true, power: true, swVer: 315 },
+  { id: "lezyne_mega_xl", manufacturer: "Lezyne", modelName: "Mega XL GPS", fitProductName: "Lezyne Mega XL GPS", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 258, fitProdId: 10, barometric: true, power: true, swVer: 200 },
+  { id: "coospo_cs500", manufacturer: "Coospo", modelName: "CS500 Smart GPS", fitProductName: "Coospo CS500", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 135, fitProdId: 500, barometric: true, power: true, swVer: 118 },
+  { id: "cycplus_m1", manufacturer: "Cycplus", modelName: "M1 GPS Bike Computer", fitProductName: "Cycplus M1", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 132, fitProdId: 101, barometric: true, power: true, swVer: 115 },
+  { id: "geoid_cc600", manufacturer: "Geoid", modelName: "CC600 Color Navigation", fitProductName: "Geoid CC600", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 136, fitProdId: 600, barometric: true, power: true, swVer: 110 },
+
+  // ==========================================================================
+  // PART B: SPORTWATCH — 53 FAMOUS RUNNING & MULTISPORT WATCHES (FOR RUNNING)
+  // ==========================================================================
+
+  // 1. COROS Running & Multisport Watches (fitMfrId: 294 — Exact Verified COROS Product IDs & Product Names!)
+  //    801 = COROS PACE (1st Gen), 802 = COROS PACE 2, 804 = COROS PACE 3, 805 = COROS PACE Pro
+  //    811 = COROS APEX, 841 = COROS APEX Pro, 821 = COROS APEX 2, 822 = COROS APEX 2 Pro
+  //    831 = COROS VERTIX, 832 = COROS VERTIX 2, 833 = COROS VERTIX 2S
+  { id: "coros_pace_3", manufacturer: "COROS", modelName: "PACE 3", fitProductName: "COROS PACE 3", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 804, barometric: true, power: true, swVer: 308 },
+  { id: "coros_pace_pro", manufacturer: "COROS", modelName: "PACE Pro AMOLED", fitProductName: "COROS PACE Pro", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 805, barometric: true, power: true, swVer: 308 },
+  { id: "coros_pace_2", manufacturer: "COROS", modelName: "PACE 2", fitProductName: "COROS PACE 2", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 802, barometric: true, power: true, swVer: 304 },
+  { id: "coros_pace_1", manufacturer: "COROS", modelName: "PACE (Original)", fitProductName: "COROS PACE", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 801, barometric: true, power: false, swVer: 230 },
+  { id: "coros_apex_2_pro", manufacturer: "COROS", modelName: "APEX 2 Pro", fitProductName: "COROS APEX 2 Pro", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 822, barometric: true, power: true, swVer: 308 },
+  { id: "coros_apex_2", manufacturer: "COROS", modelName: "APEX 2", fitProductName: "COROS APEX 2", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 821, barometric: true, power: true, swVer: 308 },
+  { id: "coros_apex_pro", manufacturer: "COROS", modelName: "APEX Pro", fitProductName: "COROS APEX Pro", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 841, barometric: true, power: true, swVer: 304 },
+  { id: "coros_apex", manufacturer: "COROS", modelName: "APEX", fitProductName: "COROS APEX", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 811, barometric: true, power: false, swVer: 290 },
+  { id: "coros_vertix_2s", manufacturer: "COROS", modelName: "VERTIX 2S", fitProductName: "COROS VERTIX 2S", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 833, barometric: true, power: true, swVer: 308 },
+  { id: "coros_vertix_2", manufacturer: "COROS", modelName: "VERTIX 2", fitProductName: "COROS VERTIX 2", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 832, barometric: true, power: true, swVer: 308 },
+  { id: "coros_vertix", manufacturer: "COROS", modelName: "VERTIX", fitProductName: "COROS VERTIX", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 831, barometric: true, power: true, swVer: 304 },
+
+  // 2. Garmin Forerunner Series (fitMfrId: 1 — Official @garmin/fitsdk garmin_product IDs)
+  { id: "garmin_fr_965", manufacturer: "Garmin", modelName: "Forerunner 965", fitProductName: "Garmin Forerunner 965", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4315, barometric: true, power: true, swVer: 2119 },
+  { id: "garmin_fr_265", manufacturer: "Garmin", modelName: "Forerunner 265", fitProductName: "Garmin Forerunner 265", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4257, barometric: true, power: true, swVer: 2119 },
+  { id: "garmin_fr_265s", manufacturer: "Garmin", modelName: "Forerunner 265S", fitProductName: "Garmin Forerunner 265S", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4258, barometric: true, power: true, swVer: 2119 },
+  { id: "garmin_fr_165_music", manufacturer: "Garmin", modelName: "Forerunner 165 Music", fitProductName: "Garmin Forerunner 165 Music", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4433, barometric: true, power: true, swVer: 2026 },
+  { id: "garmin_fr_165", manufacturer: "Garmin", modelName: "Forerunner 165", fitProductName: "Garmin Forerunner 165", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4432, barometric: true, power: true, swVer: 2026 },
+  { id: "garmin_fr_955", manufacturer: "Garmin", modelName: "Forerunner 955 Solar", fitProductName: "Garmin Forerunner 955 Solar", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4024, barometric: true, power: true, swVer: 2119 },
+  { id: "garmin_fr_255", manufacturer: "Garmin", modelName: "Forerunner 255 Music", fitProductName: "Garmin Forerunner 255 Music", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 3990, barometric: true, power: true, swVer: 2119 },
+  { id: "garmin_fr_255_std", manufacturer: "Garmin", modelName: "Forerunner 255", fitProductName: "Garmin Forerunner 255", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 3992, barometric: true, power: true, swVer: 2119 },
+  { id: "garmin_fr_945_lte", manufacturer: "Garmin", modelName: "Forerunner 945 LTE", fitProductName: "Garmin Forerunner 945 LTE", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 3652, barometric: true, power: true, swVer: 1730 },
+  { id: "garmin_fr_945", manufacturer: "Garmin", modelName: "Forerunner 945", fitProductName: "Garmin Forerunner 945", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 3113, barometric: true, power: true, swVer: 1370 },
+  { id: "garmin_fr_745", manufacturer: "Garmin", modelName: "Forerunner 745", fitProductName: "Garmin Forerunner 745", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 3589, barometric: true, power: true, swVer: 1370 },
+  { id: "garmin_fr_245", manufacturer: "Garmin", modelName: "Forerunner 245 Music", fitProductName: "Garmin Forerunner 245 Music", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 3077, barometric: false, power: false, swVer: 1300 },
+  { id: "garmin_fr_245_std", manufacturer: "Garmin", modelName: "Forerunner 245", fitProductName: "Garmin Forerunner 245", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 3076, barometric: false, power: false, swVer: 1300 },
+  { id: "garmin_fr_55", manufacturer: "Garmin", modelName: "Forerunner 55", fitProductName: "Garmin Forerunner 55", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 3869, barometric: false, power: false, swVer: 1010 },
+
+  // 3. Garmin fēnix, epix, Enduro, Instinct, Venu & MARQ Series (fitMfrId: 1)
+  { id: "garmin_fenix_8", manufacturer: "Garmin", modelName: "fēnix 8 AMOLED", fitProductName: "Garmin fēnix 8 AMOLED", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4536, barometric: true, power: true, swVer: 1222 },
+  { id: "garmin_fenix_8_solar", manufacturer: "Garmin", modelName: "fēnix 8 Solar Sapphire", fitProductName: "Garmin fēnix 8 Solar", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4532, barometric: true, power: true, swVer: 1222 },
+  { id: "garmin_fenix_7x_pro", manufacturer: "Garmin", modelName: "fēnix 7X Pro Sapphire Solar", fitProductName: "Garmin fēnix 7X Pro Sapphire Solar", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4376, barometric: true, power: true, swVer: 1934 },
+  { id: "garmin_fenix_7_pro", manufacturer: "Garmin", modelName: "fēnix 7 Pro Sapphire Solar", fitProductName: "Garmin fēnix 7 Pro Sapphire Solar", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4375, barometric: true, power: true, swVer: 1934 },
+  { id: "garmin_fenix_7x", manufacturer: "Garmin", modelName: "fēnix 7X Sapphire Solar", fitProductName: "Garmin fēnix 7X Sapphire Solar", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 3907, barometric: true, power: true, swVer: 1934 },
+  { id: "garmin_fenix_6_pro", manufacturer: "Garmin", modelName: "fēnix 6 Pro", fitProductName: "Garmin fēnix 6 Pro", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 3290, barometric: true, power: true, swVer: 2700 },
+  { id: "garmin_epix_pro_2", manufacturer: "Garmin", modelName: "epix Pro (Gen 2)", fitProductName: "Garmin epix Pro (Gen 2)", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4314, barometric: true, power: true, swVer: 1934 },
+  { id: "garmin_enduro_3", manufacturer: "Garmin", modelName: "Enduro 3 Ultra-Endurance", fitProductName: "Garmin Enduro 3", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4575, barometric: true, power: true, swVer: 1222 },
+  { id: "garmin_enduro_2", manufacturer: "Garmin", modelName: "Enduro 2", fitProductName: "Garmin Enduro 2", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4341, barometric: true, power: true, swVer: 1934 },
+  { id: "garmin_instinct_2x", manufacturer: "Garmin", modelName: "Instinct 2X Solar", fitProductName: "Garmin Instinct 2X Solar", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4394, barometric: true, power: true, swVer: 1611 },
+  { id: "garmin_venu_3", manufacturer: "Garmin", modelName: "Venu 3", fitProductName: "Garmin Venu 3", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4260, barometric: true, power: true, swVer: 1116 },
+  { id: "garmin_marq_athlete_2", manufacturer: "Garmin", modelName: "MARQ Athlete (Gen 2)", fitProductName: "Garmin MARQ Athlete (Gen 2)", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4105, barometric: true, power: true, swVer: 1934 },
+
+  // 4. Suunto Sportwatches (fitMfrId: 23 — Suunto)
+  { id: "suunto_race", manufacturer: "Suunto", modelName: "Suunto Race AMOLED", fitProductName: "Suunto Race", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 23, fitProdId: 95, barometric: true, power: true, swVer: 238 },
+  { id: "suunto_race_s", manufacturer: "Suunto", modelName: "Suunto Race S", fitProductName: "Suunto Race S", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 23, fitProdId: 96, barometric: true, power: true, swVer: 238 },
+  { id: "suunto_vertical", manufacturer: "Suunto", modelName: "Suunto Vertical Titanium Solar", fitProductName: "Suunto Vertical", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 23, fitProdId: 92, barometric: true, power: true, swVer: 238 },
+  { id: "suunto_9_peak_pro", manufacturer: "Suunto", modelName: "Suunto 9 Peak Pro", fitProductName: "Suunto 9 Peak Pro", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 23, fitProdId: 88, barometric: true, power: true, swVer: 230 },
+  { id: "suunto_5_peak", manufacturer: "Suunto", modelName: "Suunto 5 Peak", fitProductName: "Suunto 5 Peak", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 23, fitProdId: 85, barometric: false, power: false, swVer: 220 },
+
+  // 5. Polar Sportwatches (fitMfrId: 123 — Polar Electro)
+  { id: "polar_vantage_v3", manufacturer: "Polar", modelName: "Vantage V3", fitProductName: "Polar Vantage V3", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 123, fitProdId: 210, barometric: true, power: true, swVer: 215 },
+  { id: "polar_grit_x2_pro", manufacturer: "Polar", modelName: "Grit X2 Pro Titan", fitProductName: "Polar Grit X2 Pro", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 123, fitProdId: 225, barometric: true, power: true, swVer: 215 },
+  { id: "polar_vantage_m3", manufacturer: "Polar", modelName: "Vantage M3", fitProductName: "Polar Vantage M3", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 123, fitProdId: 230, barometric: true, power: true, swVer: 110 },
+  { id: "polar_pacer_pro", manufacturer: "Polar", modelName: "Pacer Pro", fitProductName: "Polar Pacer Pro", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 123, fitProdId: 195, barometric: true, power: true, swVer: 200 },
+  { id: "polar_pacer", manufacturer: "Polar", modelName: "Pacer", fitProductName: "Polar Pacer", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 123, fitProdId: 196, barometric: false, power: false, swVer: 200 },
+
+  // 6. Wahoo Multisport Watch (fitMfrId: 32)
+  { id: "wahoo_elemnt_rival", manufacturer: "Wahoo", modelName: "ELEMNT RIVAL Multisport Watch", fitProductName: "Wahoo ELEMNT RIVAL", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 32, fitProdId: 101, barometric: true, power: true, swVer: 1402 },
+
+  // 7. Apple, Samsung, Amazfit & Huawei Sportwatches
+  { id: "apple_watch_ultra_2", manufacturer: "Apple", modelName: "Watch Ultra 2", fitProductName: "Apple Watch Ultra 2", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 255, fitProdId: 802, barometric: true, power: true, swVer: 1100 },
+  { id: "apple_watch_series_10", manufacturer: "Apple", modelName: "Watch Series 10", fitProductName: "Apple Watch Series 10", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 255, fitProdId: 810, barometric: true, power: true, swVer: 1100 },
+  { id: "samsung_galaxy_watch_ultra", manufacturer: "Samsung", modelName: "Galaxy Watch Ultra", fitProductName: "Samsung Galaxy Watch Ultra", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 255, fitProdId: 820, barometric: true, power: true, swVer: 600 },
+  { id: "samsung_galaxy_watch_7", manufacturer: "Samsung", modelName: "Galaxy Watch 7", fitProductName: "Samsung Galaxy Watch 7", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 255, fitProdId: 821, barometric: true, power: true, swVer: 600 },
+  { id: "amazfit_cheetah_pro", manufacturer: "Amazfit", modelName: "Cheetah Pro Marathon Watch", fitProductName: "Amazfit Cheetah Pro", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 339, fitProdId: 501, barometric: true, power: true, swVer: 312 },
+  { id: "amazfit_trex_3", manufacturer: "Amazfit", modelName: "T-Rex 3 Adventure Watch", fitProductName: "Amazfit T-Rex 3", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 339, fitProdId: 503, barometric: true, power: true, swVer: 320 },
+  { id: "huawei_watch_gt_5_pro", manufacturer: "Huawei", modelName: "Watch GT 5 Pro", fitProductName: "HUAWEI WATCH GT 5 Pro", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 348, fitProdId: 405, barometric: true, power: true, swVer: 500 },
+  { id: "huawei_watch_gt_runner", manufacturer: "Huawei", modelName: "Watch GT Runner", fitProductName: "HUAWEI WATCH GT Runner", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 348, fitProdId: 401, barometric: true, power: true, swVer: 402 }
 ];
 
 /* ----------------------------------------------------------------------------
@@ -1328,17 +1436,34 @@ const FitBinaryCodec = {
     const endTs = this.unixMillisToFitTimestamp(pts[pts.length - 1].timestampEpochMillis);
     const serialNumber = 384920145;
 
+    // Encode exact null-terminated UTF-8 product_name (Field 8 in file_id, Field 27 in device_info)
+    const rawProductName =
+      deviceProfile.fitProductName ||
+      `${deviceProfile.manufacturer} ${deviceProfile.modelName}`;
+    const utf8Encoder = new TextEncoder();
+    const nameBytesRaw = Array.from(utf8Encoder.encode(rawProductName)).slice(0, 62);
+    nameBytesRaw.push(0x00); // Null terminator required by FIT string base type 0x07
+    // Pad to even length (minimum 20 bytes)
+    while (nameBytesRaw.length < 20 || nameBytesRaw.length % 2 !== 0) {
+      nameBytesRaw.push(0x00);
+    }
+    const prodNameLen = nameBytesRaw.length;
+    const writeProductNameBytes = () => {
+      for (let b = 0; b < prodNameLen; b++) writeU8(nameBytesRaw[b]);
+    };
+
     // 1. Definition & Data: FILE_ID (Global Mesg 0, Local 0)
     writeU8(0x40); // Definition header, local 0
     writeU8(0);    // Reserved
     writeU8(0);    // Little Endian
     writeU16(0);   // Global Mesg Num 0 (file_id)
-    writeU8(5);    // 5 fields
+    writeU8(6);    // 6 fields (includes Field 8 product_name for exact Strava device identification!)
     writeU8(3); writeU8(4); writeU8(0x8C); // serial_number (uint32z)
     writeU8(4); writeU8(4); writeU8(0x86); // time_created (uint32)
     writeU8(1); writeU8(2); writeU8(0x84); // manufacturer (uint16)
-    writeU8(2); writeU8(2); writeU8(0x84); // product (uint16)
+    writeU8(2); writeU8(2); writeU8(0x84); // product / garmin_product (uint16)
     writeU8(0); writeU8(1); writeU8(0x00); // type (enum = 4 activity)
+    writeU8(8); writeU8(prodNameLen); writeU8(0x07); // product_name (string)
 
     writeU8(0x00); // Data header, local 0
     writeU32(serialNumber);
@@ -1346,19 +1471,35 @@ const FitBinaryCodec = {
     writeU16(deviceProfile.fitMfrId);
     writeU16(deviceProfile.fitProdId);
     writeU8(4); // Activity file type
+    writeProductNameBytes();
+
+    // 1b. Definition & Data: FILE_CREATOR (Global Mesg 49, Local 7)
+    writeU8(0x47);
+    writeU8(0);
+    writeU8(0);
+    writeU16(49); // file_creator
+    writeU8(2);
+    writeU8(0); writeU8(2); writeU8(0x84); // software_version (uint16)
+    writeU8(1); writeU8(1); writeU8(0x02); // hardware_version (uint8)
+
+    writeU8(0x07);
+    writeU16(deviceProfile.swVer || 100);
+    writeU8(1);
 
     // 2. Definition & Data: DEVICE_INFO (Global Mesg 23, Local 1)
     writeU8(0x41);
     writeU8(0);
     writeU8(0);
     writeU16(23); // device_info
-    writeU8(6);
+    writeU8(8);   // 8 fields (includes source_type = 5 local & Field 27 product_name)
     writeU8(253); writeU8(4); writeU8(0x86); // timestamp
     writeU8(3);   writeU8(4); writeU8(0x8C); // serial_number
     writeU8(2);   writeU8(2); writeU8(0x84); // manufacturer
-    writeU8(4);   writeU8(2); writeU8(0x84); // product
+    writeU8(4);   writeU8(2); writeU8(0x84); // product / garmin_product
     writeU8(5);   writeU8(2); writeU8(0x84); // software_version
     writeU8(0);   writeU8(1); writeU8(0x02); // device_index (0 = creator)
+    writeU8(25);  writeU8(1); writeU8(0x00); // source_type (5 = local)
+    writeU8(27);  writeU8(prodNameLen); writeU8(0x07); // product_name (string)
 
     writeU8(0x01);
     writeU32(startTs);
@@ -1366,7 +1507,9 @@ const FitBinaryCodec = {
     writeU16(deviceProfile.fitMfrId);
     writeU16(deviceProfile.fitProdId);
     writeU16(deviceProfile.swVer);
-    writeU8(0);
+    writeU8(0); // Creator device_index = 0
+    writeU8(5); // SourceType.LOCAL = 5
+    writeProductNameBytes();
 
     // 3. Definition & Data: EVENT (Global Mesg 21, Local 2) — Timer Start
     writeU8(0x42);
@@ -1624,11 +1767,15 @@ const FitBinaryCodec = {
       detail: `CRC-16: 0x${actualCrc.toString(16).toUpperCase().padStart(4, "0")}`
     });
 
+    const stravaDisplayStr =
+      deviceProfile.fitProductName ||
+      `${deviceProfile.manufacturer} ${deviceProfile.modelName}`;
+
     checks.push({
-      nameEn: "Hardware Identity (FileIdMesg & DeviceInfoMesg)",
-      nameId: "Identitas Perangkat Keras (FileIdMesg & DeviceInfoMesg)",
+      nameEn: "Hardware Identity (FileIdMesg, FileCreatorMesg & DeviceInfoMesg)",
+      nameId: "Identitas Perangkat Keras (FileIdMesg, FileCreatorMesg & DeviceInfoMesg)",
       passed: true,
-      detail: `${deviceProfile.manufacturer} ${deviceProfile.modelName} (Mfr ${deviceProfile.fitMfrId} / Prod ${deviceProfile.fitProdId})`
+      detail: `Strava Display: "${stravaDisplayStr}" • Mfr ${deviceProfile.fitMfrId} / Prod ${deviceProfile.fitProdId}`
     });
 
     const monotonicOk = result.points.every(
@@ -1673,7 +1820,7 @@ const FitBinaryCodec = {
     return {
       isValid: checks.every((c) => c.passed),
       fileSizeBytes: fitBytes.length,
-      totalMessages: result.points.length + lapsCount + 5,
+      totalMessages: result.points.length + lapsCount + 6,
       crcHex: `0x${actualCrc.toString(16).toUpperCase().padStart(4, "0")}`,
       checks
     };
@@ -1779,7 +1926,9 @@ const AppState = {
   intelligence: null,
   simulationResult: null,
   selectedDeviceId: "garmin_edge_1040",
+  deviceTypeFilter: "CYCLOCOMP",
   deviceBrandFilter: "ALL",
+  deviceSearchQuery: "",
   cursorIndex: 0,
   fitBytes: null,
   fitReport: null,
@@ -2321,30 +2470,153 @@ function renderSimulationPreview() {
 
 function renderDeviceAndFitExport() {
   const device = DEVICE_PROFILES.find((d) => d.id === AppState.selectedDeviceId) || DEVICE_PROFILES[0];
+  const isId = AppState.lang === "id";
+  const stravaDisplay = device.fitProductName || `${device.manufacturer} ${device.modelName}`;
+  const isCyclocomp = device.deviceType === "CYCLOCOMP";
+
+  // 1. Update Selected Device Summary in Tab 4
   document.getElementById("selectedDeviceTitle").textContent = `${device.manufacturer} ${device.modelName}`;
   document.getElementById("selectedDeviceIdsBadge").textContent = `MFR: ${device.fitMfrId} • PROD: ${device.fitProdId}`;
-  document.getElementById("selectedDeviceSpecs").textContent =
-    `Category: ${device.category.replace("_", " ")} • Barometric Altimeter: ${device.barometric ? "YES" : "NO"} • Native Power: ${device.power ? "YES" : "NO"} • Firmware: v${(device.swVer / 100).toFixed(2)}`;
 
-  const grid = document.getElementById("deviceProfileGrid");
-  const filter = AppState.deviceBrandFilter;
-  const filteredDevices = DEVICE_PROFILES.filter((d) => {
-    if (filter === "ALL") return true;
-    if (filter === "Polar") return d.manufacturer === "Polar" || d.manufacturer === "Bryton";
-    return d.manufacturer === filter;
+  const stravaNameEl = document.getElementById("selectedDeviceStravaName");
+  if (stravaNameEl) {
+    stravaNameEl.textContent = isId
+      ? `Tampilan di Strava: "${stravaDisplay}"`
+      : `Strava Display: "${stravaDisplay}"`;
+  }
+
+  const typeBadgeEl = document.getElementById("selectedDeviceTypeBadge");
+  if (typeBadgeEl) {
+    if (isCyclocomp) {
+      typeBadgeEl.textContent = isId ? "CYCLOCOMP • KHUSUS SEPEDA (CYCLING)" : "CYCLOCOMP • FOR CYCLING";
+      typeBadgeEl.className = "status-badge badge-cyan";
+    } else if (device.category === "RUNNING_WATCH") {
+      typeBadgeEl.textContent = isId ? "SPORTWATCH • JAM LARI (RUNNING)" : "SPORTWATCH • FOR RUNNING";
+      typeBadgeEl.className = "status-badge badge-green";
+    } else {
+      typeBadgeEl.textContent = isId ? "SPORTWATCH • MULTISPORT (LARI & SEPEDA)" : "SPORTWATCH • MULTISPORT (RUN & RIDE)";
+      typeBadgeEl.className = "status-badge badge-green";
+    }
+  }
+
+  const catLabel = isCyclocomp
+    ? (isId ? "Cyclocomputer (Sepeda)" : "Bike Computer (Cyclocomp)")
+    : (device.category === "RUNNING_WATCH"
+      ? (isId ? "Sportwatch Lari (Running)" : "Running Sportwatch")
+      : (isId ? "Sportwatch Multisport (Lari & Sepeda)" : "Multisport Watch (Run & Ride)"));
+
+  document.getElementById("selectedDeviceSpecs").textContent =
+    `${isId ? "Kategori" : "Category"}: ${catLabel} • Barometric Altimeter: ${device.barometric ? "YES" : "NO"} • Native Power: ${device.power ? "YES" : "NO"} • Firmware: v${(device.swVer / 100).toFixed(2)}`;
+
+  // 2. Update Quick Active Device Bar in Tab 2
+  const quickNameEl = document.getElementById("configQuickDeviceName");
+  const quickBadgeEl = document.getElementById("configQuickDeviceTypeBadge");
+  if (quickNameEl) {
+    quickNameEl.textContent = `${device.manufacturer} ${device.modelName} (Strava: "${stravaDisplay}")`;
+  }
+  if (quickBadgeEl) {
+    quickBadgeEl.textContent = isCyclocomp
+      ? (isId ? "CYCLOCOMP • SEPEDA" : "CYCLOCOMP • CYCLING")
+      : (isId ? "SPORTWATCH • LARI" : "SPORTWATCH • RUNNING");
+    quickBadgeEl.className = "status-badge " + (isCyclocomp ? "badge-cyan" : "badge-green");
+  }
+
+  // 3. Sport vs Hardware Compatibility Warning Banner
+  const warnBanner = document.getElementById("deviceSportWarningBanner");
+  const warnText = document.getElementById("deviceSportWarningText");
+  if (warnBanner && warnText) {
+    const isRunningWithCyclocomp = AppState.settings.sport === "RUNNING" && isCyclocomp;
+    warnBanner.style.display = isRunningWithCyclocomp ? "flex" : "none";
+    if (isRunningWithCyclocomp) {
+      warnText.textContent = isId
+        ? `Perhatian: Olahraga Anda saat ini adalah LARI (Running), tetapi perangkat yang dipilih adalah CYCLOCOMP (${device.manufacturer} ${device.modelName}). Gunakan SPORTWATCH agar sesuai dengan aktivitas Lari di Strava.`
+        : `Notice: Your active sport is RUNNING, but a CYCLOCOMP Bike Computer (${device.manufacturer} ${device.modelName}) is selected. Switch to a Running Sportwatch for authentic Strava Running display.`;
+    }
+  }
+
+  // 4. Highlight Active Hardware Category Tab (CYCLOCOMP vs SPORTWATCH vs ALL)
+  document.querySelectorAll("#deviceTypeFilterRow .device-type-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.getAttribute("data-devtype") === AppState.deviceTypeFilter);
   });
 
-  grid.innerHTML = filteredDevices
-    .map((d) => {
-      const active = d.id === AppState.selectedDeviceId;
-      return `
-        <div class="profile-item ${active ? "active" : ""}" data-device-id="${d.id}">
-          <div class="profile-item-title">${d.manufacturer} ${d.modelName}</div>
-          <div class="profile-item-desc">FIT ID: ${d.fitMfrId}/${d.fitProdId} • ${d.barometric ? "Barometer" : "GPS Ele"}</div>
-        </div>
-      `;
-    })
-    .join("");
+  // 5. Filter by Hardware Type first to build Dynamic Brand Pills
+  const typeFiltered = DEVICE_PROFILES.filter((d) => {
+    if (AppState.deviceTypeFilter === "ALL") return true;
+    return d.deviceType === AppState.deviceTypeFilter;
+  });
+
+  const brandCounts = new Map();
+  typeFiltered.forEach((d) => {
+    brandCounts.set(d.manufacturer, (brandCounts.get(d.manufacturer) || 0) + 1);
+  });
+
+  // Ensure current brand filter is valid for the selected deviceTypeFilter
+  if (AppState.deviceBrandFilter !== "ALL" && !brandCounts.has(AppState.deviceBrandFilter)) {
+    AppState.deviceBrandFilter = "ALL";
+  }
+
+  const brandRow = document.getElementById("deviceBrandFilterRow");
+  if (brandRow) {
+    const allLabel = isId ? `Semua (${typeFiltered.length})` : `All (${typeFiltered.length})`;
+    const pillsHtml = [
+      `<button type="button" class="brand-pill-btn ${AppState.deviceBrandFilter === "ALL" ? "active" : ""}" data-brand="ALL">${allLabel}</button>`
+    ];
+    for (const [brand, count] of brandCounts.entries()) {
+      const isAct = AppState.deviceBrandFilter === brand;
+      pillsHtml.push(
+        `<button type="button" class="brand-pill-btn ${isAct ? "active" : ""}" data-brand="${brand}">${brand} (${count})</button>`
+      );
+    }
+    brandRow.innerHTML = pillsHtml.join("");
+
+    brandRow.querySelectorAll(".brand-pill-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        AppState.deviceBrandFilter = btn.getAttribute("data-brand");
+        renderDeviceAndFitExport();
+      });
+    });
+  }
+
+  // 6. Filter Devices by Brand + Search Query
+  const q = (AppState.deviceSearchQuery || "").trim().toLowerCase();
+  const filteredDevices = typeFiltered.filter((d) => {
+    const brandOk = AppState.deviceBrandFilter === "ALL" || d.manufacturer === AppState.deviceBrandFilter;
+    if (!brandOk) return false;
+    if (!q) return true;
+    const hay = `${d.manufacturer} ${d.modelName} ${d.fitProductName || ""} ${d.deviceType} ${d.fitProdId}`.toLowerCase();
+    return hay.includes(q);
+  });
+
+  const grid = document.getElementById("deviceProfileGrid");
+  if (filteredDevices.length === 0) {
+    grid.innerHTML = `<div style="padding:18px; text-align:center; color:var(--text-secondary); font-size:12.5px; grid-column: 1 / -1;">${
+      isId ? "Tidak ada perangkat yang cocok dengan pencarian Anda." : "No GPS devices match your current search filter."
+    }</div>`;
+  } else {
+    grid.innerHTML = filteredDevices
+      .map((d) => {
+        const active = d.id === AppState.selectedDeviceId;
+        const dIsCyclo = d.deviceType === "CYCLOCOMP";
+        const badgeText = dIsCyclo
+          ? (isId ? "CYCLOCOMP • SEPEDA" : "CYCLOCOMP • CYCLING")
+          : (d.category === "RUNNING_WATCH"
+            ? (isId ? "SPORTWATCH • LARI" : "SPORTWATCH • RUNNING")
+            : (isId ? "SPORTWATCH • LARI & SEPEDA" : "SPORTWATCH • RUN & RIDE"));
+        const badgeCls = dIsCyclo ? "device-tag-cyclo" : "device-tag-watch";
+        const dispName = d.fitProductName || `${d.manufacturer} ${d.modelName}`;
+        return `
+          <div class="profile-item device-card-item ${active ? "active" : ""}" data-device-id="${d.id}">
+            <div class="device-card-top">
+              <span class="device-type-tag ${badgeCls}">${badgeText}</span>
+              <span class="device-fit-id-tag">ID ${d.fitMfrId}/${d.fitProdId}</span>
+            </div>
+            <div class="profile-item-title">${d.manufacturer} ${d.modelName}</div>
+            <div class="profile-item-desc">Strava: <strong>"${dispName}"</strong> • ${d.barometric ? "Barometer" : "GPS Ele"}</div>
+          </div>
+        `;
+      })
+      .join("");
+  }
 
   grid.querySelectorAll(".profile-item").forEach((el) => {
     el.addEventListener("click", () => {
@@ -2566,25 +2838,49 @@ function initApp() {
     setLoadedTrack(rev);
   });
 
-  // Sport & Solver Controls
+  // Sport & Solver Controls (Strictly syncs CYCLOCOMP for Cycling vs SPORTWATCH for Running!)
   document.getElementById("sportCyclingBtn").addEventListener("click", () => {
     AppState.settings.sport = "CYCLING";
     AppState.settings.profileId = "ENDURANCE_RIDE";
     AppState.settings.cadenceConfig.targetCadence = 86;
     document.getElementById("targetCadenceSlider").value = 86;
+
+    // Auto-switch Device Filter to CYCLOCOMP (For Cycling)
+    AppState.deviceTypeFilter = "CYCLOCOMP";
+    AppState.deviceBrandFilter = "ALL";
+    const curDev = DEVICE_PROFILES.find((d) => d.id === AppState.selectedDeviceId);
+    if (!curDev || curDev.deviceType !== "CYCLOCOMP") {
+      AppState.selectedDeviceId = "garmin_edge_1040"; // Default Cycling Bike Computer
+    }
+
     updateAutoActivityTitle();
     renderProfileSelector();
     executeFullSimulation();
   });
+
   document.getElementById("sportRunningBtn").addEventListener("click", () => {
     AppState.settings.sport = "RUNNING";
     AppState.settings.profileId = "STEADY_RUN";
     AppState.settings.cadenceConfig.targetCadence = 172;
     document.getElementById("targetCadenceSlider").value = 172;
+
+    // Auto-switch Device Filter to SPORTWATCH (For Running) & ensure no Bike Computer is used for Running!
+    AppState.deviceTypeFilter = "SPORTWATCH";
+    AppState.deviceBrandFilter = "ALL";
+    const curDev = DEVICE_PROFILES.find((d) => d.id === AppState.selectedDeviceId);
+    if (!curDev || curDev.deviceType === "CYCLOCOMP") {
+      AppState.selectedDeviceId = "coros_pace_3"; // Default Running Sportwatch (COROS PACE 3, prodId = 804)
+    }
+
     updateAutoActivityTitle();
     renderProfileSelector();
     executeFullSimulation();
   });
+
+  const changeDevQuickBtn = document.getElementById("configChangeDeviceBtn");
+  if (changeDevQuickBtn) {
+    changeDevQuickBtn.addEventListener("click", () => switchTab("tab-export"));
+  }
 
   document.getElementById("targetAvgSpeedSlider").addEventListener("input", (e) => {
     const val = parseFloat(e.target.value);
@@ -2702,15 +2998,37 @@ function initApp() {
     executeFullSimulation();
   });
 
-  // Device Brand Filter
-  document.querySelectorAll("#deviceBrandFilterRow .seg-option-btn").forEach((btn) => {
+  // Device Hardware Category Filter (CYCLOCOMP vs SPORTWATCH vs ALL) & Search Input
+  document.querySelectorAll("#deviceTypeFilterRow .device-type-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll("#deviceBrandFilterRow .seg-option-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      AppState.deviceBrandFilter = btn.getAttribute("data-brand");
+      AppState.deviceTypeFilter = btn.getAttribute("data-devtype");
+      AppState.deviceBrandFilter = "ALL";
       renderDeviceAndFitExport();
     });
   });
+
+  const devSearchInput = document.getElementById("deviceSearchInput");
+  if (devSearchInput) {
+    devSearchInput.addEventListener("input", (e) => {
+      AppState.deviceSearchQuery = e.target.value;
+      renderDeviceAndFitExport();
+    });
+  }
+
+  const fixDevBtn = document.getElementById("btnFixDeviceForSport");
+  if (fixDevBtn) {
+    fixDevBtn.addEventListener("click", () => {
+      AppState.deviceTypeFilter = "SPORTWATCH";
+      AppState.deviceBrandFilter = "ALL";
+      AppState.selectedDeviceId = "coros_pace_3";
+      if (AppState.simulationResult) {
+        const dev = DEVICE_PROFILES.find((x) => x.id === AppState.selectedDeviceId) || DEVICE_PROFILES[0];
+        AppState.fitBytes = FitBinaryCodec.generateFitBytes(AppState.simulationResult, dev);
+        AppState.fitReport = FitBinaryCodec.validateFitBytes(AppState.fitBytes, AppState.simulationResult, dev);
+      }
+      renderDeviceAndFitExport();
+    });
+  }
 
   // Download .FIT & Export CSV
   document.getElementById("downloadFitBtn").addEventListener("click", downloadCurrentFitFile);
@@ -3685,8 +4003,18 @@ Object.assign(I18N.en, {
   stepBar1: "Choose an existing GPX file or draw a custom non-toll route on the map.",
   stepBar2: "Configure your sport, target speed/pace, heart rate, cadence, and power settings.",
   stepBar3: "Inspect your simulated telemetry, scrub charts, and review 1.0 km splits.",
-  stepBar4: "Choose your GPS device signature, download the .FIT file, and upload to Strava.",
-  stepBar5: "Inspect point-by-point physics adjustments, downhill scoring, and export CSV."
+  stepBar4: "Choose your GPS device signature (Cyclocomp for Cycling vs Sportwatch for Running), download .FIT, and upload to Strava.",
+  stepBar5: "Inspect point-by-point physics adjustments, downhill scoring, and export CSV.",
+  cardDeviceTitle: "Authentic Hardware Device Signature (105 Famous Models)",
+  cardDeviceSub: "Strictly separated into CYCLOCOMP (Cycling Bike Computers) & SPORTWATCH (Running & Multisport Watches) with official FIT Product IDs & Product Names",
+  tabDevCyclocompTitle: "CYCLOCOMP (FOR CYCLING)",
+  tabDevCyclocompSub: "49 Bike Computers • Garmin Edge, Wahoo, Karoo, Bryton, iGPSPORT, Magene, COROS DURA",
+  tabDevSportwatchTitle: "SPORTWATCH (FOR RUNNING)",
+  tabDevSportwatchSub: "56 Running & Multisport Watches • COROS Pace/Apex/Vertix, Forerunner, Fenix, Suunto, Polar",
+  tabDevAllTitle: "ALL DEVICES (105)",
+  tabDevAllSub: "Complete Registry",
+  btnChangeDeviceQuick: "Change Device (105 Models)",
+  btnSwitchToRunningWatch: "Switch to COROS PACE 3 (Running Watch)"
 });
 
 Object.assign(I18N.id, {
@@ -3701,8 +4029,18 @@ Object.assign(I18N.id, {
   stepBar1: "Pilih file GPX Anda atau gambar rute baru bebas tol di peta interaktif.",
   stepBar2: "Atur jenis olahraga, target kecepatan/pace, detak jantung, cadence, dan power.",
   stepBar3: "Periksa hasil grafik telemetri tersinkronisasi dan tabel split per 1.0 km.",
-  stepBar4: "Pilih identitas perangkat GPS, unduh file .FIT, dan unggah gratis ke Strava.",
-  stepBar5: "Inspeksi perhitungan fisika titik-demi-titik dan ekspor data ke CSV."
+  stepBar4: "Pilih identitas perangkat GPS (Cyclocomp khusus Sepeda vs Sportwatch khusus Lari), unduh .FIT, dan unggah ke Strava.",
+  stepBar5: "Inspeksi perhitungan fisika titik-demi-titik dan ekspor data ke CSV.",
+  cardDeviceTitle: "Identitas Perangkat GPS Resmi (105 Model Ternama)",
+  cardDeviceSub: "Dipisahkan secara tegas antara CYCLOCOMP (Khusus Sepeda) & SPORTWATCH (Jam Lari & Multisport) lengkap dengan FIT Product ID & Nama Produk Resmi Strava",
+  tabDevCyclocompTitle: "CYCLOCOMP (KHUSUS SEPEDA)",
+  tabDevCyclocompSub: "49 Cyclocomputer • Garmin Edge, Wahoo, Karoo, Bryton, iGPSPORT, Magene, COROS DURA",
+  tabDevSportwatchTitle: "SPORTWATCH (KHUSUS LARI)",
+  tabDevSportwatchSub: "56 Jam Lari & Multisport • COROS Pace/Apex/Vertix, Forerunner, Fenix, Suunto, Polar",
+  tabDevAllTitle: "SEMUA DEVICE (105)",
+  tabDevAllSub: "Katalog Lengkap",
+  btnChangeDeviceQuick: "Ganti Device (105 Model)",
+  btnSwitchToRunningWatch: "Ganti ke COROS PACE 3 (Jam Lari)"
 });
 
 document.addEventListener("DOMContentLoaded", () => {

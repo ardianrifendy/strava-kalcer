@@ -461,6 +461,18 @@
                     <span data-i18n="sportRunning">Running (Run)</span>
                   </button>
                 </div>
+
+                <!-- Quick Active Hardware Indicator synced with Sport Type -->
+                <div class="config-device-quickbar" id="configDeviceQuickbar">
+                  <div class="config-device-quickbar-info">
+                    <span class="status-badge badge-orange" id="configQuickDeviceTypeBadge">CYCLOCOMP • CYCLING</span>
+                    <span class="config-device-quickbar-name" id="configQuickDeviceName">Garmin Edge 1040 Solar</span>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-sm" id="configChangeDeviceBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    <span data-i18n="btnChangeDeviceQuick">Change Device (105 Models)</span>
+                  </button>
+                </div>
               </div>
 
               <div class="form-group" style="margin-bottom: 0;">
@@ -866,44 +878,81 @@
         </div>
 
         <div class="two-col-grid">
-          <!-- Left Column: 34 Authentic GPS Device Selector -->
+          <!-- Left Column: 105 Authentic GPS Device Selector (Strictly Separated: CYCLOCOMP vs SPORTWATCH) -->
           <div>
             <div class="card">
               <div class="card-header">
                 <div class="card-title-group">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
                   <div>
-                    <div class="card-title" data-i18n="cardDeviceTitle">Authentic Hardware Device Signature (34 Models)</div>
-                    <div class="card-subtitle" data-i18n="cardDeviceSub">Writes official Garmin FIT Manufacturer ID, Product ID &amp; Firmware into FileIdMesg &amp; DeviceInfoMesg</div>
+                    <div class="card-title" data-i18n="cardDeviceTitle">Authentic Hardware Device Signature (105 Famous Models)</div>
+                    <div class="card-subtitle" data-i18n="cardDeviceSub">Strictly separated into CYCLOCOMP (Cycling Bike Computers) &amp; SPORTWATCH (Running &amp; Multisport Watches) with official FIT Product IDs &amp; Product Names</div>
                   </div>
                 </div>
               </div>
 
-              <!-- Brand Filter Buttons -->
-              <div class="segmented-row" style="margin-bottom: 14px;" id="deviceBrandFilterRow">
-                <button type="button" class="seg-option-btn active" data-brand="ALL">All (34)</button>
-                <button type="button" class="seg-option-btn" data-brand="Garmin">Garmin</button>
-                <button type="button" class="seg-option-btn" data-brand="Wahoo">Wahoo</button>
-                <button type="button" class="seg-option-btn" data-brand="Coros">Coros</button>
-                <button type="button" class="seg-option-btn" data-brand="Suunto">Suunto</button>
-                <button type="button" class="seg-option-btn" data-brand="Polar">Polar / Bryton</button>
+              <!-- 1. Primary Hardware Category Switcher: CYCLOCOMP (Cycling) vs SPORTWATCH (Running) -->
+              <div class="device-type-switcher" id="deviceTypeFilterRow">
+                <button type="button" class="device-type-btn active" data-devtype="CYCLOCOMP" id="btnDevTypeCyclocomp">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></svg>
+                  <div class="device-type-btn-text">
+                    <span class="device-type-btn-title" data-i18n="tabDevCyclocompTitle">CYCLOCOMP (FOR CYCLING)</span>
+                    <span class="device-type-btn-sub" data-i18n="tabDevCyclocompSub">49 Bike Computers • Garmin Edge, Wahoo, Karoo, Bryton, iGPSPORT, Magene, COROS DURA</span>
+                  </div>
+                </button>
+                <button type="button" class="device-type-btn" data-devtype="SPORTWATCH" id="btnDevTypeSportwatch">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><polyline points="12 9 12 12 13.5 13.5"/><path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"/></svg>
+                  <div class="device-type-btn-text">
+                    <span class="device-type-btn-title" data-i18n="tabDevSportwatchTitle">SPORTWATCH (FOR RUNNING)</span>
+                    <span class="device-type-btn-sub" data-i18n="tabDevSportwatchSub">56 Running &amp; Multisport Watches • COROS Pace/Apex/Vertix, Forerunner, Fenix, Suunto, Polar</span>
+                  </div>
+                </button>
+                <button type="button" class="device-type-btn device-type-btn-compact" data-devtype="ALL" id="btnDevTypeAll">
+                  <div class="device-type-btn-text">
+                    <span class="device-type-btn-title" data-i18n="tabDevAllTitle">ALL DEVICES (105)</span>
+                    <span class="device-type-btn-sub" data-i18n="tabDevAllSub">Complete Registry</span>
+                  </div>
+                </button>
               </div>
 
-              <!-- Selected Device Hardware Summary -->
-              <div style="padding: 14px; border-radius: 10px; background: var(--strava-orange-soft); border: 1px solid var(--strava-orange-border); margin-bottom: 14px;">
-                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <!-- 2. Instant Search Input -->
+              <div class="device-search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="form-input device-search-input" id="deviceSearchInput" placeholder="Search device model or brand (e.g. COROS PACE 3, Edge 1050, Karoo 3, Roam v2, Forerunner 965)..." />
+              </div>
+
+              <!-- 3. Dynamic Brand Filter Pills -->
+              <div class="device-brand-pills" id="deviceBrandFilterRow"></div>
+
+              <!-- 4. Sport vs Hardware Compatibility Alert (Only visible if user picks Cyclocomp while in Running mode) -->
+              <div class="device-sport-warning" id="deviceSportWarningBanner" style="display:none;">
+                <div class="device-sport-warning-text" id="deviceSportWarningText">
+                  Warning: You are simulating a RUNNING activity, but a CYCLOCOMP (Bike Computer) is selected. Switch to a Running Sportwatch for authentic Strava Running display.
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" id="btnFixDeviceForSport">
+                  <span data-i18n="btnSwitchToRunningWatch">Switch to COROS PACE 3 (Running Watch)</span>
+                </button>
+              </div>
+
+              <!-- 5. Selected Device Hardware Summary -->
+              <div class="selected-device-box">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                   <div>
-                    <div style="font-size:11px; font-weight:700; color:var(--strava-orange); text-transform:uppercase;" data-i18n="lblSelectedHardware">SELECTED GPS HARDWARE</div>
-                    <div style="font-size:16px; font-weight:800; color:var(--text-primary);" id="selectedDeviceTitle">Garmin Edge 1040 Solar</div>
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
+                      <span style="font-size:11px; font-weight:800; color:var(--strava-orange); text-transform:uppercase;" data-i18n="lblSelectedHardware">SELECTED GPS HARDWARE</span>
+                      <span class="status-badge badge-cyan" id="selectedDeviceTypeBadge">CYCLOCOMP • FOR CYCLING</span>
+                    </div>
+                    <div style="font-size:16.5px; font-weight:800; color:var(--text-primary);" id="selectedDeviceTitle">Garmin Edge 1040 Solar</div>
+                    <div style="font-size:12px; font-weight:700; color:var(--strava-green); margin-top:2px;" id="selectedDeviceStravaName">Strava Display: "Garmin Edge 1040 Solar"</div>
                   </div>
                   <span class="status-badge badge-orange" id="selectedDeviceIdsBadge">MFR: 1 • PROD: 3843</span>
                 </div>
-                <div style="font-size:11.5px; color:var(--text-secondary); margin-top:6px;" id="selectedDeviceSpecs">
-                  Category: Bike Computer • Barometric Altimeter: YES • Native Power: YES • Firmware: v21.18
+                <div style="font-size:11.5px; color:var(--text-secondary); margin-top:8px;" id="selectedDeviceSpecs">
+                  Category: Bike Computer • Barometric Altimeter: YES • Native Power: YES • Firmware: v24.18
                 </div>
               </div>
 
-              <div class="profile-list" style="max-height: 410px;" id="deviceProfileGrid"></div>
+              <div class="profile-list" style="max-height: 430px;" id="deviceProfileGrid"></div>
             </div>
           </div>
 
