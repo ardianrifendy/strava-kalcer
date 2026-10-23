@@ -3669,3 +3669,55 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSimulationPreview();
   }
 });
+
+/* ----------------------------------------------------------------------------
+   13. MOBILE UX ENHANCEMENTS, STEP CONTEXT TRANSLATIONS & AUTO-SCROLL
+   ---------------------------------------------------------------------------- */
+Object.assign(I18N.en, {
+  mobNavRoute: "1. Route",
+  mobNavConfig: "2. Setup",
+  mobNavPreview: "3. Preview",
+  mobNavExport: "4. Export",
+  mobNavDebug: "5. Debug",
+  btnConfigureSim: "Next: Configure Simulation",
+  btnProceedExport: "Next: Select Device & Export .FIT",
+  modalGuideTitle: "Complete User Guide — Strava Kalcer",
+  stepBar1: "Choose an existing GPX file or draw a custom non-toll route on the map.",
+  stepBar2: "Configure your sport, target speed/pace, heart rate, cadence, and power settings.",
+  stepBar3: "Inspect your simulated telemetry, scrub charts, and review 1.0 km splits.",
+  stepBar4: "Choose your GPS device signature, download the .FIT file, and upload to Strava.",
+  stepBar5: "Inspect point-by-point physics adjustments, downhill scoring, and export CSV."
+});
+
+Object.assign(I18N.id, {
+  mobNavRoute: "1. Rute",
+  mobNavConfig: "2. Konfig",
+  mobNavPreview: "3. Grafik",
+  mobNavExport: "4. Ekspor",
+  mobNavDebug: "5. Debug",
+  btnConfigureSim: "Lanjut: Atur Simulasi",
+  btnProceedExport: "Lanjut: Pilih Device & Ekspor .FIT",
+  modalGuideTitle: "Panduan Lengkap Pengguna — Strava Kalcer",
+  stepBar1: "Pilih file GPX Anda atau gambar rute baru bebas tol di peta interaktif.",
+  stepBar2: "Atur jenis olahraga, target kecepatan/pace, detak jantung, cadence, dan power.",
+  stepBar3: "Periksa hasil grafik telemetri tersinkronisasi dan tabel split per 1.0 km.",
+  stepBar4: "Pilih identitas perangkat GPS, unduh file .FIT, dan unggah gratis ke Strava.",
+  stepBar5: "Inspeksi perhitungan fisika titik-demi-titik dan ekspor data ke CSV."
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  // On mobile viewports, collapse the 4-card onboarding grid by default unless user explicitly set preference
+  if (window.innerWidth <= 820 && localStorage.getItem("sk_guide_hidden") === null) {
+    AppState.guideHidden = true;
+  }
+  applyLanguageAndTheme();
+
+  // Smooth scroll to top when switching tabs on mobile so user always starts at the step header
+  document.querySelectorAll(".nav-tab-btn, .mobile-nav-btn, #goToConfigBtn, #runSimulationBtn, #backToTweakBtn, #proceedToExportBtn, #builderApplyToSimBtn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (window.innerWidth <= 820) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+  });
+});

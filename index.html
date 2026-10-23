@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Strava Kalcer — GPX to FIT Physics Reconstruction Studio</title>
-  <meta name="description" content="Professional GPX-to-FIT Activity Reconstruction & Interactive Map GPX Route Builder Studio with Native Strava Light/Dark UI, 34 GPS Device Profiles, and Binary Garmin FIT Protocol 2.0 Encoder." />
+  <title>Strava Kalcer — GPX Route Builder &amp; FIT Physics Reconstruction</title>
+  <meta name="description" content="Professional GPX-to-FIT Activity Reconstruction & Interactive Map GPX Route Builder with Native Strava Light/Dark UI, 34 GPS Device Profiles, and Binary Garmin FIT Protocol 2.0 Encoder." />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -15,7 +15,7 @@
        STICKY TOP NAVIGATION BAR (DESKTOP & MOBILE)
        ======================================================================== -->
   <header class="top-navbar">
-    <div class="brand-wrap" id="brandHomeBtn" title="Strava Kalcer Studio">
+    <div class="brand-wrap" id="brandHomeBtn" title="Strava Kalcer">
       <div class="strava-mirror-logo" aria-hidden="true">
         <!-- Original Strava Twin-Peak Chevron Vector (Mirrored via CSS scale(-1, -1)) -->
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -26,7 +26,6 @@
       <div class="brand-text-group">
         <div class="brand-title">
           <span>STRAVA <span class="accent">KALCER</span></span>
-          <span class="brand-badge">WEB STUDIO</span>
         </div>
         <span class="brand-subtitle" data-i18n="brandSubtitle">GPX Builder &amp; FIT Physics Reconstruction Engine</span>
       </div>
@@ -58,9 +57,9 @@
 
     <!-- Right Actions: User Guide, EN/ID Switcher, Light/Dark Theme -->
     <div class="navbar-actions">
-      <button type="button" class="action-pill-btn" id="openGuideModalBtn">
+      <button type="button" class="action-pill-btn" id="openGuideModalBtn" title="User Guide">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        <span data-i18n="btnUserGuide">User Guide</span>
+        <span class="guide-btn-label" data-i18n="btnUserGuide">User Guide</span>
       </button>
 
       <div class="lang-segmented" role="group" aria-label="Language Selector">
@@ -140,6 +139,12 @@
            TAB 1: ROUTE, INTERACTIVE GPX BUILDER & ROUTE INTELLIGENCE
            ==================================================================== -->
       <section class="tab-panel active" id="tab-route">
+        <!-- Mobile Step Progress Indicator -->
+        <div class="step-context-bar">
+          <span class="step-pill">STEP 1 / 4</span>
+          <span class="step-context-text" data-i18n="stepBar1">Choose an existing GPX file or draw a custom non-toll route on the map.</span>
+        </div>
+
         <div class="two-col-grid">
           <!-- Left Column: GPX Import / Create GPX Map Builder + Route Metrics -->
           <div>
@@ -158,7 +163,7 @@
               <input type="file" id="gpxFileInput" accept=".gpx,application/gpx+xml,text/xml" style="display:none;" />
 
               <!-- Route Source Mode Switcher: Import GPX vs Create GPX on Map -->
-              <div class="segmented-row" style="margin-bottom: 14px;">
+              <div class="segmented-row mode-switcher-row">
                 <button type="button" class="seg-option-btn active" id="modeImportGpxBtn">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                   <span data-i18n="tabModeImport">Import .GPX / Sample Route</span>
@@ -198,19 +203,21 @@
                   <!-- Search City / Place + GPS Button -->
                   <div class="builder-search-row">
                     <input type="text" class="form-input" id="builderSearchInput" placeholder="Search city, street, or landmark (e.g. Sudirman Jakarta, Malioboro, Bali)..." />
-                    <button type="button" class="btn btn-secondary" id="builderSearchBtn">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                      <span data-i18n="btnSearchPlace">Search</span>
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="builderMyGpsBtn" title="Center on My GPS Location">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
-                      <span data-i18n="btnMyLocation">My Location</span>
-                    </button>
+                    <div class="builder-search-btns">
+                      <button type="button" class="btn btn-secondary" id="builderSearchBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <span data-i18n="btnSearchPlace">Search</span>
+                      </button>
+                      <button type="button" class="btn btn-secondary" id="builderMyGpsBtn" title="Center on My GPS Location">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+                        <span data-i18n="btnMyLocation">My Location</span>
+                      </button>
+                    </div>
                   </div>
 
                   <!-- Quick City Jump Chips -->
                   <div class="builder-city-chips">
-                    <span style="font-size:11px; font-weight:700; color:var(--text-secondary);" data-i18n="lblQuickJump">Quick Jump:</span>
+                    <span class="quick-jump-label" data-i18n="lblQuickJump">Quick Jump:</span>
                     <button type="button" class="chip-btn" data-lat="-6.2088" data-lon="106.8229" data-zoom="14">Jakarta (SCBD/GBK)</button>
                     <button type="button" class="chip-btn" data-lat="-6.8852" data-lon="107.6135" data-zoom="14">Bandung (Dago)</button>
                     <button type="button" class="chip-btn" data-lat="-6.5635" data-lon="106.8904" data-zoom="14">Bogor (Sentul)</button>
@@ -221,10 +228,10 @@
 
                   <!-- Route Name & Routing Mode -->
                   <div class="builder-config-row">
-                    <div style="flex:1; min-width:160px;">
+                    <div class="builder-config-field">
                       <input type="text" class="form-input" id="builderRouteNameInput" value="Custom Strava Kalcer Route" placeholder="Route Name" />
                     </div>
-                    <div style="min-width:195px;">
+                    <div class="builder-config-field">
                       <select class="form-select" id="builderRoutingModeSelect">
                         <option value="DRIVE_NO_TOLL" data-i18n="optDriveNoToll">Drive Road Mode — Avoid Toll Roads (Non-Tol)</option>
                         <option value="BIKE_ROAD" data-i18n="optBikeRoad">Cycling / Running Road Network (Non-Tol)</option>
@@ -244,21 +251,21 @@
 
                 <!-- Builder Action Controls (Undo, Loop, Clear) & Live Metrics -->
                 <div class="builder-stats-bar">
-                  <div style="display:flex; flex-wrap:wrap; gap:12px; font-size:12px; font-weight:700;">
+                  <div class="builder-metrics-inline">
                     <span><span style="color:var(--text-secondary);" data-i18n="lblWaypoints">Waypoints:</span> <strong id="builderWpCount">0</strong></span>
                     <span><span style="color:var(--text-secondary);" data-i18n="lblDistance">Distance:</span> <strong id="builderDistKm" style="color:var(--strava-orange);">0.00 km</strong></span>
                     <span><span style="color:var(--text-secondary);" data-i18n="lblEleGain">Elevation Gain:</span> <strong id="builderGainM">+0 m</strong></span>
                   </div>
-                  <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                    <button type="button" class="btn btn-secondary" id="builderUndoBtn" style="padding:6px 10px; font-size:11.5px;">
+                  <div class="builder-edit-btns">
+                    <button type="button" class="btn btn-secondary btn-sm" id="builderUndoBtn">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
                       <span data-i18n="btnUndoPoint">Undo</span>
                     </button>
-                    <button type="button" class="btn btn-secondary" id="builderLoopStartBtn" style="padding:6px 10px; font-size:11.5px;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="builderLoopStartBtn">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
                       <span data-i18n="btnLoopToStart">Loop to Start</span>
                     </button>
-                    <button type="button" class="btn btn-secondary" id="builderClearBtn" style="padding:6px 10px; font-size:11.5px;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="builderClearBtn">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14H7L5 6"/></svg>
                       <span data-i18n="btnClearMap">Clear</span>
                     </button>
@@ -266,7 +273,7 @@
                 </div>
 
                 <!-- Primary Builder Export & Apply Buttons -->
-                <div style="display:grid; grid-template-columns: 1.25fr 0.75fr; gap:10px; margin-top:10px;">
+                <div class="builder-cta-grid">
                   <button type="button" class="btn btn-primary" id="builderApplyToSimBtn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                     <span data-i18n="btnUseBuiltRoute">USE THIS ROUTE FOR SIMULATION (.FIT)</span>
@@ -279,18 +286,18 @@
               </div>
 
               <!-- Active Route Summary Bar -->
-              <div style="margin-top: 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;">
-                <div>
-                  <div style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;" data-i18n="lblActiveTrack">ACTIVE TRACK NAME</div>
-                  <div style="font-size: 16px; font-weight: 800; color: var(--text-primary);" id="activeTrackName">-</div>
+              <div class="active-track-bar">
+                <div class="active-track-info">
+                  <div class="active-track-caption" data-i18n="lblActiveTrack">ACTIVE TRACK NAME</div>
+                  <div class="active-track-title" id="activeTrackName">-</div>
                 </div>
-                <div style="display: flex; gap: 8px;">
+                <div class="active-track-actions">
                   <button type="button" class="btn btn-secondary" id="reverseRouteBtn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
                     <span data-i18n="btnReverseRoute">Reverse Route</span>
                   </button>
                   <button type="button" class="btn btn-primary" id="goToConfigBtn">
-                    <span data-i18n="btnConfigureSim">Configure Simulation</span>
+                    <span data-i18n="btnConfigureSim">Next: Configure Simulation</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                   </button>
                 </div>
@@ -307,7 +314,7 @@
                 <span class="status-badge badge-green" id="eleSourceBadge">PRESENT_AND_VALID</span>
               </div>
 
-              <div class="metrics-grid-3" style="margin-bottom: 12px;">
+              <div class="metrics-grid-6">
                 <div class="metric-box">
                   <div class="metric-label" data-i18n="lblTotalDist">Total Distance</div>
                   <div class="metric-value-row">
@@ -329,9 +336,6 @@
                     <span class="metric-unit">m</span>
                   </div>
                 </div>
-              </div>
-
-              <div class="metrics-grid-3">
                 <div class="metric-box">
                   <div class="metric-label" data-i18n="lblAltitudeRange">Altitude Range</div>
                   <div class="metric-value-row">
@@ -355,9 +359,7 @@
                 </div>
               </div>
 
-              <div style="margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--bg-elevated); font-size: 12px; color: var(--text-secondary);" id="eleAuditNote">
-                -
-              </div>
+              <div class="audit-note-box" id="eleAuditNote">-</div>
             </div>
           </div>
 
@@ -372,7 +374,7 @@
                 <span style="font-size: 11px; color: var(--text-secondary); font-weight: 600;" id="routeMapCursorLabel">0.00 km</span>
               </div>
 
-              <div class="canvas-container" style="margin-bottom: 12px;">
+              <div class="canvas-container" style="margin-bottom: 14px;">
                 <div id="routeOverviewLeafletMap" class="map-canvas" style="z-index:1;"></div>
                 <canvas id="routeOverviewMapCanvas" class="map-canvas" style="display:none;"></canvas>
               </div>
@@ -395,7 +397,7 @@
                 </div>
               </div>
 
-              <div class="metrics-grid-3" style="margin-bottom: 12px;">
+              <div class="metrics-grid-3" style="margin-bottom: 14px;">
                 <div class="metric-box">
                   <div class="metric-label" data-i18n="lblFlatRatio">Flat Terrain</div>
                   <div class="metric-value-row">
@@ -429,6 +431,11 @@
            TAB 2: ACTIVITY & PHYSIOLOGY SIMULATION CONFIGURATION
            ==================================================================== -->
       <section class="tab-panel" id="tab-config">
+        <div class="step-context-bar">
+          <span class="step-pill">STEP 2 / 4</span>
+          <span class="step-context-text" data-i18n="stepBar2">Configure your sport, target speed/pace, heart rate, cadence, and power settings.</span>
+        </div>
+
         <div class="two-col-grid">
           <!-- Left Column: Sport, Profile, Speed/Pace Solver, Smart Stops, Date/Time -->
           <div>
@@ -527,7 +534,7 @@
                 </div>
               </div>
 
-              <div class="metrics-grid-3" style="grid-template-columns: 1fr 1fr; margin-bottom: 14px;">
+              <div class="date-time-grid">
                 <div>
                   <div class="form-label-row"><span class="form-label" data-i18n="lblStartDate">Activity Date</span></div>
                   <input type="date" class="form-input" id="activityDateInput" />
@@ -680,30 +687,35 @@
            TAB 3: TELEMETRY PREVIEW, SYNCHRONIZED CHARTS & KM SPLITS
            ==================================================================== -->
       <section class="tab-panel" id="tab-preview">
+        <div class="step-context-bar">
+          <span class="step-pill">STEP 3 / 4</span>
+          <span class="step-context-text" data-i18n="stepBar3">Inspect your simulated telemetry, scrub charts, and review 1.0 km splits.</span>
+        </div>
+
         <!-- Feasibility & Solver Convergence Banner -->
         <div class="card" id="feasibilityBannerCard" style="border-left: 4px solid var(--strava-green);">
-          <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
-            <div style="display:flex; align-items:center; gap:10px;">
+          <div class="feasibility-top-row">
+            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
               <span class="status-badge badge-green" id="feasibilityBadge">TARGET ACHIEVED</span>
               <span style="font-size:14px; font-weight:800;" id="feasibilityTargetSummary">-</span>
             </div>
-            <div style="display:flex; gap:8px;">
+            <div class="feasibility-actions">
               <button type="button" class="btn btn-secondary" id="backToTweakBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
                 <span data-i18n="btnTweakConfig">Tweak Settings</span>
               </button>
               <button type="button" class="btn btn-primary" id="proceedToExportBtn">
-                <span data-i18n="btnProceedExport">Select Device &amp; Export .FIT</span>
+                <span data-i18n="btnProceedExport">Next: Select Device &amp; Export .FIT</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </button>
             </div>
           </div>
-          <div style="font-size:12px; color:var(--text-secondary); margin-top:6px;" id="feasibilityNoteText">-</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:8px;" id="feasibilityNoteText">-</div>
         </div>
 
         <!-- 10-Metric Summary Grid (Row 1 + Row 2) -->
         <div class="card">
-          <div class="metrics-grid-4" style="margin-bottom: 10px;">
+          <div class="metrics-grid-4" style="margin-bottom: 12px;">
             <div class="metric-box">
               <div class="metric-label" data-i18n="lblDistance">Distance</div>
               <div class="metric-value-row"><span class="metric-value" id="simDistVal">0.00</span><span class="metric-unit">km</span></div>
@@ -722,7 +734,7 @@
             </div>
           </div>
 
-          <div class="metrics-grid-4" style="grid-template-columns: repeat(6, 1fr);" id="simSecondaryMetricsRow">
+          <div class="metrics-grid-6" id="simSecondaryMetricsRow">
             <div class="metric-box">
               <div class="metric-label" data-i18n="lblAvgHr">Avg / Max HR</div>
               <div class="metric-value-row"><span class="metric-value" id="simHrVal" style="font-size:17px;">-</span><span class="metric-unit">bpm</span></div>
@@ -848,6 +860,11 @@
            TAB 4: DEVICE SELECTION, FIT VALIDATION & STRAVA UPLOAD
            ==================================================================== -->
       <section class="tab-panel" id="tab-export">
+        <div class="step-context-bar">
+          <span class="step-pill">STEP 4 / 4</span>
+          <span class="step-context-text" data-i18n="stepBar4">Choose your GPS device signature, download the .FIT file, and upload to Strava.</span>
+        </div>
+
         <div class="two-col-grid">
           <!-- Left Column: 34 Authentic GPS Device Selector -->
           <div>
@@ -863,7 +880,7 @@
               </div>
 
               <!-- Brand Filter Buttons -->
-              <div class="segmented-row" style="margin-bottom: 12px;" id="deviceBrandFilterRow">
+              <div class="segmented-row" style="margin-bottom: 14px;" id="deviceBrandFilterRow">
                 <button type="button" class="seg-option-btn active" data-brand="ALL">All (34)</button>
                 <button type="button" class="seg-option-btn" data-brand="Garmin">Garmin</button>
                 <button type="button" class="seg-option-btn" data-brand="Wahoo">Wahoo</button>
@@ -873,15 +890,15 @@
               </div>
 
               <!-- Selected Device Hardware Summary -->
-              <div style="padding: 12px; border-radius: 10px; background: var(--strava-orange-soft); border: 1px solid var(--strava-orange-border); margin-bottom: 12px;">
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+              <div style="padding: 14px; border-radius: 10px; background: var(--strava-orange-soft); border: 1px solid var(--strava-orange-border); margin-bottom: 14px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                   <div>
                     <div style="font-size:11px; font-weight:700; color:var(--strava-orange); text-transform:uppercase;" data-i18n="lblSelectedHardware">SELECTED GPS HARDWARE</div>
                     <div style="font-size:16px; font-weight:800; color:var(--text-primary);" id="selectedDeviceTitle">Garmin Edge 1040 Solar</div>
                   </div>
                   <span class="status-badge badge-orange" id="selectedDeviceIdsBadge">MFR: 1 • PROD: 3843</span>
                 </div>
-                <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;" id="selectedDeviceSpecs">
+                <div style="font-size:11.5px; color:var(--text-secondary); margin-top:6px;" id="selectedDeviceSpecs">
                   Category: Bike Computer • Barometric Altimeter: YES • Native Power: YES • Firmware: v21.18
                 </div>
               </div>
@@ -904,7 +921,7 @@
                 <span class="status-badge badge-green" id="fitStatusBadge">VALIDATED</span>
               </div>
 
-              <div class="metrics-grid-3" style="margin-bottom: 14px;">
+              <div class="metrics-grid-3" style="margin-bottom: 16px;">
                 <div class="metric-box">
                   <div class="metric-label" data-i18n="lblFitSize">Binary File Size</div>
                   <div class="metric-value-row"><span class="metric-value" id="fitFileSizeVal">0.0</span><span class="metric-unit">KB</span></div>
@@ -920,17 +937,17 @@
               </div>
 
               <!-- 9-Point Validation Checklist -->
-              <div id="fitChecklistContainer" style="margin-bottom: 16px;"></div>
+              <div id="fitChecklistContainer" style="margin-bottom: 18px;"></div>
 
               <!-- Primary Action: Download .FIT File -->
-              <button type="button" class="btn btn-primary btn-block btn-lg" id="downloadFitBtn" style="margin-bottom: 10px;">
+              <button type="button" class="btn btn-primary btn-block btn-lg" id="downloadFitBtn" style="margin-bottom: 12px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span data-i18n="btnDownloadFit">DOWNLOAD VALIDATED .FIT FILE</span>
               </button>
 
               <!-- Secondary Action: UPLOAD TO STRAVA (100% Free Web Upload) -->
               <div class="strava-free-upload-box">
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                   <div style="font-size:13px; font-weight:800; color:var(--strava-orange);" data-i18n="stravaFreeTitle">
                     FREE STRAVA UPLOAD (NO API SUBSCRIPTION NEEDED)
                   </div>
@@ -955,6 +972,11 @@
            TAB 5: DEVELOPER DIAGNOSTICS & POINT INSPECTOR
            ==================================================================== -->
       <section class="tab-panel" id="tab-debug">
+        <div class="step-context-bar">
+          <span class="step-pill">DIAGNOSTICS</span>
+          <span class="step-context-text" data-i18n="stepBar5">Inspect point-by-point physics adjustments, downhill scoring, and export CSV.</span>
+        </div>
+
         <div class="two-col-grid">
           <div>
             <div class="card">
@@ -1014,23 +1036,23 @@
   <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
     <button type="button" class="mobile-nav-btn active" data-tab="tab-route">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-      <span data-i18n="mobNavRoute">Route</span>
+      <span data-i18n="mobNavRoute">1. Route</span>
     </button>
     <button type="button" class="mobile-nav-btn" data-tab="tab-config">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
-      <span data-i18n="mobNavConfig">Config</span>
+      <span data-i18n="mobNavConfig">2. Setup</span>
     </button>
     <button type="button" class="mobile-nav-btn" data-tab="tab-preview">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      <span data-i18n="mobNavPreview">Preview</span>
+      <span data-i18n="mobNavPreview">3. Preview</span>
     </button>
     <button type="button" class="mobile-nav-btn" data-tab="tab-export">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <span data-i18n="mobNavExport">Export</span>
+      <span data-i18n="mobNavExport">4. Export</span>
     </button>
     <button type="button" class="mobile-nav-btn" data-tab="tab-debug">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      <span data-i18n="mobNavDebug">Debug</span>
+      <span data-i18n="mobNavDebug">5. Debug</span>
     </button>
   </nav>
 
@@ -1042,7 +1064,7 @@
       <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
         <div class="card-title-group">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          <div class="card-title" data-i18n="modalGuideTitle">Complete User Guide — Strava Kalcer Web Studio</div>
+          <div class="card-title" data-i18n="modalGuideTitle">Complete User Guide — Strava Kalcer</div>
         </div>
         <button type="button" class="btn btn-secondary" id="closeGuideModalBtn" style="padding: 6px 12px;" data-i18n="btnClose">Close</button>
       </div>
