@@ -29,6 +29,7 @@ public final class FitEncoder {
     
     // FIT Global Message IDs
     private static let MESG_FILE_ID: UInt16 = 0
+    private static let MESG_FILE_CREATOR: UInt16 = 49
     private static let MESG_SPORT: UInt16 = 12
     private static let MESG_DEVICE_INFO: UInt16 = 23
     private static let MESG_EVENT: UInt16 = 21
@@ -65,7 +66,7 @@ public final class FitEncoder {
         
         let startFitTime = toFitTimestamp(epochMillis: points.first!.timestampEpochMillis)
         let endFitTime = toFitTimestamp(epochMillis: points.last!.timestampEpochMillis)
-        let deviceNameBytes = fitStringBytes(device.modelName, fixedSize: 24)
+        let deviceNameBytes = fitStringBytes(device.formattedDeviceName, fixedSize: 24)
         let isCycling = (result.settings.sport == .cycling)
         let isRunning = (result.settings.sport == .running)
         
@@ -107,6 +108,21 @@ public final class FitEncoder {
         body.append(dataFileId)
         
         // -----------------------------------------------------------------
+        // 1B. FILE CREATOR MESSAGE (Local 8, Global 49)
+        // -----------------------------------------------------------------
+        var defCreator = Data([0x48, 0x00, 0x00]) // Local 8, Def
+        defCreator.append(contentsOf: withUnsafeBytes(of: MESG_FILE_CREATOR.littleEndian) { Array($0) })
+        defCreator.append(2) // 2 fields
+        defCreator.append(contentsOf: [0, 2, BASE_TYPE_UINT16]) // software_version
+        defCreator.append(contentsOf: [1, 1, BASE_TYPE_UINT8])  // hardware_version
+        body.append(defCreator)
+        
+        var dataCreator = Data([0x08]) // Local 8 Data
+        dataCreator.append(contentsOf: withUnsafeBytes(of: device.softwareVersion.littleEndian) { Array($0) })
+        dataCreator.append(255) // hardware_version
+        body.append(dataCreator)
+        
+        // -----------------------------------------------------------------
         // 2. SPORT MESSAGE (Local 7, Global 12)
         // Standar wajib Garmin & Strava untuk menetapkan jenis olahraga aktivitas
         // -----------------------------------------------------------------
@@ -129,7 +145,7 @@ public final class FitEncoder {
         // -----------------------------------------------------------------
         var defDevInfo = Data([0x41, 0x00, 0x00]) // Local 1, Def
         defDevInfo.append(contentsOf: withUnsafeBytes(of: MESG_DEVICE_INFO.littleEndian) { Array($0) })
-        defDevInfo.append(8) // 8 fields
+        defDevInfo.append(9) // 9 fields (including source_type = 5 Local)
         defDevInfo.append(contentsOf: [253, 4, BASE_TYPE_UINT32]) // timestamp
         defDevInfo.append(contentsOf: [0, 1, BASE_TYPE_UINT8])    // device_index (0 = creator)
         defDevInfo.append(contentsOf: [1, 1, BASE_TYPE_UINT8])    // device_type
@@ -137,6 +153,7 @@ public final class FitEncoder {
         defDevInfo.append(contentsOf: [3, 4, BASE_TYPE_UINT32])   // serial_number
         defDevInfo.append(contentsOf: [4, 2, BASE_TYPE_UINT16])   // product
         defDevInfo.append(contentsOf: [5, 2, BASE_TYPE_UINT16])   // software_version
+        defDevInfo.append(contentsOf: [25, 1, BASE_TYPE_UINT8])   // source_type (5 = local)
         defDevInfo.append(contentsOf: [27, 24, BASE_TYPE_STRING]) // product_name
         body.append(defDevInfo)
         
@@ -144,11 +161,12 @@ public final class FitEncoder {
         var dataDevInfo0 = Data([0x01])
         dataDevInfo0.append(contentsOf: withUnsafeBytes(of: startFitTime.littleEndian) { Array($0) })
         dataDevInfo0.append(0) // Device Index 0 (Creator)
-        dataDevInfo0.append(0) // Device Type Generic
+        dataDevInfo0.append(1) // Device Type 1 (Primary GPS unit)
         dataDevInfo0.append(contentsOf: withUnsafeBytes(of: device.manufacturerId.littleEndian) { Array($0) })
         dataDevInfo0.append(contentsOf: withUnsafeBytes(of: device.serialNumber.littleEndian) { Array($0) })
         dataDevInfo0.append(contentsOf: withUnsafeBytes(of: device.productNumber.littleEndian) { Array($0) })
         dataDevInfo0.append(contentsOf: withUnsafeBytes(of: device.softwareVersion.littleEndian) { Array($0) })
+        dataDevInfo0.append(5) // SourceType.LOCAL = 5
         dataDevInfo0.append(contentsOf: deviceNameBytes)
         body.append(dataDevInfo0)
         
@@ -163,6 +181,7 @@ public final class FitEncoder {
             dataDevInfo1.append(contentsOf: withUnsafeBytes(of: UInt32(381928172).littleEndian) { Array($0) })
             dataDevInfo1.append(contentsOf: withUnsafeBytes(of: UInt16(3914).littleEndian) { Array($0) }) // HRM-Pro
             dataDevInfo1.append(contentsOf: withUnsafeBytes(of: UInt16(430).littleEndian) { Array($0) }) // v4.30
+            dataDevInfo1.append(1)   // SourceType.ANTPLUS = 1
             dataDevInfo1.append(contentsOf: hrmNameBytes)
             body.append(dataDevInfo1)
         }
@@ -179,6 +198,7 @@ public final class FitEncoder {
             dataDevInfo2.append(contentsOf: withUnsafeBytes(of: UInt32(389102931).littleEndian) { Array($0) })
             dataDevInfo2.append(contentsOf: withUnsafeBytes(of: UInt16(3822).littleEndian) { Array($0) }) // Rally
             dataDevInfo2.append(contentsOf: withUnsafeBytes(of: UInt16(400).littleEndian) { Array($0) }) // v4.00
+            dataDevInfo2.append(1)  // SourceType.ANTPLUS = 1
             dataDevInfo2.append(contentsOf: pwrNameBytes)
             body.append(dataDevInfo2)
         }
