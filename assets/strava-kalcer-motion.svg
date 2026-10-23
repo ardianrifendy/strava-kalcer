@@ -37,13 +37,13 @@
     <path d="M15.6 15.2l-1.9 3.8-1.9-3.8H9.5l4.2 8.3 4.2-8.3h-2.3z" fill="#FFBFA3" />
   </g>
   <text x="56" y="27" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" letter-spacing="0.8">STRAVA KALCER — PHYSICS &amp; PHYSIOLOGY TELEMETRY ENGINE</text>
-  <text x="1100" y="27" text-anchor="end" fill="#FC4C02" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="800" letter-spacing="0.6">GARMIN FIT 2.0 • 105 GPS DEVICES</text>
+  <text x="1100" y="27" text-anchor="end" fill="#FC4C02" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="800" letter-spacing="0.6">GARMIN FIT 2.0 • 113 GPS DEVICES</text>
 
   <!-- Center Vertical Divider -->
   <line x1="560" y1="44" x2="560" y2="310" stroke="#2A2A35" stroke-width="1.5" stroke-dasharray="5 5" />
 
   <!-- ======================================================================
-       LEFT STAGE: CYCLING SIMULATION (CYCLOCOMP — 49 MODELS)
+       LEFT STAGE: CYCLING SIMULATION (CYCLOCOMP — 52 MODELS)
        ====================================================================== -->
   <g transform="translate(20, 56)">
     <!-- Stage Card Background -->
@@ -55,10 +55,10 @@
 
     <!-- Top Stage Header & Telemetry Readouts -->
     <rect x="14" y="12" width="194" height="22" rx="5" fill="#0096C7" fill-opacity="0.16" stroke="#0096C7" stroke-width="1" />
-    <text x="24" y="27" fill="#38BDF8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.5">CYCLOCOMP • FOR CYCLING (49)</text>
+    <text x="24" y="27" fill="#38BDF8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.5">CYCLOCOMP • FOR CYCLING (52)</text>
 
     <text x="506" y="26" text-anchor="end" fill="#E4E4EE" font-family="monospace" font-size="11.5" font-weight="700">34.8 km/h • 275 W • 92 RPM</text>
-    <text x="14" y="50" fill="#A0A0B4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="600">Garmin Edge 1050 / 1040 • Wahoo ROAM v2 • Karoo 3 • COROS DURA</text>
+    <text x="14" y="50" fill="#A0A0B4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="600">Garmin Edge 1050 / 1040 • Wahoo ROAM 3 • Karoo 3 • COROS DURA</text>
 
     <!-- Animated Aero Wind Slipstream Lines -->
     <g stroke="#38BDF8" stroke-width="1.6" stroke-linecap="round" opacity="0.55">
@@ -190,7 +190,7 @@
   </g>
 
   <!-- ======================================================================
-       RIGHT STAGE: RUNNING SIMULATION (SPORTWATCH — 56 MODELS)
+       RIGHT STAGE: RUNNING SIMULATION (SPORTWATCH — 61 MODELS)
        ====================================================================== -->
   <g transform="translate(580, 56)">
     <!-- Stage Card Background -->
@@ -202,10 +202,10 @@
 
     <!-- Top Stage Header & Telemetry Readouts -->
     <rect x="14" y="12" width="204" height="22" rx="5" fill="#12B76A" fill-opacity="0.16" stroke="#12B76A" stroke-width="1" />
-    <text x="24" y="27" fill="#34D399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.5">SPORTWATCH • FOR RUNNING (56)</text>
+    <text x="24" y="27" fill="#34D399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="10.5" font-weight="800" letter-spacing="0.5">SPORTWATCH • FOR RUNNING (61)</text>
 
     <text x="506" y="26" text-anchor="end" fill="#E4E4EE" font-family="monospace" font-size="11.5" font-weight="700">4:15 /km • 178 SPM • 162 BPM</text>
-    <text x="14" y="50" fill="#A0A0B4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="600">COROS PACE 3 (ID 294/804) • Forerunner 965 • Fenix 8 • Suunto Race • Polar V3</text>
+    <text x="14" y="50" fill="#A0A0B4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="600">COROS PACE 4 / PACE 3 • Forerunner 970 / 965 • Fenix 8 • Suunto Race</text>
 
     <!-- Live Heart Rate ECG Waveform -->
     <path d="M 355 112 L 385 112 L 393 96 L 401 128 L 409 84 L 417 134 L 425 105 L 433 112 L 475 112" fill="none" stroke="#F43F5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="160" stroke-dashoffset="0">

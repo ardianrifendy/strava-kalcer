@@ -99,10 +99,12 @@ object DeviceProfileRegistry {
         DeviceProfile("garmin_instinct_2x", "Garmin", "Instinct 2X Solar", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.GARMIN, GarminProduct.INSTINCT_2X, "Rugged military-standard outdoor GPS watch with solar charging."),
         DeviceProfile("garmin_enduro_2", "Garmin", "Enduro 2", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.GARMIN, GarminProduct.ENDURO2, "Ultra-endurance multisport GPS watch with extreme battery life."),
 
-        // COROS Watches (COROS = 294 — Verified Official Product IDs: PACE = 801, PACE 2 = 802, PACE 3 = 804, PACE Pro = 805, APEX 2 = 821, APEX 2 Pro = 822, VERTIX 2 = 832, VERTIX 2S = 833)
-        DeviceProfile("coros_pace_3", "COROS", "PACE 3", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.COROS, 804, "Ultra-lightweight dual-frequency running GPS watch (30g)."),
+        // COROS Watches (COROS = 294 — Verified Official Product IDs: PACE = 801, PACE 2 = 802, PACE 3 = 804, PACE Pro = 805, PACE 4 = 806, APEX 2 = 821, APEX 2 Pro = 822, VERTIX 2 = 832, VERTIX 2S = 833, NOMAD = 861)
+        DeviceProfile("coros_pace_4", "COROS", "PACE 4", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.COROS, 806, "Ultra-lightweight 32g AMOLED dual-frequency running GPS watch with voice pins."),
         DeviceProfile("coros_pace_pro", "COROS", "PACE Pro", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.COROS, 805, "AMOLED performance marathon and running GPS watch."),
+        DeviceProfile("coros_pace_3", "COROS", "PACE 3", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.COROS, 804, "Ultra-lightweight dual-frequency running GPS watch (30g)."),
         DeviceProfile("coros_pace_2", "COROS", "PACE 2", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.COROS, 802, "Lightweight marathon running GPS watch."),
+        DeviceProfile("coros_nomad", "COROS", "NOMAD", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.COROS, 861, "Rugged adventure and trail GPS watch with action button."),
         DeviceProfile("coros_apex_2_pro", "COROS", "APEX 2 Pro", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.COROS, 822, "Titanium outdoor multisport GPS watch."),
         DeviceProfile("coros_apex_2", "COROS", "APEX 2", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.COROS, 821, "Sapphire titanium outdoor multisport GPS watch."),
         DeviceProfile("coros_vertix_2s", "COROS", "VERTIX 2S", DeviceCategory.SPORTWATCH, setOf(SportType.CYCLING, SportType.RUNNING), Manufacturer.COROS, 833, "Extreme adventure GPS watch with dual-frequency satellite."),

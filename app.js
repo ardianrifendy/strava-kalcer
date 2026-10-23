@@ -331,6 +331,7 @@ const DEVICE_PROFILES = [
 
   // 1. Garmin Edge Series (fitMfrId: 1 — Official @garmin/fitsdk garmin_product IDs)
   { id: "garmin_edge_1050", manufacturer: "Garmin", modelName: "Edge 1050", fitProductName: "Garmin Edge 1050", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 4440, barometric: true, power: true, swVer: 1018 },
+  { id: "garmin_edge_mtb", manufacturer: "Garmin", modelName: "Edge MTB 5Hz GPS", fitProductName: "Garmin Edge MTB", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 4540, barometric: true, power: true, swVer: 1018 },
   { id: "garmin_edge_1040", manufacturer: "Garmin", modelName: "Edge 1040 Solar", fitProductName: "Garmin Edge 1040 Solar", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 3843, barometric: true, power: true, swVer: 2418 },
   { id: "garmin_edge_840_solar", manufacturer: "Garmin", modelName: "Edge 840 Solar", fitProductName: "Garmin Edge 840 Solar", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 4062, barometric: true, power: true, swVer: 2418 },
   { id: "garmin_edge_840", manufacturer: "Garmin", modelName: "Edge 840", fitProductName: "Garmin Edge 840", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 1, fitProdId: 4062, barometric: true, power: true, swVer: 2418 },
@@ -348,6 +349,8 @@ const DEVICE_PROFILES = [
 
   // 2. Wahoo ELEMNT Series (fitMfrId: 32 — Wahoo Fitness)
   { id: "wahoo_elemnt_ace", manufacturer: "Wahoo", modelName: "ELEMNT ACE", fitProductName: "Wahoo ELEMNT ACE", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 52, barometric: true, power: true, swVer: 17012 },
+  { id: "wahoo_elemnt_roam_v3", manufacturer: "Wahoo", modelName: "ELEMNT ROAM 3 (Gen 3)", fitProductName: "Wahoo ELEMNT ROAM 3", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 54, barometric: true, power: true, swVer: 17200 },
+  { id: "wahoo_elemnt_bolt_v3", manufacturer: "Wahoo", modelName: "ELEMNT BOLT 3 (Gen 3)", fitProductName: "Wahoo ELEMNT BOLT 3", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 53, barometric: true, power: true, swVer: 17200 },
   { id: "wahoo_elemnt_roam_v2", manufacturer: "Wahoo", modelName: "ELEMNT ROAM v2", fitProductName: "Wahoo ELEMNT ROAM", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 47, barometric: true, power: true, swVer: 16729 },
   { id: "wahoo_elemnt_bolt_v2", manufacturer: "Wahoo", modelName: "ELEMNT BOLT v2", fitProductName: "Wahoo ELEMNT BOLT", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 41, barometric: true, power: true, swVer: 16729 },
   { id: "wahoo_elemnt_roam_v1", manufacturer: "Wahoo", modelName: "ELEMNT ROAM (v1)", fitProductName: "Wahoo ELEMNT ROAM", deviceType: "CYCLOCOMP", category: "BIKE_COMPUTER", supportedSports: ["CYCLING"], fitMfrId: 32, fitProdId: 31, barometric: true, power: true, swVer: 16442 },
@@ -399,13 +402,15 @@ const DEVICE_PROFILES = [
   // ==========================================================================
 
   // 1. COROS Running & Multisport Watches (fitMfrId: 294 — Exact Verified COROS Product IDs & Product Names!)
-  //    801 = COROS PACE (1st Gen), 802 = COROS PACE 2, 804 = COROS PACE 3, 805 = COROS PACE Pro
+  //    801 = COROS PACE (1st Gen), 802 = COROS PACE 2, 804 = COROS PACE 3, 805 = COROS PACE Pro, 806 = COROS PACE 4
   //    811 = COROS APEX, 841 = COROS APEX Pro, 821 = COROS APEX 2, 822 = COROS APEX 2 Pro
-  //    831 = COROS VERTIX, 832 = COROS VERTIX 2, 833 = COROS VERTIX 2S
+  //    831 = COROS VERTIX, 832 = COROS VERTIX 2, 833 = COROS VERTIX 2S, 861 = COROS NOMAD
+  { id: "coros_pace_4", manufacturer: "COROS", modelName: "PACE 4 AMOLED", fitProductName: "COROS PACE 4", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 806, barometric: true, power: true, swVer: 312 },
+  { id: "coros_pace_pro", manufacturer: "COROS", modelName: "PACE Pro AMOLED", fitProductName: "COROS PACE Pro", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 805, barometric: true, power: true, swVer: 310 },
   { id: "coros_pace_3", manufacturer: "COROS", modelName: "PACE 3", fitProductName: "COROS PACE 3", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 804, barometric: true, power: true, swVer: 308 },
-  { id: "coros_pace_pro", manufacturer: "COROS", modelName: "PACE Pro AMOLED", fitProductName: "COROS PACE Pro", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 805, barometric: true, power: true, swVer: 308 },
   { id: "coros_pace_2", manufacturer: "COROS", modelName: "PACE 2", fitProductName: "COROS PACE 2", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 802, barometric: true, power: true, swVer: 304 },
   { id: "coros_pace_1", manufacturer: "COROS", modelName: "PACE (Original)", fitProductName: "COROS PACE", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 801, barometric: true, power: false, swVer: 230 },
+  { id: "coros_nomad", manufacturer: "COROS", modelName: "NOMAD Adventure GPS", fitProductName: "COROS NOMAD", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 861, barometric: true, power: true, swVer: 312 },
   { id: "coros_apex_2_pro", manufacturer: "COROS", modelName: "APEX 2 Pro", fitProductName: "COROS APEX 2 Pro", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 822, barometric: true, power: true, swVer: 308 },
   { id: "coros_apex_2", manufacturer: "COROS", modelName: "APEX 2", fitProductName: "COROS APEX 2", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 821, barometric: true, power: true, swVer: 308 },
   { id: "coros_apex_pro", manufacturer: "COROS", modelName: "APEX Pro", fitProductName: "COROS APEX Pro", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 841, barometric: true, power: true, swVer: 304 },
@@ -415,6 +420,8 @@ const DEVICE_PROFILES = [
   { id: "coros_vertix", manufacturer: "COROS", modelName: "VERTIX", fitProductName: "COROS VERTIX", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 294, fitProdId: 831, barometric: true, power: true, swVer: 304 },
 
   // 2. Garmin Forerunner Series (fitMfrId: 1 — Official @garmin/fitsdk garmin_product IDs)
+  { id: "garmin_fr_970", manufacturer: "Garmin", modelName: "Forerunner 970 AMOLED", fitProductName: "Garmin Forerunner 970", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4565, barometric: true, power: true, swVer: 2210 },
+  { id: "garmin_fr_570", manufacturer: "Garmin", modelName: "Forerunner 570 AMOLED", fitProductName: "Garmin Forerunner 570", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4570, barometric: true, power: true, swVer: 2210 },
   { id: "garmin_fr_965", manufacturer: "Garmin", modelName: "Forerunner 965", fitProductName: "Garmin Forerunner 965", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4315, barometric: true, power: true, swVer: 2119 },
   { id: "garmin_fr_265", manufacturer: "Garmin", modelName: "Forerunner 265", fitProductName: "Garmin Forerunner 265", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4257, barometric: true, power: true, swVer: 2119 },
   { id: "garmin_fr_265s", manufacturer: "Garmin", modelName: "Forerunner 265S", fitProductName: "Garmin Forerunner 265S", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4258, barometric: true, power: true, swVer: 2119 },
@@ -445,6 +452,7 @@ const DEVICE_PROFILES = [
   { id: "garmin_marq_athlete_2", manufacturer: "Garmin", modelName: "MARQ Athlete (Gen 2)", fitProductName: "Garmin MARQ Athlete (Gen 2)", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 1, fitProdId: 4105, barometric: true, power: true, swVer: 1934 },
 
   // 4. Suunto Sportwatches (fitMfrId: 23 — Suunto)
+  { id: "suunto_run", manufacturer: "Suunto", modelName: "Suunto Run Ultralight", fitProductName: "Suunto Run", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 23, fitProdId: 98, barometric: true, power: true, swVer: 245 },
   { id: "suunto_race", manufacturer: "Suunto", modelName: "Suunto Race AMOLED", fitProductName: "Suunto Race", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 23, fitProdId: 95, barometric: true, power: true, swVer: 238 },
   { id: "suunto_race_s", manufacturer: "Suunto", modelName: "Suunto Race S", fitProductName: "Suunto Race S", deviceType: "SPORTWATCH", category: "RUNNING_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 23, fitProdId: 96, barometric: true, power: true, swVer: 238 },
   { id: "suunto_vertical", manufacturer: "Suunto", modelName: "Suunto Vertical Titanium Solar", fitProductName: "Suunto Vertical", deviceType: "SPORTWATCH", category: "MULTISPORT_WATCH", supportedSports: ["RUNNING", "CYCLING"], fitMfrId: 23, fitProdId: 92, barometric: true, power: true, swVer: 238 },
@@ -4013,16 +4021,16 @@ Object.assign(I18N.en, {
   stepBar3: "Inspect your simulated telemetry, scrub charts, and review 1.0 km splits.",
   stepBar4: "Choose your GPS device signature (Cyclocomp for Cycling vs Sportwatch for Running), download .FIT, and upload to Strava.",
   stepBar5: "Inspect point-by-point physics adjustments, downhill scoring, and export CSV.",
-  cardDeviceTitle: "Authentic Hardware Device Signature (105 Famous Models)",
+  cardDeviceTitle: "Authentic Hardware Device Signature (113 Famous Models)",
   cardDeviceSub: "Strictly separated into CYCLOCOMP (Cycling Bike Computers) & SPORTWATCH (Running & Multisport Watches) with official FIT Product IDs & Product Names",
   tabDevCyclocompTitle: "CYCLOCOMP (FOR CYCLING)",
-  tabDevCyclocompSub: "49 Bike Computers • Garmin Edge, Wahoo, Karoo, Bryton, iGPSPORT, Magene, COROS DURA",
+  tabDevCyclocompSub: "52 Bike Computers • Garmin Edge, Wahoo ROAM 3/BOLT 3, Karoo 3, Bryton, iGPSPORT, Magene, COROS DURA",
   tabDevSportwatchTitle: "SPORTWATCH (FOR RUNNING)",
-  tabDevSportwatchSub: "56 Running & Multisport Watches • COROS Pace/Apex/Vertix, Forerunner, Fenix, Suunto, Polar",
-  tabDevAllTitle: "ALL DEVICES (105)",
+  tabDevSportwatchSub: "61 Running & Multisport Watches • COROS PACE 4/Pro/3, Nomad, Forerunner 970/965, Fenix 8, Suunto, Polar",
+  tabDevAllTitle: "ALL DEVICES (113)",
   tabDevAllSub: "Complete Registry",
-  btnChangeDeviceQuick: "Change Device (105 Models)",
-  btnSwitchToRunningWatch: "Switch to COROS PACE 3 (Running Watch)"
+  btnChangeDeviceQuick: "Change Device (113 Models)",
+  btnSwitchToRunningWatch: "Switch to COROS PACE 4 / PACE 3 (Running Watch)"
 });
 
 Object.assign(I18N.id, {
@@ -4039,16 +4047,16 @@ Object.assign(I18N.id, {
   stepBar3: "Periksa hasil grafik telemetri tersinkronisasi dan tabel split per 1.0 km.",
   stepBar4: "Pilih identitas perangkat GPS (Cyclocomp khusus Sepeda vs Sportwatch khusus Lari), unduh .FIT, dan unggah ke Strava.",
   stepBar5: "Inspeksi perhitungan fisika titik-demi-titik dan ekspor data ke CSV.",
-  cardDeviceTitle: "Identitas Perangkat GPS Resmi (105 Model Ternama)",
+  cardDeviceTitle: "Identitas Perangkat GPS Resmi (113 Model Ternama)",
   cardDeviceSub: "Dipisahkan secara tegas antara CYCLOCOMP (Khusus Sepeda) & SPORTWATCH (Jam Lari & Multisport) lengkap dengan FIT Product ID & Nama Produk Resmi Strava",
   tabDevCyclocompTitle: "CYCLOCOMP (KHUSUS SEPEDA)",
-  tabDevCyclocompSub: "49 Cyclocomputer • Garmin Edge, Wahoo, Karoo, Bryton, iGPSPORT, Magene, COROS DURA",
+  tabDevCyclocompSub: "52 Cyclocomputer • Garmin Edge, Wahoo ROAM 3/BOLT 3, Karoo 3, Bryton, iGPSPORT, Magene, COROS DURA",
   tabDevSportwatchTitle: "SPORTWATCH (KHUSUS LARI)",
-  tabDevSportwatchSub: "56 Jam Lari & Multisport • COROS Pace/Apex/Vertix, Forerunner, Fenix, Suunto, Polar",
-  tabDevAllTitle: "SEMUA DEVICE (105)",
+  tabDevSportwatchSub: "61 Jam Lari & Multisport • COROS PACE 4/Pro/3, Nomad, Forerunner 970/965, Fenix 8, Suunto, Polar",
+  tabDevAllTitle: "SEMUA DEVICE (113)",
   tabDevAllSub: "Katalog Lengkap",
-  btnChangeDeviceQuick: "Ganti Device (105 Model)",
-  btnSwitchToRunningWatch: "Ganti ke COROS PACE 3 (Jam Lari)"
+  btnChangeDeviceQuick: "Ganti Device (113 Model)",
+  btnSwitchToRunningWatch: "Ganti ke COROS PACE 4 / PACE 3 (Jam Lari)"
 });
 
 document.addEventListener("DOMContentLoaded", () => {
