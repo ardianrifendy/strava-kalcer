@@ -1744,6 +1744,15 @@ const FitBinaryCodec = {
       fitBytes[10] === 0x49 &&
       fitBytes[11] === 0x54;
 
+    const dataSize =
+      fitBytes[4] |
+      (fitBytes[5] << 8) |
+      (fitBytes[6] << 16) |
+      (fitBytes[7] << 24);
+    const expectedCrc = this.computeCrc16(fitBytes, 0, 14 + dataSize);
+    const actualCrc = fitBytes[14 + dataSize] | (fitBytes[15 + dataSize] << 8);
+    const crcOk = expectedCrc === actualCrc;
+
     checks.push({
       nameEn: "FIT 2.0 Binary & CRC-16",
       nameId: "Biner FIT 2.0 & CRC-16",
@@ -3622,8 +3631,12 @@ function setupRouteBuilderEvents() {
   document.getElementById("builderLoopStartBtn").addEventListener("click", () => RouteBuilderEngine.loopBackToStart());
   document.getElementById("builderClearBtn").addEventListener("click", () => RouteBuilderEngine.clearAll());
 
-  document.getElementById("builderApplyToSimBtn").addEventListener("click", () => {
-    if (!RouteBuilderEngine.builtTrack) {
+  document.getElementById("builderApplyToSimBtn").addEventListener("click", async () => {
+    if (!RouteBuilderEngine.builtTrack && RouteBuilderEngine.waypoints.length >= 2) {
+      await RouteBuilderEngine.rebuildAndPreviewTrack();
+    }
+    const trackToUse = RouteBuilderEngine.builtTrack || AppState.currentTrack;
+    if (!trackToUse || !trackToUse.points || trackToUse.points.length < 2) {
       alert(
         AppState.lang === "id"
           ? "Silakan klik minimal 2 titik pada peta untuk membuat rute terlebih dahulu."
@@ -3631,7 +3644,7 @@ function setupRouteBuilderEvents() {
       );
       return;
     }
-    setLoadedTrack(RouteBuilderEngine.builtTrack);
+    setLoadedTrack(trackToUse);
     switchTab("tab-config");
   });
 
