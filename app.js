@@ -2852,3 +2852,539 @@ function downloadCurrentTelemetryCsv() {
 }
 
 document.addEventListener("DOMContentLoaded", initApp);
+
+/* ----------------------------------------------------------------------------
+   11. INTERACTIVE MAP ROUTE BUILDER (CREATE GPX ON MAP WITH ROAD SNAP & 3D DEM)
+   ---------------------------------------------------------------------------- */
+Object.assign(I18N.en, {
+  brandSubtitle: "GPX Builder & FIT Physics Reconstruction Engine",
+  navRoute: "1. Route & GPX Builder",
+  guideBannerTitle: "First-Time User Guide — Create or Import GPX & Upload to Strava for Free",
+  guideBannerSub: "Complete 4-step workflow: Draw a custom route on the map (or import .gpx), simulate realistic physics, and export a verified Garmin .FIT file.",
+  step1Title: "Create GPX on Map or Import",
+  step1Desc: "Click \"Create GPX on Map\" to draw your own route with road-snapping & 3D elevation, upload a .gpx file, or load the sample route.",
+  cardImportTitle: "GPX Route Source & Free Route Builder",
+  cardImportSub: "Import an existing .GPX file or draw a brand-new route on the interactive road map",
+  tabModeImport: "Import .GPX / Sample Route",
+  tabModeCreate: "Create GPX on Map (Route Builder)",
+  btnOpenBuilderQuick: "Create GPX on Map",
+  btnSearchPlace: "Search",
+  btnMyLocation: "My Location",
+  lblQuickJump: "Quick Jump:",
+  optFollowRoads: "Auto-Follow Roads (Snap to Street)",
+  optDirectLine: "Direct Line (Off-Road / Trail)",
+  builderHintClick: "Click anywhere on the map to place Start Point, then click subsequent points to trace your route.",
+  lblWaypoints: "Waypoints:",
+  btnUndoPoint: "Undo",
+  btnLoopToStart: "Loop to Start",
+  btnClearMap: "Clear",
+  btnUseBuiltRoute: "USE THIS ROUTE FOR SIMULATION (.FIT)",
+  btnDownloadCreatedGpx: "DOWNLOAD .GPX FILE"
+});
+
+Object.assign(I18N.id, {
+  brandSubtitle: "Pembuat Rute GPX & Mesin Rekonstruksi Fisika Garmin .FIT",
+  navRoute: "1. Rute & Buat GPX",
+  guideBannerTitle: "Panduan Pengguna Baru — Buat atau Impor GPX & Upload ke Strava Gratis",
+  guideBannerSub: "Alur 4 langkah: Gambar rute sendiri di peta interaktif (atau impor .gpx), simulasikan fisika, dan unduh file Garmin .FIT tervalidasi.",
+  step1Title: "Buat GPX di Peta atau Impor",
+  step1Desc: "Klik \"Buat GPX di Peta\" untuk menggambar rute jalan raya lengkap dengan elevasi 3D otomatis, unggah file .gpx, atau muat rute contoh.",
+  cardImportTitle: "Sumber Rute GPX & Pembuat Rute Gratis",
+  cardImportSub: "Impor file .GPX yang ada atau gambar rute baru langsung di peta jalan interaktif",
+  tabModeImport: "Impor .GPX / Rute Contoh",
+  tabModeCreate: "Buat GPX di Peta (Route Builder)",
+  btnOpenBuilderQuick: "Buat GPX di Peta",
+  btnSearchPlace: "Cari",
+  btnMyLocation: "Lokasi Saya",
+  lblQuickJump: "Lompat Cepat:",
+  optFollowRoads: "Ikuti Jalan Raya Otomatis (Snap to Road)",
+  optDirectLine: "Garis Lurus (Off-Road / Trail)",
+  builderHintClick: "Klik di mana saja pada peta untuk menaruh Titik Start, lalu klik titik berikutnya untuk membuat rute jalan.",
+  lblWaypoints: "Titik Waypoint:",
+  btnUndoPoint: "Urungkan",
+  btnLoopToStart: "Kembali ke Start",
+  btnClearMap: "Bersihkan",
+  btnUseBuiltRoute: "GUNAKAN RUTE INI UNTUK SIMULASI (.FIT)",
+  btnDownloadCreatedGpx: "UNDUH FILE .GPX"
+});
+
+const RouteBuilderEngine = {
+  map: null,
+  waypoints: [],
+  segmentsCoords: [], // Array of coordinate arrays per segment: [[{lat, lon, ele}, ...], ...]
+  markers: [],
+  polylineLayer: null,
+  routingMode: "ROAD_OSRM",
+  isRoutingBusy: false,
+  builtTrack: null,
+
+  initMap() {
+    if (this.map) {
+      setTimeout(() => this.map.invalidateSize(), 80);
+      return;
+    }
+    const container = document.getElementById("builderLeafletMap");
+    if (!container || typeof L === "undefined") return;
+
+    // Default center: Bandung / Jakarta Indonesia
+    this.map = L.map("builderLeafletMap", {
+      center: [-6.8852, 107.6135],
+      zoom: 14,
+      zoomControl: true
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(this.map);
+
+    this.map.on("click", (e) => {
+      this.addWaypoint(e.latlng.lat, e.latlng.lng);
+    });
+  },
+
+  setStatus(textEn, textId) {
+    const el = document.getElementById("builderStatusText");
+    if (el) {
+      el.textContent = AppState.lang === "id" ? textId : textEn;
+    }
+  },
+
+  createPinIcon(index, total) {
+    const isStart = index === 0;
+    const isEnd = index === total - 1 && total > 1;
+    const bg = isStart ? "#12B76A" : (isEnd ? "#1F1F24" : "#FC4C02");
+    const label = isStart ? "S" : (isEnd ? "F" : String(index));
+    return L.divIcon({
+      className: "",
+      html: `<div class="builder-marker-pin" style="background:${bg};">${label}</div>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+  },
+
+  refreshMarkersAndPolyline() {
+    if (!this.map) return;
+    this.markers.forEach((m) => this.map.removeLayer(m));
+    this.markers = [];
+
+    this.waypoints.forEach((wp, idx) => {
+      const marker = L.marker([wp.lat, wp.lon], {
+        icon: this.createPinIcon(idx, this.waypoints.length)
+      }).addTo(this.map);
+      this.markers.push(marker);
+    });
+
+    const flatCoords = this.getAllRoutedPoints();
+    if (this.polylineLayer) {
+      this.map.removeLayer(this.polylineLayer);
+      this.polylineLayer = null;
+    }
+
+    if (flatCoords.length >= 2) {
+      const latlngs = flatCoords.map((p) => [p.latitude, p.longitude]);
+      this.polylineLayer = L.polyline(latlngs, {
+        color: "#FC4C02",
+        weight: 4.5,
+        opacity: 0.92
+      }).addTo(this.map);
+    }
+
+    document.getElementById("builderWpCount").textContent = String(this.waypoints.length);
+  },
+
+  getAllRoutedPoints() {
+    if (this.waypoints.length === 0) return [];
+    if (this.waypoints.length === 1) {
+      return [{
+        latitude: this.waypoints[0].lat,
+        longitude: this.waypoints[0].lon,
+        elevation: this.waypoints[0].ele || 50.0,
+        segmentIndex: 0
+      }];
+    }
+    const combined = [];
+    this.segmentsCoords.forEach((seg, sIdx) => {
+      seg.forEach((pt, pIdx) => {
+        if (sIdx > 0 && pIdx === 0) return; // avoid duplicate boundary point
+        combined.push({
+          latitude: pt.lat,
+          longitude: pt.lon,
+          elevation: pt.ele !== null && pt.ele !== undefined ? pt.ele : null,
+          segmentIndex: 0
+        });
+      });
+    });
+    return combined;
+  },
+
+  async routeBetweenPoints(p1, p2) {
+    if (this.routingMode === "ROAD_OSRM") {
+      try {
+        const url = `https://router.project-osrm.org/route/v1/driving/${p1.lon.toFixed(6)},${p1.lat.toFixed(6)};${p2.lon.toFixed(6)},${p2.lat.toFixed(6)}?overview=full&geometries=geojson`;
+        const resp = await fetch(url);
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.routes && data.routes[0] && data.routes[0].geometry && data.routes[0].geometry.coordinates) {
+            return data.routes[0].geometry.coordinates.map((c) => ({
+              lon: c[0],
+              lat: c[1],
+              ele: null
+            }));
+          }
+        }
+      } catch (_) {
+        // Fallback to direct interpolated segment if offline
+      }
+    }
+
+    // Direct line subdivided every ~25m
+    const dist = GeoMath.haversineDistanceMeters(p1.lat, p1.lon, p2.lat, p2.lon);
+    const steps = Math.max(2, Math.min(80, Math.ceil(dist / 25.0)));
+    const pts = [];
+    for (let i = 0; i <= steps; i++) {
+      const f = i / steps;
+      pts.push({
+        lat: p1.lat + (p2.lat - p1.lat) * f,
+        lon: p1.lon + (p2.lon - p1.lon) * f,
+        ele: null
+      });
+    }
+    return pts;
+  },
+
+  async fetchReal3DElevations(points) {
+    if (!points || points.length === 0) return points;
+    try {
+      // Sample up to 85 points across the route for Open-Meteo DEM API
+      const n = points.length;
+      const sampleCount = Math.min(85, n);
+      const sampleIndices = [];
+      for (let i = 0; i < sampleCount; i++) {
+        const idx = n === 1 ? 0 : Math.round((i / (sampleCount - 1)) * (n - 1));
+        if (sampleIndices.length === 0 || sampleIndices[sampleIndices.length - 1] !== idx) {
+          sampleIndices.push(idx);
+        }
+      }
+
+      const lats = sampleIndices.map((idx) => points[idx].latitude.toFixed(5)).join(",");
+      const lons = sampleIndices.map((idx) => points[idx].longitude.toFixed(5)).join(",");
+      const resp = await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lats}&longitude=${lons}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && Array.isArray(data.elevation) && data.elevation.length === sampleIndices.length) {
+          // Assign sampled elevations and linearly interpolate intermediate points
+          for (let s = 0; s < sampleIndices.length; s++) {
+            const idx = sampleIndices[s];
+            points[idx].elevation = data.elevation[s];
+          }
+          for (let s = 0; s < sampleIndices.length - 1; s++) {
+            const startIdx = sampleIndices[s];
+            const endIdx = sampleIndices[s + 1];
+            const startEle = points[startIdx].elevation;
+            const endEle = points[endIdx].elevation;
+            const span = endIdx - startIdx;
+            for (let k = startIdx + 1; k < endIdx; k++) {
+              points[k].elevation = startEle + ((endEle - startEle) * (k - startIdx)) / span;
+            }
+          }
+          return points;
+        }
+      }
+    } catch (_) {
+      // Fallback if offline
+    }
+
+    // Fallback synthetic gentle elevation if offline
+    for (let i = 0; i < points.length; i++) {
+      if (points[i].elevation === null || points[i].elevation === undefined) {
+        points[i].elevation = 120.0 + Math.sin(i * 0.08) * 6.0;
+      }
+    }
+    return points;
+  },
+
+  async addWaypoint(lat, lon) {
+    if (this.isRoutingBusy) return;
+    this.isRoutingBusy = true;
+
+    const newWp = { lat, lon, ele: null };
+    this.waypoints.push(newWp);
+
+    if (this.waypoints.length === 1) {
+      this.refreshMarkersAndPolyline();
+      this.setStatus(
+        "Start Point placed! Click next points on the map to trace roads and build your route.",
+        "Titik Start dipasang! Klik titik berikutnya di peta untuk menelusuri jalan dan membuat rute."
+      );
+      this.isRoutingBusy = false;
+      return;
+    }
+
+    const prevWp = this.waypoints[this.waypoints.length - 2];
+    this.setStatus(
+      "Snapping to road network & fetching 3D satellite elevation...",
+      "Menyesuaikan jalur jalan raya & mengambil data elevasi 3D satelit..."
+    );
+
+    const segPts = await this.routeBetweenPoints(prevWp, newWp);
+    this.segmentsCoords.push(segPts);
+    this.refreshMarkersAndPolyline();
+    await this.rebuildAndPreviewTrack();
+    this.isRoutingBusy = false;
+  },
+
+  async rebuildAndPreviewTrack() {
+    const rawPts = this.getAllRoutedPoints();
+    if (rawPts.length < 2) {
+      this.builtTrack = null;
+      document.getElementById("builderDistKm").textContent = "0.00 km";
+      document.getElementById("builderGainM").textContent = "+0 m";
+      return;
+    }
+
+    await this.fetchReal3DElevations(rawPts);
+    const routeName = document.getElementById("builderRouteNameInput").value.trim() || "Custom Strava Kalcer Route";
+    const processed = RouteProcessor.process({
+      trackName: routeName,
+      points: rawPts,
+      segmentCount: 1
+    });
+
+    this.builtTrack = processed;
+    document.getElementById("builderDistKm").textContent = `${(processed.totalDistanceMeters / 1000.0).toFixed(2)} km`;
+    document.getElementById("builderGainM").textContent = `+${Math.round(processed.elevationGainMeters)} m`;
+
+    this.setStatus(
+      `Route ready: ${(processed.totalDistanceMeters / 1000.0).toFixed(2)} km (+${Math.round(processed.elevationGainMeters)}m climb, ${processed.points.length} 3D trackpoints). Click more points or export below.`,
+      `Rute siap: ${(processed.totalDistanceMeters / 1000.0).toFixed(2)} km (+${Math.round(processed.elevationGainMeters)}m tanjakan, ${processed.points.length} titik 3D). Klik titik lagi atau gunakan tombol di bawah.`
+    );
+
+    // Live-sync with active track & right-hand elevation chart!
+    setLoadedTrack(processed);
+  },
+
+  async undoLastWaypoint() {
+    if (this.waypoints.length === 0 || this.isRoutingBusy) return;
+    this.waypoints.pop();
+    if (this.segmentsCoords.length > 0) {
+      this.segmentsCoords.pop();
+    }
+    this.refreshMarkersAndPolyline();
+    if (this.waypoints.length >= 2) {
+      await this.rebuildAndPreviewTrack();
+    } else {
+      this.builtTrack = null;
+      document.getElementById("builderDistKm").textContent = "0.00 km";
+      document.getElementById("builderGainM").textContent = "+0 m";
+      this.setStatus(
+        "Click on the map to add waypoints.",
+        "Klik pada peta untuk menambahkan titik rute."
+      );
+    }
+  },
+
+  async loopBackToStart() {
+    if (this.waypoints.length < 2 || this.isRoutingBusy) return;
+    const first = this.waypoints[0];
+    await this.addWaypoint(first.lat, first.lon);
+  },
+
+  clearAll() {
+    this.waypoints = [];
+    this.segmentsCoords = [];
+    this.builtTrack = null;
+    this.refreshMarkersAndPolyline();
+    document.getElementById("builderDistKm").textContent = "0.00 km";
+    document.getElementById("builderGainM").textContent = "+0 m";
+    this.setStatus(
+      "Map cleared. Click anywhere on the map to place Start Point.",
+      "Peta dibersihkan. Klik di mana saja pada peta untuk menaruh Titik Start."
+    );
+  },
+
+  async searchLocation(query) {
+    if (!query || !query.trim() || !this.map) return;
+    this.setStatus(`Searching "${query}"...`, `Mencari lokasi "${query}"...`);
+    try {
+      const resp = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query.trim())}`
+      );
+      if (resp.ok) {
+        const results = await resp.json();
+        if (results && results.length > 0) {
+          const lat = parseFloat(results[0].lat);
+          const lon = parseFloat(results[0].lon);
+          this.map.setView([lat, lon], 14);
+          this.setStatus(
+            `Centered on: ${results[0].display_name}. Click on map to start drawing route.`,
+            `Peta diarahkan ke: ${results[0].display_name}. Klik pada peta untuk mulai menggambar rute.`
+          );
+          return;
+        }
+      }
+      this.setStatus("Location not found. Try another city or street name.", "Lokasi tidak ditemukan. Coba nama kota atau jalan lain.");
+    } catch (_) {
+      this.setStatus("Search unavailable offline.", "Pencarian tidak tersedia saat offline.");
+    }
+  },
+
+  exportTrackToGpxXml(track) {
+    const name = (track.name || "Custom Strava Kalcer Route")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    const lines = [
+      `<?xml version="1.0" encoding="UTF-8"?>`,
+      `<gpx version="1.1" creator="Strava Kalcer Web Studio - https://ardianrifendy.github.io/strava-kalcer/" xmlns="http://www.topografix.com/GPX/1/1">`,
+      `  <metadata>`,
+      `    <name>${name}</name>`,
+      `    <time>${new Date().toISOString()}</time>`,
+      `  </metadata>`,
+      `  <trk>`,
+      `    <name>${name}</name>`,
+      `    <trkseg>`
+    ];
+    track.points.forEach((p) => {
+      lines.push(
+        `      <trkpt lat="${p.latitude.toFixed(6)}" lon="${p.longitude.toFixed(6)}"><ele>${p.elevation.toFixed(1)}</ele></trkpt>`
+      );
+    });
+    lines.push(`    </trkseg>`, `  </trk>`, `</gpx>`);
+    return lines.join("\n");
+  }
+};
+
+function setupRouteBuilderEvents() {
+  const modeImportBtn = document.getElementById("modeImportGpxBtn");
+  const modeCreateBtn = document.getElementById("modeCreateGpxBtn");
+  const openQuickBtn = document.getElementById("openBuilderQuickBtn");
+  const dropzone = document.getElementById("gpxDropzone");
+  const builderPanel = document.getElementById("gpxBuilderPanel");
+
+  const showBuilderMode = (show) => {
+    modeImportBtn.classList.toggle("active", !show);
+    modeCreateBtn.classList.toggle("active", show);
+    dropzone.style.display = show ? "none" : "block";
+    builderPanel.style.display = show ? "block" : "none";
+    if (show) {
+      RouteBuilderEngine.initMap();
+    }
+  };
+
+  if (modeImportBtn) modeImportBtn.addEventListener("click", () => showBuilderMode(false));
+  if (modeCreateBtn) modeCreateBtn.addEventListener("click", () => showBuilderMode(true));
+  if (openQuickBtn) {
+    openQuickBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      showBuilderMode(true);
+    });
+  }
+
+  const searchInput = document.getElementById("builderSearchInput");
+  const searchBtn = document.getElementById("builderSearchBtn");
+  if (searchBtn && searchInput) {
+    searchBtn.addEventListener("click", () => RouteBuilderEngine.searchLocation(searchInput.value));
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        RouteBuilderEngine.searchLocation(searchInput.value);
+      }
+    });
+  }
+
+  const myGpsBtn = document.getElementById("builderMyGpsBtn");
+  if (myGpsBtn) {
+    myGpsBtn.addEventListener("click", () => {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          RouteBuilderEngine.initMap();
+          if (RouteBuilderEngine.map) {
+            RouteBuilderEngine.map.setView([pos.coords.latitude, pos.coords.longitude], 15);
+          }
+        },
+        () => {
+          RouteBuilderEngine.setStatus(
+            "GPS permission denied or unavailable. Use the search bar or city buttons above.",
+            "Izin lokasi GPS ditolak. Gunakan kotak pencarian atau tombol kota di atas."
+          );
+        }
+      );
+    });
+  }
+
+  document.querySelectorAll(".builder-city-chips .chip-btn").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const lat = parseFloat(chip.getAttribute("data-lat"));
+      const lon = parseFloat(chip.getAttribute("data-lon"));
+      const zoom = parseInt(chip.getAttribute("data-zoom") || "14", 10);
+      RouteBuilderEngine.initMap();
+      if (RouteBuilderEngine.map) {
+        RouteBuilderEngine.map.setView([lat, lon], zoom);
+      }
+    });
+  });
+
+  const routingModeSelect = document.getElementById("builderRoutingModeSelect");
+  if (routingModeSelect) {
+    routingModeSelect.addEventListener("change", (e) => {
+      RouteBuilderEngine.routingMode = e.target.value;
+    });
+  }
+
+  const routeNameInput = document.getElementById("builderRouteNameInput");
+  if (routeNameInput) {
+    routeNameInput.addEventListener("input", () => {
+      if (RouteBuilderEngine.builtTrack) {
+        RouteBuilderEngine.builtTrack.name = routeNameInput.value.trim() || "Custom Strava Kalcer Route";
+        setLoadedTrack(RouteBuilderEngine.builtTrack);
+      }
+    });
+  }
+
+  document.getElementById("builderUndoBtn").addEventListener("click", () => RouteBuilderEngine.undoLastWaypoint());
+  document.getElementById("builderLoopStartBtn").addEventListener("click", () => RouteBuilderEngine.loopBackToStart());
+  document.getElementById("builderClearBtn").addEventListener("click", () => RouteBuilderEngine.clearAll());
+
+  document.getElementById("builderApplyToSimBtn").addEventListener("click", () => {
+    if (!RouteBuilderEngine.builtTrack) {
+      alert(
+        AppState.lang === "id"
+          ? "Silakan klik minimal 2 titik pada peta untuk membuat rute terlebih dahulu."
+          : "Please click at least 2 points on the map to build a route first."
+      );
+      return;
+    }
+    setLoadedTrack(RouteBuilderEngine.builtTrack);
+    switchTab("tab-config");
+  });
+
+  document.getElementById("builderDownloadGpxBtn").addEventListener("click", () => {
+    const trackToExport = RouteBuilderEngine.builtTrack || AppState.currentTrack;
+    if (!trackToExport || !trackToExport.points || trackToExport.points.length < 2) {
+      alert(
+        AppState.lang === "id"
+          ? "Silakan klik minimal 2 titik pada peta untuk membuat rute terlebih dahulu."
+          : "Please click at least 2 points on the map to build a route first."
+      );
+      return;
+    }
+    const xml = RouteBuilderEngine.exportTrackToGpxXml(trackToExport);
+    const blob = new Blob([xml], { type: "application/gpx+xml;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const safeName = (trackToExport.name || "StravaKalcer_Route").replace(/[^a-zA-Z0-9_-]+/g, "_");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${safeName}.gpx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  setupRouteBuilderEvents();
+  applyLanguageAndTheme();
+});
