@@ -2372,18 +2372,45 @@ function renderRouteAndIntelligence() {
 
   const safeIdx = Math.max(0, Math.min(track.points.length - 1, AppState.cursorIndex));
   const pt = track.points[safeIdx];
-  document.getElementById("routeMapCursorLabel").textContent = `${(pt.distanceFromStartMeters / 1000).toFixed(2)} km • ${pt.smoothedGradient.toFixed(1)}%`;
-  document.getElementById("routeOverviewEleReadout").textContent = `${pt.elevation.toFixed(1)} m (${pt.smoothedGradient.toFixed(1)}%)`;
+  const kmDist = (pt.distanceFromStartMeters / 1000).toFixed(2);
+  const grad = pt.smoothedGradient || 0;
+  const gradSign = grad > 0 ? `+${grad.toFixed(1)}%` : `${grad.toFixed(1)}%`;
+  const gradType = grad > 1.5 ? "Tanjakan" : (grad < -1.5 ? "Turunan" : "Datar");
+
+  const cursorLabelEl = document.getElementById("routeMapCursorLabel");
+  if (cursorLabelEl) {
+    cursorLabelEl.textContent = `${kmDist} km • ${Math.round(pt.elevation)} m (${gradSign} ${gradType})`;
+  }
+  const eleReadout = document.getElementById("routeOverviewEleReadout");
+  if (eleReadout) {
+    eleReadout.textContent = `${pt.elevation.toFixed(1)} m (${gradSign})`;
+  }
+
+  const slider = document.getElementById("routeMapCursorSlider");
+  if (slider) {
+    slider.max = (track.points.length - 1).toString();
+    slider.value = safeIdx.toString();
+  }
+
+  const endKmLabel = document.getElementById("routeEndKmLabel");
+  if (endKmLabel) {
+    const totalKm = (track.points[track.points.length - 1].distanceFromStartMeters / 1000).toFixed(2);
+    endKmLabel.textContent = `${totalKm} km (Akhir)`;
+  }
 
   CanvasRenderer.drawRouteMap("routeOverviewMapCanvas", track, safeIdx);
   CanvasRenderer.drawTelemetryChart(
     "routeOverviewEleCanvas",
     track.points,
     (p) => p.elevation,
-    "#008A3E",
-    "rgba(0, 138, 62, 0.16)",
+    "#FC4C02",
+    "rgba(252, 76, 2, 0.18)",
     safeIdx
   );
+
+  if (typeof RouteBuilderEngine !== "undefined" && typeof RouteBuilderEngine.updateCursorMarker === "function") {
+    RouteBuilderEngine.updateCursorMarker(safeIdx);
+  }
 }
 
 function renderProfileSelector() {
@@ -2839,10 +2866,10 @@ const BookFlow = {
   currentPage: 1,
   totalPages: 5,
   pageTitles: [
-    { label: "Tahap 1 dari 5", desc: "Pengenalan" },
-    { label: "Tahap 2 dari 4", desc: "Penentuan Rute" },
-    { label: "Tahap 3 dari 4", desc: "Olahraga & Target" },
-    { label: "Tahap 4 dari 4", desc: "Identitas Perangkat" },
+    { label: "Langkah 1", desc: "Pengenalan" },
+    { label: "Tahap 1 dari 4", desc: "Penentuan Rute" },
+    { label: "Tahap 2 dari 4", desc: "Olahraga & Target" },
+    { label: "Tahap 3 dari 4", desc: "Identitas Perangkat" },
     { label: "Selesai", desc: "Ringkasan & Ekspor" }
   ],
 
@@ -2865,6 +2892,12 @@ const BookFlow = {
     if (descEl) descEl.textContent = info.desc;
     if (fillEl) fillEl.style.width = `${(pageNum / this.totalPages) * 100}%`;
 
+    // Sticky Bottom Bar: Completely hidden on Page 1 (Pengenalan) so only 1 button exists
+    const bottomBar = document.getElementById("glassBottomBar");
+    if (bottomBar) {
+      bottomBar.style.display = pageNum === 1 ? "none" : "block";
+    }
+
     const backBtn = document.getElementById("bottomBackBtn");
     const fwdText = document.getElementById("bottomForwardText");
     if (backBtn) {
@@ -2876,6 +2909,18 @@ const BookFlow = {
       else fwdText.textContent = "Lanjutkan";
     }
 
+    if (pageNum === 2) {
+      if (typeof RouteBuilder !== "undefined" && RouteBuilder.map) {
+        setTimeout(() => RouteBuilder.map.invalidateSize(), 100);
+      }
+    }
+    if (pageNum === 3) {
+      setTimeout(() => {
+        if (typeof HorizontalRuler !== "undefined" && HorizontalRuler.containerEl) {
+          HorizontalRuler.renderRuler(AppState.settings.sport);
+        }
+      }, 80);
+    }
     if (pageNum === 4) {
       populateDeviceDropdowns();
     }
@@ -3083,6 +3128,13 @@ const CustomDropdownManager = {
         }
       }
 
+      // Elevate parent card above sibling cards to prevent stacking context clipping
+      const parentCard = wrap.closest(".glass-card");
+      if (parentCard) {
+        parentCard.classList.add("dropdown-active");
+        parentCard.style.zIndex = "1200";
+      }
+
       wrap.classList.add("open");
       const trigger = wrap.querySelector(".dropdown-trigger");
       if (trigger) trigger.setAttribute("aria-expanded", "true");
@@ -3102,12 +3154,24 @@ const CustomDropdownManager = {
     wrap.classList.remove("open");
     const trigger = wrap.querySelector(".dropdown-trigger");
     if (trigger) trigger.setAttribute("aria-expanded", "false");
+    const parentCard = wrap.closest(".glass-card");
+    if (parentCard) {
+      const otherOpen = parentCard.querySelector(".custom-glass-dropdown.open");
+      if (!otherOpen) {
+        parentCard.classList.remove("dropdown-active");
+        parentCard.style.zIndex = "";
+      }
+    }
     if (this.activeDropdown === wrap) this.activeDropdown = null;
   },
 
   closeAll() {
     document.querySelectorAll(".custom-glass-dropdown.open").forEach((wrap) => {
       this.close(wrap);
+    });
+    document.querySelectorAll(".glass-card.dropdown-active").forEach((card) => {
+      card.classList.remove("dropdown-active");
+      card.style.zIndex = "";
     });
     this.activeDropdown = null;
   }
@@ -3123,6 +3187,11 @@ const HorizontalRuler = {
   unitTextEl: null,
   currentMode: "RUNNING",
 
+  getCenterPad() {
+    const w = (this.containerEl && this.containerEl.clientWidth) || 360;
+    return Math.max(60, Math.floor(w / 2));
+  },
+
   init() {
     this.trackEl = document.getElementById("rulerTrack");
     this.containerEl = document.getElementById("rulerScrollContainer");
@@ -3136,6 +3205,12 @@ const HorizontalRuler = {
     this.containerEl.addEventListener("scroll", () => {
       this.handleScroll();
     }, { passive: true });
+
+    window.addEventListener("resize", () => {
+      if (typeof BookFlow !== "undefined" && BookFlow.currentPage === 3) {
+        this.renderRuler(this.currentMode);
+      }
+    });
 
     const btnMinus = document.getElementById("rulerBtnMinus");
     const btnPlus = document.getElementById("rulerBtnPlus");
@@ -3168,7 +3243,7 @@ const HorizontalRuler = {
   buildPaceRuler() {
     const stepWidth = 14;
     let html = '';
-    const centerPad = Math.max(140, Math.floor(window.innerWidth / 2));
+    const centerPad = this.getCenterPad();
     this.trackEl.style.paddingLeft = `${centerPad}px`;
     this.trackEl.style.paddingRight = `${centerPad}px`;
 
@@ -3194,7 +3269,7 @@ const HorizontalRuler = {
   buildSpeedRuler() {
     const stepWidth = 14;
     let html = '';
-    const centerPad = Math.max(140, Math.floor(window.innerWidth / 2));
+    const centerPad = this.getCenterPad();
     this.trackEl.style.paddingLeft = `${centerPad}px`;
     this.trackEl.style.paddingRight = `${centerPad}px`;
 
@@ -3219,11 +3294,14 @@ const HorizontalRuler = {
   scrollToValue(val, minVal, stepVal, stepWidth) {
     const steps = (val - minVal) / stepVal;
     const scrollPos = steps * stepWidth;
+    if (this.containerEl) {
+      this.containerEl.scrollLeft = scrollPos;
+    }
     setTimeout(() => {
       if (this.containerEl) {
         this.containerEl.scrollLeft = scrollPos;
       }
-    }, 50);
+    }, 60);
   },
 
   handleScroll() {
@@ -3599,6 +3677,16 @@ function initApp() {
         mapBox.classList.remove("fullscreen-mode");
       }
       BookFlow.goToPage(3);
+    });
+  }
+
+  // Interactive Route Elevation Curve Scrubber
+  const routeCursorSlider = document.getElementById("routeMapCursorSlider");
+  if (routeCursorSlider) {
+    routeCursorSlider.addEventListener("input", (e) => {
+      const idx = parseInt(e.target.value, 10);
+      AppState.cursorIndex = idx;
+      renderRouteAndIntelligence();
     });
   }
 
@@ -4103,9 +4191,40 @@ const RouteBuilderEngine = {
   markers: [],
   polylineLayer: null,
   userGpsMarker: null,
+  cursorMarker: null,
   routingMode: "ROAD_OSRM",
   isRoutingBusy: false,
   builtTrack: null,
+
+  updateCursorMarker(index) {
+    if (!this.map) return;
+    const pts = this.builtTrack && this.builtTrack.points ? this.builtTrack.points : (AppState.currentTrack ? AppState.currentTrack.points : null);
+    if (!pts || pts.length === 0) {
+      if (this.cursorMarker) {
+        this.map.removeLayer(this.cursorMarker);
+        this.cursorMarker = null;
+      }
+      return;
+    }
+    const safeIdx = Math.max(0, Math.min(pts.length - 1, index || 0));
+    const pt = pts[safeIdx];
+    if (!pt) return;
+
+    if (this.cursorMarker) {
+      this.cursorMarker.setLatLng([pt.latitude, pt.longitude]);
+    } else if (typeof L !== "undefined") {
+      const cursorIcon = L.divIcon({
+        className: "route-cursor-pin",
+        html: '<div class="route-cursor-pulse"></div><div class="route-cursor-dot"></div>',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+      });
+      this.cursorMarker = L.marker([pt.latitude, pt.longitude], {
+        icon: cursorIcon,
+        zIndexOffset: 1200
+      }).addTo(this.map);
+    }
+  },
 
   initMap() {
     if (this.map) {
@@ -4454,6 +4573,10 @@ const RouteBuilderEngine = {
       await this.rebuildAndPreviewTrack();
     } else {
       this.builtTrack = null;
+      if (this.cursorMarker && this.map) {
+        this.map.removeLayer(this.cursorMarker);
+        this.cursorMarker = null;
+      }
       this.updateTelemetryDisplay(null);
       this.setStatus(
         "Click on the map to add waypoints.",
@@ -4472,6 +4595,10 @@ const RouteBuilderEngine = {
     this.waypoints = [];
     this.segmentsCoords = [];
     this.builtTrack = null;
+    if (this.cursorMarker && this.map) {
+      this.map.removeLayer(this.cursorMarker);
+      this.cursorMarker = null;
+    }
     this.refreshMarkersAndPolyline();
     this.updateTelemetryDisplay(null);
     this.setStatus(

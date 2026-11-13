@@ -267,40 +267,8 @@
                 </button>
               </div>
 
-              <!-- Live Route Telemetry Stats Card (Prominently displaying Distance, Gain, Loss, Max Grade) -->
-              <div class="builder-stats-card-inline">
-                <div class="builder-stats-header">
-                  <div class="builder-stats-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--color-strava);"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-                    <span>Statistik Rute Terbentuk</span>
-                  </div>
-                  <div class="builder-stats-points">
-                    <strong id="builderWpCount">0</strong> titik
-                  </div>
-                </div>
-
-                <div class="metrics-grid-apple" style="grid-template-columns: repeat(4, 1fr); margin-top: 8px;">
-                  <div class="metric-cell">
-                    <div class="metric-value-large"><span id="builderDistKm">0.00</span> <span class="metric-unit">km</span></div>
-                    <div class="metric-caption">Jarak Total</div>
-                  </div>
-                  <div class="metric-cell">
-                    <div class="metric-value-large"><span id="builderGainM">+0</span> <span class="metric-unit">m</span></div>
-                    <div class="metric-caption">Elevasi Naik</div>
-                  </div>
-                  <div class="metric-cell">
-                    <div class="metric-value-large"><span id="builderLossM">-0</span> <span class="metric-unit">m</span></div>
-                    <div class="metric-caption">Elevasi Turun</div>
-                  </div>
-                  <div class="metric-cell">
-                    <div class="metric-value-large"><span id="builderMaxGrade">0.0</span> <span class="metric-unit">%</span></div>
-                    <div class="metric-caption">Gradien Maks</div>
-                  </div>
-                </div>
-              </div>
-
               <!-- Apply Route Button -->
-              <button type="button" class="glass-btn-primary full-width" id="builderApplyToSimBtn" style="margin-top: 12px;">
+              <button type="button" class="glass-btn-primary full-width" id="builderApplyToSimBtn" style="margin-top: 14px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                 <span>Terapkan Rute Ini ke Aktivitas</span>
               </button>
@@ -308,10 +276,10 @@
           </div>
         </div>
 
-        <!-- Active Track Telemetry Card -->
-        <div class="glass-card telemetry-summary-card">
+        <!-- Single Unified Active Track Telemetry & Interactive Elevation Curve Card -->
+        <div class="glass-card telemetry-summary-card" id="activeRouteCard">
           <div class="card-title-row">
-            <span class="card-heading">Rangkuman Rute Aktif</span>
+            <span class="card-heading">Rangkuman Rute &amp; Kurva Elevasi</span>
             <span class="status-pill pill-green" id="routeStatusBadge">TERSEDIA</span>
           </div>
           <div class="track-name-display" id="activeTrackName">Dago Pakar Scenic Climb &amp; Descent Loop</div>
@@ -335,7 +303,31 @@
             </div>
           </div>
 
-          <div class="route-aux-meta" style="margin-top: 10px; font-size: 12.5px; color: var(--text-secondary);">
+          <!-- Interactive Elevation Profile Curve with Kilometer Scrubber -->
+          <div class="elevation-curve-container" style="margin-top: 16px;">
+            <div class="elevation-curve-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <span style="font-size: 12.5px; font-weight: 700; color: var(--text-primary); display: inline-flex; align-items: center; gap: 6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; color: var(--color-strava);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <span>Kurva Profil Elevasi 3D</span>
+              </span>
+              <span class="slider-value-badge" id="routeMapCursorLabel">0.00 km • 0 m (0.0%)</span>
+            </div>
+
+            <!-- Canvas Chart -->
+            <canvas id="routeOverviewEleCanvas" style="width: 100%; height: 130px; border-radius: 12px; display: block;"></canvas>
+
+            <!-- Scrubber Slider -->
+            <div style="margin-top: 10px;">
+              <input type="range" class="apple-range-slider" id="routeMapCursorSlider" min="0" max="100" value="0" />
+              <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">
+                <span>0.00 km (Awal)</span>
+                <span>Geser slider untuk melihat titik kilometer &amp; gradien tanjakan/turunan</span>
+                <span id="routeEndKmLabel">0.00 km (Akhir)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="route-aux-meta" style="margin-top: 12px; font-size: 12.5px; color: var(--text-secondary);">
             Koordinat Titik: <strong id="routePointCount">142</strong> titik | Sumber Ketinggian: <strong id="eleSourceBadge">Satelit 3D DEM</strong>
           </div>
         </div>
@@ -419,32 +411,38 @@
         <div class="glass-card" id="cardMaxSpeed">
           <!-- Cycling Max Speed Controls -->
           <div id="cyclingMaxSpeedBox" style="display: none;">
-            <div class="slider-label-row">
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                <input type="checkbox" id="enableMaxSpeedCheck" class="apple-toggle-input-small" checked />
-                <span class="form-label" style="font-weight: 700;">Kecepatan Maksimal (Max Speed Turunan)</span>
-              </label>
-              <span class="slider-value-badge" id="desiredMaxSpeedLabel">54.0 km/h</span>
+            <div class="toggle-row" style="margin-bottom: 8px;">
+              <div>
+                <div class="card-heading" style="font-size: 15px;">Kecepatan Maksimal (Max Speed Turunan)</div>
+                <div class="toggle-subtext">Atur batas lonjakan kecepatan puncak saat turunan atau sprint gowes.</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="slider-value-badge" id="desiredMaxSpeedLabel">54.0 km/h</span>
+                <label class="apple-toggle">
+                  <input type="checkbox" id="enableMaxSpeedCheck" checked />
+                  <span class="apple-toggle-slider"></span>
+                </label>
+              </div>
             </div>
-            <div style="font-size: 12.5px; color: var(--text-tertiary); margin-bottom: 6px;">
-              Geser untuk mengatur puncak kecepatan saat turunan tajam atau sprint bersepeda.
-            </div>
-            <input type="range" class="apple-range-slider" id="desiredMaxSpeedSlider" min="30.0" max="95.0" step="0.5" value="54.0" />
+            <input type="range" class="apple-range-slider" id="desiredMaxSpeedSlider" min="30.0" max="95.0" step="0.5" value="54.0" style="margin-top: 6px;" />
           </div>
 
           <!-- Running Best Pace Controls -->
           <div id="runningBestPaceBox">
-            <div class="slider-label-row">
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                <input type="checkbox" id="enableBestPaceCheck" class="apple-toggle-input-small" checked />
-                <span class="form-label" style="font-weight: 700;">Pace Maksimal / Sprint Terbaik (Best Pace)</span>
-              </label>
-              <span class="slider-value-badge" id="desiredBestPaceLabel">04:15 /km</span>
+            <div class="toggle-row" style="margin-bottom: 8px;">
+              <div>
+                <div class="card-heading" style="font-size: 15px;">Pace Maksimal / Sprint Terbaik (Best Pace)</div>
+                <div class="toggle-subtext">Tentukan pace tercepat saat sprint atau turunan lari.</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="slider-value-badge" id="desiredBestPaceLabel">04:15 /km</span>
+                <label class="apple-toggle">
+                  <input type="checkbox" id="enableBestPaceCheck" checked />
+                  <span class="apple-toggle-slider"></span>
+                </label>
+              </div>
             </div>
-            <div style="font-size: 12.5px; color: var(--text-tertiary); margin-bottom: 6px;">
-              Geser untuk menentukan pace tercepat saat sprint atau turunan lari.
-            </div>
-            <input type="range" class="apple-range-slider" id="desiredBestPaceSlider" min="150" max="420" step="5" value="255" />
+            <input type="range" class="apple-range-slider" id="desiredBestPaceSlider" min="150" max="420" step="5" value="255" style="margin-top: 6px;" />
           </div>
         </div>
 
@@ -518,13 +516,19 @@
           </div>
         </div>
 
-        <!-- SENSORS (HEART RATE & CADENCE) CARD -->
-        <div class="glass-card">
-          <!-- HR Toggle -->
-          <div class="toggle-row">
-            <div>
-              <div class="card-heading">Sensor Detak Jantung (Heart Rate)</div>
-              <div class="toggle-subtext">Geser untuk mengatur detak jantung rata-rata dan batas maksimal fisiologis.</div>
+        <!-- SENSOR DETAK JANTUNG (HEART RATE) CARD -->
+        <div class="glass-card" id="cardHeartRate">
+          <div class="card-title-row">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="card-icon-bubble heart-icon-bubble">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="width: 20px; height: 20px;">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </div>
+              <div>
+                <div class="card-heading">Sensor Detak Jantung (Heart Rate)</div>
+                <div class="toggle-subtext">Geser untuk mengatur target rata-rata dan batas maksimal fisiologis.</div>
+              </div>
             </div>
             <label class="apple-toggle">
               <input type="checkbox" id="hrEnabledCheck" checked />
@@ -532,9 +536,9 @@
             </label>
           </div>
 
-          <div class="toggle-expandable-panel" id="panelHeartRate" style="margin-top: 14px; margin-bottom: 14px;">
+          <div class="toggle-expandable-panel" id="panelHeartRate" style="margin-top: 18px;">
             <!-- Target Average HR Slider -->
-            <div class="apple-slider-group">
+            <div class="apple-slider-group" style="margin-bottom: 20px;">
               <div class="slider-label-row">
                 <span class="form-label">Rata-Rata Detak Jantung (Target Avg HR)</span>
                 <span class="slider-value-badge" id="avgHrLabel">148 BPM</span>
@@ -543,16 +547,16 @@
             </div>
 
             <!-- Max HR Slider -->
-            <div class="apple-slider-group">
+            <div class="apple-slider-group" style="margin-bottom: 20px;">
               <div class="slider-label-row">
-                <span class="form-label">Detak Jantung Maksimal (Max HR)</span>
+                <span class="form-label">Detak Jantung Maksimal (Max HR Puncak)</span>
                 <span class="slider-value-badge" id="maxHrLabel">188 BPM</span>
               </div>
               <input type="range" class="apple-range-slider" id="maxHrSlider" min="140" max="220" step="1" value="188" />
             </div>
 
             <!-- Resting HR Slider -->
-            <div class="apple-slider-group">
+            <div class="apple-slider-group" style="margin-bottom: 6px;">
               <div class="slider-label-row">
                 <span class="form-label">Detak Jantung Istirahat (Resting HR)</span>
                 <span class="slider-value-badge" id="restingHrLabel">65 BPM</span>
@@ -560,14 +564,22 @@
               <input type="range" class="apple-range-slider" id="restingHrSlider" min="45" max="90" step="1" value="65" />
             </div>
           </div>
+        </div>
 
-          <div class="feature-divider" style="margin: 14px 0;"></div>
-
-          <!-- Cadence Toggle -->
-          <div class="toggle-row">
-            <div>
-              <div class="card-heading">Sensor Kadens (Langkah / Pedal)</div>
-              <div class="toggle-subtext">Geser untuk mengatur putaran pedal (RPM) atau langkah lari (SPM).</div>
+        <!-- SENSOR KADENS (CADENCE) CARD -->
+        <div class="glass-card" id="cardCadence">
+          <div class="card-title-row">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="card-icon-bubble cadence-icon-bubble">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="width: 20px; height: 20px;">
+                  <circle cx="12" cy="12" r="9"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <div>
+                <div class="card-heading" id="cadenceCardHeading">Sensor Kadens (Gowes / Langkah)</div>
+                <div class="toggle-subtext" id="cadenceCardSubtext">Geser putaran pedal (RPM) atau frekuensi langkah lari (SPM).</div>
+              </div>
             </div>
             <label class="apple-toggle">
               <input type="checkbox" id="cadenceEnabledCheck" checked />
@@ -575,9 +587,9 @@
             </label>
           </div>
 
-          <div class="toggle-expandable-panel" id="panelCadence" style="margin-top: 14px;">
+          <div class="toggle-expandable-panel" id="panelCadence" style="margin-top: 18px;">
             <!-- Target Cadence Slider -->
-            <div class="apple-slider-group">
+            <div class="apple-slider-group" style="margin-bottom: 20px;">
               <div class="slider-label-row">
                 <span class="form-label" id="targetCadenceTitleLabel">Target Rata-Rata Kadens (Langkah)</span>
                 <span class="slider-value-badge" id="targetCadenceValLabel">172 SPM</span>
@@ -586,16 +598,16 @@
             </div>
 
             <!-- Max Cadence Slider -->
-            <div class="apple-slider-group">
+            <div class="apple-slider-group" style="margin-bottom: 16px;">
               <div class="slider-label-row">
-                <span class="form-label" id="maxCadenceTitleLabel">Kadens Maksimal (Max Cadence Puncak)</span>
+                <span class="form-label" id="maxCadenceTitleLabel">Kadens Maksimal (Sprint Puncak)</span>
                 <span class="slider-value-badge" id="maxCadenceValLabel">195 SPM</span>
               </div>
               <input type="range" class="apple-range-slider" id="maxCadenceSlider" min="160" max="230" step="1" value="195" />
             </div>
 
             <!-- Coasting Mode for Cycling -->
-            <div class="apple-slider-group" id="coastingModeContainer" style="display: none; margin-top: 10px;">
+            <div class="apple-slider-group" id="coastingModeContainer" style="display: none; margin-top: 14px;">
               <label class="form-label" for="coastingModeSelect">Mode Coasting Turunan Curam (&lt; -4.5%)</label>
               <div class="glass-select-wrap">
                 <select class="glass-select" id="coastingModeSelect">
@@ -815,7 +827,6 @@
   <div style="display:none;" aria-hidden="true">
     <div id="routeMinMaxEle"></div>
     <div id="eleAuditNote"></div>
-    <div id="routeMapCursorLabel"></div>
     <div id="routeOverviewEleReadout"></div>
     <div id="stopsCountBadge"></div>
     <div id="feasibilityBadge"></div>
