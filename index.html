@@ -329,6 +329,39 @@
           <div class="ruler-scroll-hint">Geser meteran ke kiri atau kanan untuk menyesuaikan nilai</div>
         </div>
 
+        <!-- PELUANG KECEPATAN MAKSIMAL / PACE TERBAIK (MAX SPEED / BEST PACE) -->
+        <div class="glass-card" id="cardMaxSpeed">
+          <!-- Cycling Max Speed Controls -->
+          <div id="cyclingMaxSpeedBox" style="display: none;">
+            <div class="slider-label-row">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="enableMaxSpeedCheck" class="apple-toggle-input-small" checked />
+                <span class="form-label" style="font-weight: 700;">Kecepatan Maksimal (Max Speed Turunan)</span>
+              </label>
+              <span class="slider-value-badge" id="desiredMaxSpeedLabel">54.0 km/h</span>
+            </div>
+            <div style="font-size: 12.5px; color: var(--text-tertiary); margin-bottom: 6px;">
+              Geser untuk mengatur puncak kecepatan saat turunan tajam atau sprint bersepeda.
+            </div>
+            <input type="range" class="apple-range-slider" id="desiredMaxSpeedSlider" min="30.0" max="95.0" step="0.5" value="54.0" />
+          </div>
+
+          <!-- Running Best Pace Controls -->
+          <div id="runningBestPaceBox">
+            <div class="slider-label-row">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="enableBestPaceCheck" class="apple-toggle-input-small" checked />
+                <span class="form-label" style="font-weight: 700;">Pace Maksimal / Sprint Terbaik (Best Pace)</span>
+              </label>
+              <span class="slider-value-badge" id="desiredBestPaceLabel">04:15 /km</span>
+            </div>
+            <div style="font-size: 12.5px; color: var(--text-tertiary); margin-bottom: 6px;">
+              Geser untuk menentukan pace tercepat saat sprint atau turunan lari.
+            </div>
+            <input type="range" class="apple-range-slider" id="desiredBestPaceSlider" min="150" max="420" step="5" value="255" />
+          </div>
+        </div>
+
         <!-- Activity Date & Time Input Card -->
         <div class="glass-card">
           <div class="card-heading" style="margin-bottom: 12px;">Waktu &amp; Tanggal Aktivitas</div>
@@ -405,7 +438,7 @@
           <div class="toggle-row">
             <div>
               <div class="card-heading">Sensor Detak Jantung (Heart Rate)</div>
-              <div class="toggle-subtext">Simulasi detak jantung dengan lag kardiovaskular asimetris.</div>
+              <div class="toggle-subtext">Geser untuk mengatur detak jantung rata-rata dan batas maksimal fisiologis.</div>
             </div>
             <label class="apple-toggle">
               <input type="checkbox" id="hrEnabledCheck" checked />
@@ -413,17 +446,32 @@
             </label>
           </div>
 
-          <div class="toggle-expandable-panel" id="panelHeartRate" style="margin-top: 10px; margin-bottom: 14px;">
-            <label class="form-label" for="hrZoneDropdown">Target Zona Beban Jantung</label>
-            <div class="glass-select-wrap">
-              <select class="glass-select" id="hrZoneDropdown">
-                <option value="ZONE_2">Zona 2 — Pembakaran Lemak / Mudah (130 - 145 BPM)</option>
-                <option value="ZONE_3" selected>Zona 3 — Aerobik Menengah (145 - 160 BPM)</option>
-                <option value="ZONE_4">Zona 4 — Ambang Laktat / Kencang (160 - 175 BPM)</option>
-              </select>
-              <div class="select-chevron">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          <div class="toggle-expandable-panel" id="panelHeartRate" style="margin-top: 14px; margin-bottom: 14px;">
+            <!-- Target Average HR Slider -->
+            <div class="apple-slider-group">
+              <div class="slider-label-row">
+                <span class="form-label">Rata-Rata Detak Jantung (Target Avg HR)</span>
+                <span class="slider-value-badge" id="avgHrLabel">148 BPM</span>
               </div>
+              <input type="range" class="apple-range-slider" id="avgHrSlider" min="95" max="190" step="1" value="148" />
+            </div>
+
+            <!-- Max HR Slider -->
+            <div class="apple-slider-group">
+              <div class="slider-label-row">
+                <span class="form-label">Detak Jantung Maksimal (Max HR)</span>
+                <span class="slider-value-badge" id="maxHrLabel">188 BPM</span>
+              </div>
+              <input type="range" class="apple-range-slider" id="maxHrSlider" min="140" max="220" step="1" value="188" />
+            </div>
+
+            <!-- Resting HR Slider -->
+            <div class="apple-slider-group">
+              <div class="slider-label-row">
+                <span class="form-label">Detak Jantung Istirahat (Resting HR)</span>
+                <span class="slider-value-badge" id="restingHrLabel">65 BPM</span>
+              </div>
+              <input type="range" class="apple-range-slider" id="restingHrSlider" min="45" max="90" step="1" value="65" />
             </div>
           </div>
 
@@ -433,7 +481,7 @@
           <div class="toggle-row">
             <div>
               <div class="card-heading">Sensor Kadens (Langkah / Pedal)</div>
-              <div class="toggle-subtext">Mencatat putaran pedal (RPM) atau langkah lari (SPM).</div>
+              <div class="toggle-subtext">Geser untuk mengatur putaran pedal (RPM) atau langkah lari (SPM).</div>
             </div>
             <label class="apple-toggle">
               <input type="checkbox" id="cadenceEnabledCheck" checked />
@@ -441,18 +489,36 @@
             </label>
           </div>
 
-          <div class="toggle-expandable-panel" id="panelCadence" style="margin-top: 10px;">
-            <label class="form-label" for="cadenceTargetDropdown">Target Frekuensi Kadens</label>
-            <div class="glass-select-wrap">
-              <select class="glass-select" id="cadenceTargetDropdown">
-                <option value="RUN_165">165 SPM (Lari Santai)</option>
-                <option value="RUN_172" selected>172 SPM (Lari Standar)</option>
-                <option value="RUN_180">180 SPM (Lari Kadens Optimal)</option>
-                <option value="BIKE_80">80 RPM (Gowes Santai)</option>
-                <option value="BIKE_90">90 RPM (Gowes Efisien)</option>
-              </select>
-              <div class="select-chevron">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          <div class="toggle-expandable-panel" id="panelCadence" style="margin-top: 14px;">
+            <!-- Target Cadence Slider -->
+            <div class="apple-slider-group">
+              <div class="slider-label-row">
+                <span class="form-label" id="targetCadenceTitleLabel">Target Rata-Rata Kadens (Langkah)</span>
+                <span class="slider-value-badge" id="targetCadenceValLabel">172 SPM</span>
+              </div>
+              <input type="range" class="apple-range-slider" id="targetCadenceSlider" min="130" max="215" step="1" value="172" />
+            </div>
+
+            <!-- Max Cadence Slider -->
+            <div class="apple-slider-group">
+              <div class="slider-label-row">
+                <span class="form-label" id="maxCadenceTitleLabel">Kadens Maksimal (Max Cadence Puncak)</span>
+                <span class="slider-value-badge" id="maxCadenceValLabel">195 SPM</span>
+              </div>
+              <input type="range" class="apple-range-slider" id="maxCadenceSlider" min="160" max="230" step="1" value="195" />
+            </div>
+
+            <!-- Coasting Mode for Cycling -->
+            <div class="apple-slider-group" id="coastingModeContainer" style="display: none; margin-top: 10px;">
+              <label class="form-label" for="coastingModeSelect">Mode Coasting Turunan Curam (&lt; -4.5%)</label>
+              <div class="glass-select-wrap">
+                <select class="glass-select" id="coastingModeSelect">
+                  <option value="ZERO_RPM" selected>0 RPM (Freewheel / Berhenti Mengayuh)</option>
+                  <option value="SLOW_SPIN">20 - 30 RPM (Putaran Santai Menjaga Keseimbangan)</option>
+                </select>
+                <div class="select-chevron">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
               </div>
             </div>
           </div>
@@ -581,8 +647,16 @@
               <strong class="detail-val">+<span id="ticketGainVal">224</span> m</strong>
             </div>
             <div class="detail-cell">
-              <span class="detail-label">Detak Jantung Rata-rata</span>
-              <strong class="detail-val"><span id="simHrVal">152</span> BPM</strong>
+              <span class="detail-label">Detak Jantung (Avg / Max)</span>
+              <strong class="detail-val"><span id="simHrVal">148 / 188</span> BPM</strong>
+            </div>
+            <div class="detail-cell">
+              <span class="detail-label" id="simMaxSpeedTitle">Kecepatan Maksimal</span>
+              <strong class="detail-val"><span id="simMaxSpeedVal">54.0</span> <span id="simMaxSpeedUnit">km/h</span></strong>
+            </div>
+            <div class="detail-cell">
+              <span class="detail-label">Kadens (Avg / Max)</span>
+              <strong class="detail-val"><span id="simCadenceVal">172 / 195</span> <span id="simCadenceUnit">SPM</span></strong>
             </div>
             <div class="detail-cell">
               <span class="detail-label">Estimasi Kalori</span>
@@ -703,8 +777,6 @@
     <div id="simMaxPrimaryVal"></div>
     <div id="simMaxPrimaryUnit"></div>
     <div id="simMaxPrimaryLabel"></div>
-    <div id="simCadenceVal"></div>
-    <div id="simCadenceUnit"></div>
     <div id="simAvgPowerVal"></div>
     <div id="simNpPowerVal"></div>
     <div id="simTempVal"></div>
@@ -763,17 +835,7 @@
     <span id="targetAvgSpeedLabel"></span>
     <input id="targetAvgPaceSlider" type="range" />
     <span id="targetAvgPaceLabel"></span>
-    <input id="enableMaxSpeedCheck" type="checkbox" />
-    <input id="desiredMaxSpeedSlider" type="range" />
-    <span id="desiredMaxSpeedLabel"></span>
-    <input id="enableBestPaceCheck" type="checkbox" />
-    <input id="desiredBestPaceSlider" type="range" />
-    <span id="desiredBestPaceLabel"></span>
     <select id="smartStopPresetSelect"><option value="NONE">NONE</option></select>
-    <input id="targetCadenceSlider" type="range" />
-    <span id="targetCadenceValLabel"></span>
-    <select id="coastingModeSelect"><option value="ZERO_RPM">ZERO_RPM</option></select>
-    <div id="coastingModeGroup"></div>
     <div id="climbingDropGroup"></div>
     <input id="climbingDropSlider" type="range" />
     <span id="climbingDropLabel"></span>
@@ -781,12 +843,6 @@
     <span id="riderWeightLabel"></span>
     <input id="bikeWeightSlider" type="range" />
     <span id="bikeWeightLabel"></span>
-    <input id="avgHrSlider" type="range" />
-    <span id="avgHrLabel"></span>
-    <input id="maxHrSlider" type="range" />
-    <span id="maxHrLabel"></span>
-    <input id="restingHrSlider" type="range" />
-    <span id="restingHrLabel"></span>
     <div id="powerMeterCard"></div>
     <div id="runningSolverControls"></div>
     <div id="cyclingSolverControls"></div>

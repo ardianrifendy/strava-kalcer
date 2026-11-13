@@ -1326,6 +1326,7 @@ const SimulationEngine = {
 
       // 3. Customizable Cadence (RPM / SPM)
       let cad = settings.cadenceConfig.targetCadence;
+      const userMaxCad = settings.cadenceConfig.maxCadence || (isCycling ? 115 : 195);
       if (stopEvent) {
         cad = 0;
       } else if (isCycling) {
@@ -1340,11 +1341,23 @@ const SimulationEngine = {
         } else {
           cad = Math.round(settings.cadenceConfig.targetCadence + (effortRatio - 1.0) * 8.0 + Math.sin(i * 0.4) * 2.5);
         }
-        cad = cad === 0 ? 0 : Math.max(42, Math.min(128, cad));
+        if (selectedDownhill && selectedDownhill.startIdx <= i && i <= selectedDownhill.endIdx && userMaxCad) {
+          const s = selectedDownhill.startIdx;
+          const e = selectedDownhill.endIdx;
+          const bell = Math.sin(((i - s) / Math.max(1, e - s)) * Math.PI);
+          cad = Math.round(cad + (userMaxCad - cad) * bell);
+        }
+        cad = cad === 0 ? 0 : Math.max(42, Math.min(userMaxCad, cad));
       } else {
-        // Running SPM (150 - 205 spm)
+        // Running SPM (130 - 230 spm)
         const spmShift = (effortRatio - 1.0) * 14.0 - (rp.smoothedGradient > 4.0 ? 4.0 : 0.0);
-        cad = Math.max(142, Math.min(206, Math.round(settings.cadenceConfig.targetCadence + spmShift + Math.sin(i * 0.35) * 2.0)));
+        let runCad = settings.cadenceConfig.targetCadence + spmShift + Math.sin(i * 0.35) * 2.0;
+        let fastestIdx = Math.floor(n * 0.72);
+        if (userMaxCad && Math.abs(i - fastestIdx) <= 8) {
+          const bell = Math.cos(((i - fastestIdx) / 9) * (Math.PI / 2));
+          runCad = runCad + (userMaxCad - runCad) * bell;
+        }
+        cad = Math.max(130, Math.min(userMaxCad, Math.round(runCad)));
       }
       cadenceSeries[i] = cad;
 
@@ -2020,6 +2033,7 @@ const AppState = {
     cadenceConfig: {
       enabled: true,
       targetCadence: 86,
+      maxCadence: 115,
       coastingMode: "ZERO_RPM",
       climbingRpmDrop: 14
     },
@@ -3364,6 +3378,11 @@ function updateTicketSummary() {
   const priLbl = document.getElementById("simAvgPrimaryLabel");
   const hrEl = document.getElementById("simHrVal");
   const calEl = document.getElementById("simCaloriesVal");
+  const maxSpdTitle = document.getElementById("simMaxSpeedTitle");
+  const maxSpdVal = document.getElementById("simMaxSpeedVal");
+  const maxSpdUnit = document.getElementById("simMaxSpeedUnit");
+  const cadVal = document.getElementById("simCadenceVal");
+  const cadUnit = document.getElementById("simCadenceUnit");
 
   if (distEl) distEl.textContent = (res.totalDistanceMeters / 1000.0).toFixed(2);
   if (moveEl) moveEl.textContent = formatDuration(res.movingTimeSeconds);
@@ -3371,8 +3390,13 @@ function updateTicketSummary() {
   if (priLbl) priLbl.textContent = isCycling ? "Avg Speed" : "Avg Pace";
   if (priVal) priVal.textContent = isCycling ? res.averageMovingSpeedKmh.toFixed(1) : res.averageMovingPaceFormatted;
   if (priUnit) priUnit.textContent = isCycling ? "km/jam" : "/km";
-  if (hrEl) hrEl.textContent = res.averageHeartRate ? `${res.averageHeartRate}` : "152";
+  if (hrEl) hrEl.textContent = res.averageHeartRate ? `${res.averageHeartRate} / ${res.maxHeartRate}` : "OFF";
   if (calEl) calEl.textContent = `${res.totalCalories}`;
+  if (maxSpdTitle) maxSpdTitle.textContent = isCycling ? "Kecepatan Maksimal" : "Pace Terbaik";
+  if (maxSpdVal) maxSpdVal.textContent = isCycling ? (res.maxSpeedKmh ? res.maxSpeedKmh.toFixed(1) : "0.0") : (res.bestPaceFormatted || "-");
+  if (maxSpdUnit) maxSpdUnit.textContent = isCycling ? "km/jam" : "/km";
+  if (cadVal) cadVal.textContent = res.averageCadence ? `${res.averageCadence} / ${res.maxCadence || res.averageCadence}` : "OFF";
+  if (cadUnit) cadUnit.textContent = isCycling ? "RPM" : "SPM";
 
   updateSelectedDeviceCard();
 }
@@ -3555,6 +3579,75 @@ function initApp() {
 
   // 4. Sport Select Dropdown & Ruler Initialization
   const sportDropdown = document.getElementById("sportSelectDropdown");
+  function updateSportUiParameters(sport) {
+    const isCycling = sport === "CYCLING";
+
+    // 1. Max Speed / Best Pace visibility
+    const bikeBox = document.getElementById("cyclingMaxSpeedBox");
+    const runBox = document.getElementById("runningBestPaceBox");
+    if (bikeBox) bikeBox.style.display = isCycling ? "block" : "none";
+    if (runBox) runBox.style.display = isCycling ? "none" : "block";
+
+    // 2. Cadence labels, min/max, step, and values
+    const cadTitle = document.getElementById("targetCadenceTitleLabel");
+    const maxCadTitle = document.getElementById("maxCadenceTitleLabel");
+    const cadSlider = document.getElementById("targetCadenceSlider");
+    const maxCadSlider = document.getElementById("maxCadenceSlider");
+    const cadValLabel = document.getElementById("targetCadenceValLabel");
+    const maxCadValLabel = document.getElementById("maxCadenceValLabel");
+    const coastingContainer = document.getElementById("coastingModeContainer");
+
+    if (isCycling) {
+      if (cadTitle) cadTitle.textContent = "Target Rata-Rata Kadens (Gowes)";
+      if (maxCadTitle) maxCadTitle.textContent = "Kadens Maksimal (Sprint / Turunan)";
+      if (cadSlider) {
+        cadSlider.min = "50";
+        cadSlider.max = "130";
+        cadSlider.step = "1";
+        if (AppState.settings.cadenceConfig.targetCadence > 130 || AppState.settings.cadenceConfig.targetCadence < 50) {
+          AppState.settings.cadenceConfig.targetCadence = 86;
+        }
+        cadSlider.value = AppState.settings.cadenceConfig.targetCadence;
+      }
+      if (maxCadSlider) {
+        maxCadSlider.min = "80";
+        maxCadSlider.max = "160";
+        maxCadSlider.step = "1";
+        if (!AppState.settings.cadenceConfig.maxCadence || AppState.settings.cadenceConfig.maxCadence > 160 || AppState.settings.cadenceConfig.maxCadence < 80) {
+          AppState.settings.cadenceConfig.maxCadence = 115;
+        }
+        maxCadSlider.value = AppState.settings.cadenceConfig.maxCadence;
+      }
+      if (cadValLabel) cadValLabel.textContent = `${AppState.settings.cadenceConfig.targetCadence} RPM`;
+      if (maxCadValLabel) maxCadValLabel.textContent = `${AppState.settings.cadenceConfig.maxCadence || 115} RPM`;
+      if (coastingContainer) coastingContainer.style.display = "block";
+    } else {
+      if (cadTitle) cadTitle.textContent = "Target Rata-Rata Kadens (Langkah)";
+      if (maxCadTitle) maxCadTitle.textContent = "Kadens Maksimal (Sprint Lari)";
+      if (cadSlider) {
+        cadSlider.min = "130";
+        cadSlider.max = "215";
+        cadSlider.step = "1";
+        if (AppState.settings.cadenceConfig.targetCadence < 130) {
+          AppState.settings.cadenceConfig.targetCadence = 172;
+        }
+        cadSlider.value = AppState.settings.cadenceConfig.targetCadence;
+      }
+      if (maxCadSlider) {
+        maxCadSlider.min = "160";
+        maxCadSlider.max = "230";
+        maxCadSlider.step = "1";
+        if (!AppState.settings.cadenceConfig.maxCadence || AppState.settings.cadenceConfig.maxCadence < 160) {
+          AppState.settings.cadenceConfig.maxCadence = 195;
+        }
+        maxCadSlider.value = AppState.settings.cadenceConfig.maxCadence;
+      }
+      if (cadValLabel) cadValLabel.textContent = `${AppState.settings.cadenceConfig.targetCadence} SPM`;
+      if (maxCadValLabel) maxCadValLabel.textContent = `${AppState.settings.cadenceConfig.maxCadence || 195} SPM`;
+      if (coastingContainer) coastingContainer.style.display = "none";
+    }
+  }
+
   if (sportDropdown) {
     sportDropdown.addEventListener("change", (e) => {
       const sport = e.target.value;
@@ -3575,6 +3668,7 @@ function initApp() {
         }
       }
       HorizontalRuler.renderRuler(sport);
+      updateSportUiParameters(sport);
       populateDeviceDropdowns();
       executeFullSimulation();
       updateTicketSummary();
@@ -3614,46 +3708,159 @@ function initApp() {
   if (countSelect) countSelect.addEventListener("change", updateManualStopsState);
   if (durSelect) durSelect.addEventListener("change", updateManualStopsState);
 
-  // 6. Sensor Heart Rate & Cadence
+  // 6. Max Speed & Best Pace Controls
+  const maxSpdCheck = document.getElementById("enableMaxSpeedCheck");
+  const maxSpdSlider = document.getElementById("desiredMaxSpeedSlider");
+  const maxSpdLabel = document.getElementById("desiredMaxSpeedLabel");
+  if (maxSpdCheck) {
+    maxSpdCheck.addEventListener("change", (e) => {
+      AppState.settings.enableMaxSpeed = e.target.checked;
+      executeFullSimulation();
+      updateTicketSummary();
+    });
+  }
+  if (maxSpdSlider) {
+    maxSpdSlider.addEventListener("input", (e) => {
+      const val = parseFloat(e.target.value);
+      AppState.settings.desiredMaxSpeedKmh = val;
+      if (maxSpdLabel) maxSpdLabel.textContent = `${val.toFixed(1)} km/h`;
+      executeFullSimulation();
+      updateTicketSummary();
+    });
+  }
+
+  const bestPaceCheck = document.getElementById("enableBestPaceCheck");
+  const bestPaceSlider = document.getElementById("desiredBestPaceSlider");
+  const bestPaceLabel = document.getElementById("desiredBestPaceLabel");
+  if (bestPaceCheck) {
+    bestPaceCheck.addEventListener("change", (e) => {
+      AppState.settings.enableBestPace = e.target.checked;
+      executeFullSimulation();
+      updateTicketSummary();
+    });
+  }
+  if (bestPaceSlider) {
+    bestPaceSlider.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value, 10);
+      AppState.settings.desiredBestPaceSec = val;
+      if (bestPaceLabel) bestPaceLabel.textContent = `${formatPace(val)} /km`;
+      executeFullSimulation();
+      updateTicketSummary();
+    });
+  }
+
+  // 7. Sensor Heart Rate (Average, Max, Resting)
   const hrCheck = document.getElementById("hrEnabledCheck");
-  const hrZone = document.getElementById("hrZoneDropdown");
   const hrPanel = document.getElementById("panelHeartRate");
+  const avgHrSlider = document.getElementById("avgHrSlider");
+  const avgHrLabel = document.getElementById("avgHrLabel");
+  const maxHrSlider = document.getElementById("maxHrSlider");
+  const maxHrLabel = document.getElementById("maxHrLabel");
+  const restingHrSlider = document.getElementById("restingHrSlider");
+  const restingHrLabel = document.getElementById("restingHrLabel");
+
   if (hrCheck) {
     hrCheck.addEventListener("change", (e) => {
       AppState.settings.hrConfig.enabled = e.target.checked;
       if (hrPanel) hrPanel.style.display = e.target.checked ? "block" : "none";
       executeFullSimulation();
-    });
-  }
-  if (hrZone) {
-    hrZone.addEventListener("change", (e) => {
-      const val = e.target.value;
-      if (val === "ZONE_2") AppState.settings.hrConfig.averageHr = 138;
-      else if (val === "ZONE_3") AppState.settings.hrConfig.averageHr = 152;
-      else if (val === "ZONE_4") AppState.settings.hrConfig.averageHr = 168;
-      executeFullSimulation();
+      updateTicketSummary();
     });
   }
 
+  if (avgHrSlider) {
+    avgHrSlider.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value, 10);
+      AppState.settings.hrConfig.averageHr = val;
+      if (AppState.settings.hrConfig.maxHr < val + 5) {
+        AppState.settings.hrConfig.maxHr = val + 15;
+        if (maxHrSlider) maxHrSlider.value = AppState.settings.hrConfig.maxHr;
+        if (maxHrLabel) maxHrLabel.textContent = `${AppState.settings.hrConfig.maxHr} BPM`;
+      }
+      if (avgHrLabel) avgHrLabel.textContent = `${val} BPM`;
+      executeFullSimulation();
+      updateTicketSummary();
+    });
+  }
+
+  if (maxHrSlider) {
+    maxHrSlider.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value, 10);
+      AppState.settings.hrConfig.maxHr = val;
+      if (AppState.settings.hrConfig.averageHr > val - 5) {
+        AppState.settings.hrConfig.averageHr = val - 10;
+        if (avgHrSlider) avgHrSlider.value = AppState.settings.hrConfig.averageHr;
+        if (avgHrLabel) avgHrLabel.textContent = `${AppState.settings.hrConfig.averageHr} BPM`;
+      }
+      if (maxHrLabel) maxHrLabel.textContent = `${val} BPM`;
+      executeFullSimulation();
+      updateTicketSummary();
+    });
+  }
+
+  if (restingHrSlider) {
+    restingHrSlider.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value, 10);
+      AppState.settings.hrConfig.restingHr = val;
+      if (restingHrLabel) restingHrLabel.textContent = `${val} BPM`;
+      executeFullSimulation();
+      updateTicketSummary();
+    });
+  }
+
+  // 8. Sensor Cadence (Target, Max) & Coasting Mode
   const cadCheck = document.getElementById("cadenceEnabledCheck");
-  const cadDropdown = document.getElementById("cadenceTargetDropdown");
   const cadPanel = document.getElementById("panelCadence");
+  const cadSlider = document.getElementById("targetCadenceSlider");
+  const cadValLabel = document.getElementById("targetCadenceValLabel");
+  const maxCadSlider = document.getElementById("maxCadenceSlider");
+  const maxCadValLabel = document.getElementById("maxCadenceValLabel");
+  const coastingSelect = document.getElementById("coastingModeSelect");
+
   if (cadCheck) {
     cadCheck.addEventListener("change", (e) => {
       AppState.settings.cadenceConfig.enabled = e.target.checked;
       if (cadPanel) cadPanel.style.display = e.target.checked ? "block" : "none";
       executeFullSimulation();
+      updateTicketSummary();
     });
   }
-  if (cadDropdown) {
-    cadDropdown.addEventListener("change", (e) => {
-      const val = e.target.value;
-      if (val === "RUN_165") AppState.settings.cadenceConfig.targetCadence = 165;
-      else if (val === "RUN_172") AppState.settings.cadenceConfig.targetCadence = 172;
-      else if (val === "RUN_180") AppState.settings.cadenceConfig.targetCadence = 180;
-      else if (val === "BIKE_80") AppState.settings.cadenceConfig.targetCadence = 80;
-      else if (val === "BIKE_90") AppState.settings.cadenceConfig.targetCadence = 90;
+
+  if (cadSlider) {
+    cadSlider.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value, 10);
+      AppState.settings.cadenceConfig.targetCadence = val;
+      const isCycling = AppState.settings.sport === "CYCLING";
+      const unit = isCycling ? "RPM" : "SPM";
+      if (cadValLabel) cadValLabel.textContent = `${val} ${unit}`;
+
+      if (AppState.settings.cadenceConfig.maxCadence && AppState.settings.cadenceConfig.maxCadence < val + 5) {
+        AppState.settings.cadenceConfig.maxCadence = val + 15;
+        if (maxCadSlider) maxCadSlider.value = AppState.settings.cadenceConfig.maxCadence;
+        if (maxCadValLabel) maxCadValLabel.textContent = `${AppState.settings.cadenceConfig.maxCadence} ${unit}`;
+      }
       executeFullSimulation();
+      updateTicketSummary();
+    });
+  }
+
+  if (maxCadSlider) {
+    maxCadSlider.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value, 10);
+      AppState.settings.cadenceConfig.maxCadence = val;
+      const isCycling = AppState.settings.sport === "CYCLING";
+      const unit = isCycling ? "RPM" : "SPM";
+      if (maxCadValLabel) maxCadValLabel.textContent = `${val} ${unit}`;
+      executeFullSimulation();
+      updateTicketSummary();
+    });
+  }
+
+  if (coastingSelect) {
+    coastingSelect.addEventListener("change", (e) => {
+      AppState.settings.cadenceConfig.coastingMode = e.target.value;
+      executeFullSimulation();
+      updateTicketSummary();
     });
   }
 
@@ -3685,6 +3892,7 @@ function initApp() {
   // Initialize Horizontal Ruler
   HorizontalRuler.init();
   updateManualStopsState();
+  updateSportUiParameters(AppState.settings.sport);
   populateDeviceDropdowns();
   CustomDropdownManager.initAll();
 
