@@ -1195,22 +1195,22 @@ const SimulationEngine = {
         selectedDownhill = intelligence.downhillCandidates[0];
         const peakIdx = Math.floor((selectedDownhill.startIndex + selectedDownhill.endIndex) / 2);
         const halfSpan = Math.max(4, Math.floor((selectedDownhill.endIndex - selectedDownhill.startIndex) / 2));
+        const peakSurge = Math.max(desiredMax, selectedDownhill.achievableMaxSpeedKmh);
         for (let i = selectedDownhill.startIndex; i <= selectedDownhill.endIndex; i++) {
           const distFromPeak = Math.abs(i - peakIdx) / halfSpan;
           const bell = Math.max(0.0, Math.cos(distFromPeak * (Math.PI / 2)));
-          const targetPeak = Math.min(desiredMax, selectedDownhill.achievableMaxSpeedKmh + 6.0);
-          finalSpeeds[i] = Math.max(finalSpeeds[i], finalSpeeds[i] + (targetPeak - finalSpeeds[i]) * bell);
+          finalSpeeds[i] = Math.max(finalSpeeds[i], finalSpeeds[i] + (peakSurge - finalSpeeds[i]) * bell);
         }
       } else {
-        // Gentle surge on fastest existing section if no steep downhill exists
+        // Surge on fastest existing section if no steep downhill exists
         let fastestIdx = Math.floor(n * 0.65);
         for (let i = 1; i < n; i++) {
           if (finalSpeeds[i] > finalSpeeds[fastestIdx]) fastestIdx = i;
         }
-        const cappedSurge = Math.min(desiredMax, targetAvgKmh * 1.48);
+        const peakSurge = Math.max(finalSpeeds[fastestIdx], desiredMax);
         for (let i = Math.max(0, fastestIdx - 6); i <= Math.min(n - 1, fastestIdx + 6); i++) {
           const bell = Math.cos(((i - fastestIdx) / 7) * (Math.PI / 2));
-          finalSpeeds[i] = Math.max(finalSpeeds[i], finalSpeeds[i] + (cappedSurge - finalSpeeds[i]) * bell);
+          finalSpeeds[i] = Math.max(finalSpeeds[i], finalSpeeds[i] + (peakSurge - finalSpeeds[i]) * bell);
         }
       }
     } else if (!isCycling && settings.enableBestPace && settings.desiredBestPaceSec > 0) {
@@ -1315,6 +1315,10 @@ const SimulationEngine = {
       if (stopEvent) {
         demandHr = settings.hrConfig.restingHr + 22.0;
       }
+      if (settings.hrConfig.maxHr && (effortRatio > 1.15 || rp.smoothedGradient > 2.5)) {
+        const intensity = Math.min(1.0, Math.max(0.0, (effortRatio - 1.15) / 0.7));
+        demandHr = demandHr + (settings.hrConfig.maxHr - demandHr) * intensity;
+      }
       demandHr = Math.max(settings.hrConfig.restingHr, Math.min(settings.hrConfig.maxHr, demandHr));
 
       const dtEffective = dtMove + stopDuration * 0.65;
@@ -1341,11 +1345,17 @@ const SimulationEngine = {
         } else {
           cad = Math.round(settings.cadenceConfig.targetCadence + (effortRatio - 1.0) * 8.0 + Math.sin(i * 0.4) * 2.5);
         }
-        if (selectedDownhill && selectedDownhill.startIdx <= i && i <= selectedDownhill.endIdx && userMaxCad) {
-          const s = selectedDownhill.startIdx;
-          const e = selectedDownhill.endIdx;
+        if (selectedDownhill && selectedDownhill.startIndex <= i && i <= selectedDownhill.endIndex && userMaxCad) {
+          const s = selectedDownhill.startIndex;
+          const e = selectedDownhill.endIndex;
           const bell = Math.sin(((i - s) / Math.max(1, e - s)) * Math.PI);
           cad = Math.round(cad + (userMaxCad - cad) * bell);
+        } else if (!selectedDownhill && userMaxCad) {
+          let fastestIdx = Math.floor(n * 0.65);
+          if (Math.abs(i - fastestIdx) <= 6) {
+            const bell = Math.cos(((i - fastestIdx) / 7) * (Math.PI / 2));
+            cad = Math.round(cad + (userMaxCad - cad) * bell);
+          }
         }
         cad = cad === 0 ? 0 : Math.max(42, Math.min(userMaxCad, cad));
       } else {
@@ -3474,17 +3484,46 @@ function initApp() {
     });
   }
 
-  // 3. Route Selection Dropdown & Panels
+  // 3. Route Selection Apple Segmented Control & Panels
+  function switchRouteSource(mode) {
+    const segButtons = document.querySelectorAll("#routeSourceSegmented .segmented-item");
+    segButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.getAttribute("data-source") === mode);
+    });
+
+    const hiddenSelect = document.getElementById("routeSourceDropdown");
+    if (hiddenSelect) hiddenSelect.value = mode;
+
+    const panelPreset = document.getElementById("panelSourcePreset");
+    const panelImport = document.getElementById("panelSourceImport");
+    const panelMap = document.getElementById("panelSourceMap");
+    if (panelPreset) panelPreset.style.display = mode === "PRESET" ? "block" : "none";
+    if (panelImport) panelImport.style.display = mode === "IMPORT" ? "block" : "none";
+    if (panelMap) {
+      panelMap.style.display = mode === "MAP" ? "block" : "none";
+      if (mode === "MAP") {
+        setTimeout(() => {
+          RouteBuilderEngine.initMap();
+          if (RouteBuilderEngine.map) {
+            RouteBuilderEngine.map.invalidateSize();
+          }
+        }, 100);
+      }
+    }
+  }
+
+  const segButtons = document.querySelectorAll("#routeSourceSegmented .segmented-item");
+  segButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mode = btn.getAttribute("data-source");
+      if (mode) switchRouteSource(mode);
+    });
+  });
+
   const routeSourceDropdown = document.getElementById("routeSourceDropdown");
   if (routeSourceDropdown) {
     routeSourceDropdown.addEventListener("change", (e) => {
-      const mode = e.target.value;
-      const panelPreset = document.getElementById("panelSourcePreset");
-      const panelImport = document.getElementById("panelSourceImport");
-      const panelMap = document.getElementById("panelSourceMap");
-      if (panelPreset) panelPreset.style.display = mode === "PRESET" ? "block" : "none";
-      if (panelImport) panelImport.style.display = mode === "IMPORT" ? "block" : "none";
-      if (panelMap) panelMap.style.display = mode === "MAP" ? "block" : "none";
+      switchRouteSource(e.target.value);
     });
   }
 
@@ -3528,39 +3567,22 @@ function initApp() {
     });
   }
 
-  // Fullscreen Leaflet Map Modal
-  const openMapBtn = document.getElementById("openFullscreenMapBtn");
-  const quickGpsBtn = document.getElementById("launchMapGpsQuickBtn");
-  const closeMapBtn = document.getElementById("closeMapEditorBtn");
-  const mapModal = document.getElementById("mapEditorModal");
-  if (openMapBtn && mapModal) {
-    openMapBtn.addEventListener("click", () => {
-      mapModal.style.display = "flex";
-      setTimeout(() => {
-        RouteBuilderEngine.initMap();
-        if (RouteBuilderEngine.map) {
-          RouteBuilderEngine.map.invalidateSize();
-        }
-      }, 80);
-    });
-  }
-  if (quickGpsBtn && mapModal) {
-    quickGpsBtn.addEventListener("click", () => {
-      mapModal.style.display = "flex";
-      setTimeout(() => {
-        RouteBuilderEngine.initMap();
-        if (RouteBuilderEngine.map) {
-          RouteBuilderEngine.map.invalidateSize();
-        }
-        RouteBuilderEngine.locateUserGps();
-      }, 80);
-    });
-  }
-  if (closeMapBtn && mapModal) {
-    closeMapBtn.addEventListener("click", () => {
-      mapModal.style.display = "none";
-    });
-  }
+  // Embedded Map Controls (Fullscreen Toggle & Exit)
+  const mapBox = document.getElementById("interactiveMapBox");
+  const fsBtn = document.getElementById("builderFullscreenToggleBtn");
+  const exitFsBtn = document.getElementById("builderExitFsBtn");
+  const toggleMapFullscreen = () => {
+    if (!mapBox) return;
+    mapBox.classList.toggle("fullscreen-mode");
+    setTimeout(() => {
+      if (RouteBuilderEngine.map) {
+        RouteBuilderEngine.map.invalidateSize();
+      }
+    }, 120);
+  };
+  if (fsBtn) fsBtn.addEventListener("click", toggleMapFullscreen);
+  if (exitFsBtn) exitFsBtn.addEventListener("click", toggleMapFullscreen);
+
   const builderApply = document.getElementById("builderApplyToSimBtn");
   if (builderApply) {
     builderApply.addEventListener("click", async () => {
@@ -3573,7 +3595,10 @@ function initApp() {
         return;
       }
       setLoadedTrack(trackToUse);
-      if (mapModal) mapModal.style.display = "none";
+      if (mapBox && mapBox.classList.contains("fullscreen-mode")) {
+        mapBox.classList.remove("fullscreen-mode");
+      }
+      BookFlow.goToPage(3);
     });
   }
 
@@ -3951,6 +3976,9 @@ function setLoadedTrack(track) {
 }
 
 function downloadCurrentFitFile() {
+  if (!AppState.fitBytes || !AppState.simulationResult) {
+    executeFullSimulation();
+  }
   if (!AppState.fitBytes || !AppState.currentTrack) return;
   const blob = new Blob([AppState.fitBytes], { type: "application/octet-stream" });
   const url = URL.createObjectURL(blob);
@@ -4563,45 +4591,31 @@ function setupRouteBuilderEvents() {
   document.getElementById("builderLoopStartBtn").addEventListener("click", () => RouteBuilderEngine.loopBackToStart());
   document.getElementById("builderClearBtn").addEventListener("click", () => RouteBuilderEngine.clearAll());
 
-  document.getElementById("builderApplyToSimBtn").addEventListener("click", async () => {
-    if (!RouteBuilderEngine.builtTrack && RouteBuilderEngine.waypoints.length >= 2) {
-      await RouteBuilderEngine.rebuildAndPreviewTrack();
-    }
-    const trackToUse = RouteBuilderEngine.builtTrack || AppState.currentTrack;
-    if (!trackToUse || !trackToUse.points || trackToUse.points.length < 2) {
-      alert(
-        AppState.lang === "id"
-          ? "Silakan klik minimal 2 titik pada peta untuk membuat rute terlebih dahulu."
-          : "Please click at least 2 points on the map to build a route first."
-      );
-      return;
-    }
-    setLoadedTrack(trackToUse);
-    switchTab("tab-config");
-  });
-
-  document.getElementById("builderDownloadGpxBtn").addEventListener("click", () => {
-    const trackToExport = RouteBuilderEngine.builtTrack || AppState.currentTrack;
-    if (!trackToExport || !trackToExport.points || trackToExport.points.length < 2) {
-      alert(
-        AppState.lang === "id"
-          ? "Silakan klik minimal 2 titik pada peta untuk membuat rute terlebih dahulu."
-          : "Please click at least 2 points on the map to build a route first."
-      );
-      return;
-    }
-    const xml = RouteBuilderEngine.exportTrackToGpxXml(trackToExport);
-    const blob = new Blob([xml], { type: "application/gpx+xml;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const safeName = (trackToExport.name || "StravaKalcer_Route").replace(/[^a-zA-Z0-9_-]+/g, "_");
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${safeName}.gpx`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  });
+  const dlGpxBtn = document.getElementById("builderDownloadGpxBtn");
+  if (dlGpxBtn) {
+    dlGpxBtn.addEventListener("click", () => {
+      const trackToExport = RouteBuilderEngine.builtTrack || AppState.currentTrack;
+      if (!trackToExport || !trackToExport.points || trackToExport.points.length < 2) {
+        alert(
+          AppState.lang === "id"
+            ? "Silakan klik minimal 2 titik pada peta untuk membuat rute terlebih dahulu."
+            : "Please click at least 2 points on the map to build a route first."
+        );
+        return;
+      }
+      const xml = RouteBuilderEngine.exportTrackToGpxXml(trackToExport);
+      const blob = new Blob([xml], { type: "application/gpx+xml;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const safeName = (trackToExport.name || "StravaKalcer_Route").replace(/[^a-zA-Z0-9_-]+/g, "_");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName}.gpx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
