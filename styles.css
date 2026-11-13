@@ -1951,6 +1951,12 @@ body:has(#book-page-1.active) #glassBottomBar,
   width: 100%;
   height: 100%;
   background: #E8ECEF;
+  cursor: crosshair !important;
+}
+
+.interactive-map-box.routing-busy .embedded-leaflet-map,
+.embedded-leaflet-map.routing-busy {
+  cursor: wait !important;
 }
 
 /* Floating Exit Fullscreen Button (Active only in Fullscreen Mode) */

@@ -2910,9 +2910,19 @@ const BookFlow = {
     }
 
     if (pageNum === 2) {
-      if (typeof RouteBuilder !== "undefined" && RouteBuilder.map) {
-        setTimeout(() => RouteBuilder.map.invalidateSize(), 100);
-      }
+      setTimeout(() => {
+        if (typeof RouteBuilderEngine !== "undefined") {
+          RouteBuilderEngine.initMap();
+          if (RouteBuilderEngine.map) {
+            RouteBuilderEngine.map.invalidateSize();
+          }
+        }
+      }, 60);
+      setTimeout(() => {
+        if (typeof RouteBuilderEngine !== "undefined" && RouteBuilderEngine.map) {
+          RouteBuilderEngine.map.invalidateSize();
+        }
+      }, 250);
     }
     if (pageNum === 3) {
       setTimeout(() => {
@@ -3585,7 +3595,12 @@ function initApp() {
           if (RouteBuilderEngine.map) {
             RouteBuilderEngine.map.invalidateSize();
           }
-        }, 100);
+        }, 60);
+        setTimeout(() => {
+          if (RouteBuilderEngine.map) {
+            RouteBuilderEngine.map.invalidateSize();
+          }
+        }, 250);
       }
     }
   }
@@ -4228,7 +4243,7 @@ const RouteBuilderEngine = {
 
   initMap() {
     if (this.map) {
-      setTimeout(() => this.map.invalidateSize(), 80);
+      setTimeout(() => this.map.invalidateSize(), 60);
       return;
     }
     const container = document.getElementById("builderLeafletMap");
@@ -4238,7 +4253,8 @@ const RouteBuilderEngine = {
     this.map = L.map("builderLeafletMap", {
       center: [-6.8852, 107.6135],
       zoom: 14,
-      zoomControl: true
+      zoomControl: true,
+      tap: false // Prevent mobile/touch synthetic tap interception
     });
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -4247,8 +4263,29 @@ const RouteBuilderEngine = {
     }).addTo(this.map);
 
     this.map.on("click", (e) => {
-      this.addWaypoint(e.latlng.lat, e.latlng.lng);
+      if (e && e.latlng && typeof e.latlng.lat === "number" && typeof e.latlng.lng === "number") {
+        this.addWaypoint(e.latlng.lat, e.latlng.lng);
+      }
     });
+
+    // Additional container click listener to ensure clicks on map canvas always register
+    container.addEventListener("click", (e) => {
+      if (e.target.closest(".leaflet-control, .map-floating-exit-fs-btn, .map-floating-gps-btn, .builder-marker-pin")) {
+        return;
+      }
+      if (this.map && (!this.lastClickTimestamp || Date.now() - this.lastClickTimestamp > 320)) {
+        try {
+          const pt = this.map.mouseEventToLatLng(e);
+          if (pt && !isNaN(pt.lat) && !isNaN(pt.lng)) {
+            this.addWaypoint(pt.lat, pt.lng);
+          }
+        } catch (_) {}
+      }
+    });
+
+    setTimeout(() => {
+      if (this.map) this.map.invalidateSize();
+    }, 80);
   },
 
   locateUserGps() {
@@ -4349,6 +4386,12 @@ const RouteBuilderEngine = {
       const marker = L.marker([wp.lat, wp.lon], {
         icon: this.createPinIcon(idx, this.waypoints.length)
       }).addTo(this.map);
+      marker.on("click", (e) => {
+        L.DomEvent.stopPropagation(e);
+        if (idx === 0 && this.waypoints.length >= 2) {
+          this.loopBackToStart();
+        }
+      });
       this.markers.push(marker);
     });
 
@@ -4363,7 +4406,8 @@ const RouteBuilderEngine = {
       this.polylineLayer = L.polyline(latlngs, {
         color: "#FC4C02",
         weight: 4.5,
-        opacity: 0.92
+        opacity: 0.92,
+        interactive: false // CRITICAL: Never block clicks from reaching the underlying map!
       }).addTo(this.map);
     }
 
@@ -4482,33 +4526,49 @@ const RouteBuilderEngine = {
   },
 
   async addWaypoint(lat, lon) {
+    if (lat === null || lon === null || isNaN(lat) || isNaN(lon)) return;
+    if (this.lastClickTimestamp && Date.now() - this.lastClickTimestamp < 250) return;
+    this.lastClickTimestamp = Date.now();
+
     if (this.isRoutingBusy) return;
     this.isRoutingBusy = true;
 
-    const newWp = { lat, lon, ele: null };
-    this.waypoints.push(newWp);
+    const mapBox = document.getElementById("interactiveMapBox");
+    if (mapBox) mapBox.classList.add("routing-busy");
 
-    if (this.waypoints.length === 1) {
-      this.refreshMarkersAndPolyline();
+    try {
+      const newWp = { lat, lon, ele: null };
+      this.waypoints.push(newWp);
+
+      if (this.waypoints.length === 1) {
+        this.refreshMarkersAndPolyline();
+        this.setStatus(
+          "Start Point placed! Click next points on the map to trace roads and build your route.",
+          "Titik Start dipasang! Klik titik berikutnya di peta untuk menelusuri jalan dan membuat rute."
+        );
+        return;
+      }
+
+      const prevWp = this.waypoints[this.waypoints.length - 2];
       this.setStatus(
-        "Start Point placed! Click next points on the map to trace roads and build your route.",
-        "Titik Start dipasang! Klik titik berikutnya di peta untuk menelusuri jalan dan membuat rute."
+        "Snapping to road network & fetching 3D satellite elevation...",
+        "Menyesuaikan jalur jalan raya & mengambil data elevasi 3D satelit..."
       );
+
+      const segPts = await this.routeBetweenPoints(prevWp, newWp);
+      this.segmentsCoords.push(segPts);
+      this.refreshMarkersAndPolyline();
+      await this.rebuildAndPreviewTrack();
+    } catch (err) {
+      console.warn("Error adding waypoint:", err);
+      this.setStatus(
+        "Could not route via network, falling back to direct line.",
+        "Gagal menyesuaikan jalan via server, menggunakan garis langsung."
+      );
+    } finally {
       this.isRoutingBusy = false;
-      return;
+      if (mapBox) mapBox.classList.remove("routing-busy");
     }
-
-    const prevWp = this.waypoints[this.waypoints.length - 2];
-    this.setStatus(
-      "Snapping to road network & fetching 3D satellite elevation...",
-      "Menyesuaikan jalur jalan raya & mengambil data elevasi 3D satelit..."
-    );
-
-    const segPts = await this.routeBetweenPoints(prevWp, newWp);
-    this.segmentsCoords.push(segPts);
-    this.refreshMarkersAndPolyline();
-    await this.rebuildAndPreviewTrack();
-    this.isRoutingBusy = false;
   },
 
   updateTelemetryDisplay(track) {
@@ -4825,6 +4885,8 @@ RouteBuilderEngine.routeBetweenPoints = async function (p1, p2) {
   if (this.routingMode === "DRIVE_NO_TOLL") {
     // 1. Primary: OpenStreetMap Valhalla Drive Non-Toll (motor_scooter costing strictly forbids motorways & toll roads while using normal driving roads)
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3200);
       const body = {
         locations: [
           { lat: p1.lat, lon: p1.lon },
@@ -4844,8 +4906,10 @@ RouteBuilderEngine.routeBetweenPoints = async function (p1, p2) {
       const resp = await fetch("https://valhalla1.openstreetmap.de/route", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       if (resp.ok) {
         const data = await resp.json();
         if (data.trip && data.trip.legs && data.trip.legs[0] && data.trip.legs[0].shape) {
@@ -4861,8 +4925,11 @@ RouteBuilderEngine.routeBetweenPoints = async function (p1, p2) {
   if (this.routingMode === "DRIVE_NO_TOLL" || this.routingMode === "BIKE_ROAD") {
     // 2. Secondary Non-Toll Router: OpenStreetMap.de Routed-Bike (100% toll-free road & street network)
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3200);
       const url = `https://routing.openstreetmap.de/routed-bike/route/v1/driving/${p1.lon.toFixed(6)},${p1.lat.toFixed(6)};${p2.lon.toFixed(6)},${p2.lat.toFixed(6)}?overview=full&geometries=geojson`;
-      const resp = await fetch(url);
+      const resp = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
       if (resp.ok) {
         const data = await resp.json();
         if (data.routes && data.routes[0] && data.routes[0].geometry && data.routes[0].geometry.coordinates) {
@@ -4896,18 +4963,26 @@ RouteBuilderEngine.routeBetweenPoints = async function (p1, p2) {
 RouteBuilderEngine.rerouteAllWaypoints = async function () {
   if (this.waypoints.length < 2 || this.isRoutingBusy) return;
   this.isRoutingBusy = true;
-  this.setStatus(
-    "Re-calculating non-toll road route & 3D elevation...",
-    "Menghitung ulang jalur jalan raya bebas tol & elevasi 3D..."
-  );
-  this.segmentsCoords = [];
-  for (let i = 1; i < this.waypoints.length; i++) {
-    const seg = await this.routeBetweenPoints(this.waypoints[i - 1], this.waypoints[i]);
-    this.segmentsCoords.push(seg);
+  const mapBox = document.getElementById("interactiveMapBox");
+  if (mapBox) mapBox.classList.add("routing-busy");
+  try {
+    this.setStatus(
+      "Re-calculating non-toll road route & 3D elevation...",
+      "Menghitung ulang jalur jalan raya bebas tol & elevasi 3D..."
+    );
+    this.segmentsCoords = [];
+    for (let i = 1; i < this.waypoints.length; i++) {
+      const seg = await this.routeBetweenPoints(this.waypoints[i - 1], this.waypoints[i]);
+      this.segmentsCoords.push(seg);
+    }
+    this.refreshMarkersAndPolyline();
+    await this.rebuildAndPreviewTrack();
+  } catch (err) {
+    console.warn("Error rerouting waypoints:", err);
+  } finally {
+    this.isRoutingBusy = false;
+    if (mapBox) mapBox.classList.remove("routing-busy");
   }
-  this.refreshMarkersAndPolyline();
-  await this.rebuildAndPreviewTrack();
-  this.isRoutingBusy = false;
 };
 
 /* Interactive Leaflet Map Renderer for Tab 1 (Overview) & Tab 3 (Synchronized Telemetry) */
