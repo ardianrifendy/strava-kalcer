@@ -861,7 +861,81 @@ const RouteProcessor = {
     }
 
     return this.process({
-      trackName: "Dago Pakar - Maribaya KOM Loop",
+      trackName: "Dago Pakar Scenic Climb & Descent Loop",
+      points,
+      segmentCount: 1
+    });
+  },
+
+  generateSampleGbkRoute() {
+    const baseLat = -6.2185;
+    const baseLon = 106.8020;
+    const numPoints = 180;
+    const points = [];
+    const radius = 0.0072;
+    for (let i = 0; i < numPoints; i++) {
+      const angle = (i / (numPoints - 1)) * Math.PI * 2;
+      const lat = baseLat + Math.sin(angle) * (radius * 0.92);
+      const lon = baseLon + Math.cos(angle) * radius;
+      const ele = 16.0 + Math.sin(angle * 2) * 2.2;
+      points.push({ latitude: lat, longitude: lon, elevation: ele, segmentIndex: 0 });
+    }
+    return this.process({
+      trackName: "Lingkar Gelora Bung Karno (GBK Senayan)",
+      points,
+      segmentCount: 1
+    });
+  },
+
+  generateSampleSudirmanRoute() {
+    const startLat = -6.2250;
+    const startLon = 106.8100;
+    const endLat = -6.1950;
+    const endLon = 106.8230;
+    const numPoints = 220;
+    const points = [];
+    const half = Math.floor(numPoints / 2);
+    for (let i = 0; i < half; i++) {
+      const t = i / half;
+      points.push({
+        latitude: startLat + (endLat - startLat) * t,
+        longitude: startLon + (endLon - startLon) * t,
+        elevation: 14.0 + t * 4.0,
+        segmentIndex: 0
+      });
+    }
+    for (let i = 0; i < half; i++) {
+      const t = i / half;
+      points.push({
+        latitude: endLat - (endLat - startLat) * t,
+        longitude: endLon - (endLon - startLon) * t,
+        elevation: 18.0 - t * 4.0,
+        segmentIndex: 0
+      });
+    }
+    return this.process({
+      trackName: "Car Free Day Sudirman - Thamrin Boulevard",
+      points,
+      segmentCount: 1
+    });
+  },
+
+  generateSamplePikRoute() {
+    const baseLat = -6.0845;
+    const baseLon = 106.7420;
+    const numPoints = 320;
+    const points = [];
+    const rX = 0.024;
+    const rY = 0.016;
+    for (let i = 0; i < numPoints; i++) {
+      const angle = (i / (numPoints - 1)) * Math.PI * 2;
+      const lat = baseLat + Math.sin(angle) * rY;
+      const lon = baseLon + Math.cos(angle) * rX;
+      const ele = 4.0 + Math.sin(angle * 3) * 1.5;
+      points.push({ latitude: lat, longitude: lon, elevation: ele, segmentIndex: 0 });
+    }
+    return this.process({
+      trackName: "Kawasan Rekreasi PIK 2 Coastal Loop",
       points,
       segmentCount: 1
     });
@@ -967,7 +1041,21 @@ const RouteIntelligenceEngine = {
    6. PHYSICS & PHYSIOLOGY SIMULATION ENGINE
    ---------------------------------------------------------------------------- */
 const SimulationEngine = {
-  generateStopsForPreset(preset, totalDistanceMeters) {
+  generateStopsForPreset(preset, totalDistanceMeters, settings) {
+    if (settings && settings.manualStopsEnabled && settings.manualStopsCount > 0 && totalDistanceMeters >= 500) {
+      const count = Math.min(10, Math.max(1, settings.manualStopsCount));
+      const duration = Math.max(15, settings.manualStopDurationSec || 90);
+      const stops = [];
+      for (let i = 1; i <= count; i++) {
+        const d = (i / (count + 1)) * totalDistanceMeters;
+        stops.push({
+          distanceMeters: d,
+          durationSeconds: duration,
+          reason: `Jeda Istirahat ${i}`
+        });
+      }
+      return stops;
+    }
     if (preset === "NONE" || totalDistanceMeters < 1500) return [];
     const stops = [];
     if (preset === "LIGHT_TRAFFIC") {
@@ -1146,7 +1234,7 @@ const SimulationEngine = {
     }
 
     // Map Smart Stops to point indices
-    const stops = this.generateStopsForPreset(settings.smartStopPreset, track.totalDistanceMeters);
+    const stops = this.generateStopsForPreset(settings.smartStopPreset, track.totalDistanceMeters, settings);
     const stopMap = new Map();
     stops.forEach((st) => {
       let bestIdx = 1;
@@ -2191,6 +2279,8 @@ function applyLanguageAndTheme() {
   renderSimulationPreview();
   renderDeviceAndFitExport();
   renderDiagnosticsTab();
+  if (typeof updateTicketSummary === "function") updateTicketSummary();
+  if (typeof updateSelectedDeviceCard === "function") updateSelectedDeviceCard();
 }
 
 function switchTab(tabId) {
@@ -2356,6 +2446,8 @@ function executeFullSimulation() {
   renderSimulationPreview();
   renderDeviceAndFitExport();
   renderDiagnosticsTab();
+  if (typeof updateTicketSummary === "function") updateTicketSummary();
+  if (typeof updateSelectedDeviceCard === "function") updateSelectedDeviceCard();
 }
 
 function renderSimulationPreview() {
@@ -2714,317 +2806,660 @@ function bindChartScrubbing(canvasId) {
   canvas.addEventListener("touchmove", (e) => { if (e.touches[0]) handlePointer(e.touches[0].clientX); }, { passive: true });
 }
 
+/* ============================================================================
+   APPLE GLASSMORPH LIGHT — 5-PAGE BOOK WIZARD & RULER CONTROLLERS
+   ============================================================================ */
+const BookFlow = {
+  currentPage: 1,
+  totalPages: 5,
+  pageTitles: [
+    { label: "Tahap 1 dari 5", desc: "Pengenalan" },
+    { label: "Tahap 2 dari 4", desc: "Penentuan Rute" },
+    { label: "Tahap 3 dari 4", desc: "Olahraga & Target" },
+    { label: "Tahap 4 dari 4", desc: "Identitas Perangkat" },
+    { label: "Selesai", desc: "Ringkasan & Ekspor" }
+  ],
+
+  goToPage(pageNum) {
+    if (pageNum < 1 || pageNum > this.totalPages) return;
+    this.currentPage = pageNum;
+
+    for (let i = 1; i <= this.totalPages; i++) {
+      const pageEl = document.getElementById(`book-page-${i}`);
+      if (pageEl) {
+        pageEl.classList.toggle("active", i === pageNum);
+      }
+    }
+
+    const info = this.pageTitles[pageNum - 1];
+    const lblEl = document.getElementById("headerStepLabel");
+    const descEl = document.getElementById("headerStepDesc");
+    const fillEl = document.getElementById("headerProgressFill");
+    if (lblEl) lblEl.textContent = info.label;
+    if (descEl) descEl.textContent = info.desc;
+    if (fillEl) fillEl.style.width = `${(pageNum / this.totalPages) * 100}%`;
+
+    const backBtn = document.getElementById("bottomBackBtn");
+    const fwdText = document.getElementById("bottomForwardText");
+    if (backBtn) {
+      backBtn.style.display = pageNum === 1 ? "none" : "inline-flex";
+    }
+    if (fwdText) {
+      if (pageNum === 1) fwdText.textContent = "Mulai Pembuatan Aktivitas";
+      else if (pageNum === this.totalPages) fwdText.textContent = "Unduh Berkas .FIT";
+      else fwdText.textContent = "Lanjutkan";
+    }
+
+    if (pageNum === 4) {
+      populateDeviceDropdowns();
+    }
+    if (pageNum === 5) {
+      executeFullSimulation();
+      updateTicketSummary();
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  },
+
+  nextPage() {
+    if (this.currentPage === this.totalPages) {
+      downloadSelectedExportFile();
+    } else {
+      this.goToPage(this.currentPage + 1);
+    }
+  },
+
+  prevPage() {
+    this.goToPage(this.currentPage - 1);
+  }
+};
+
+/* ============================================================================
+   HORIZONTAL RULER PICKER (PACE & SPEED)
+   ============================================================================ */
+const HorizontalRuler = {
+  trackEl: null,
+  containerEl: null,
+  valueTextEl: null,
+  unitTextEl: null,
+  currentMode: "RUNNING",
+
+  init() {
+    this.trackEl = document.getElementById("rulerTrack");
+    this.containerEl = document.getElementById("rulerScrollContainer");
+    this.valueTextEl = document.getElementById("rulerValueText");
+    this.unitTextEl = document.getElementById("rulerUnitText");
+
+    if (!this.trackEl || !this.containerEl) return;
+
+    this.renderRuler(AppState.settings.sport);
+
+    this.containerEl.addEventListener("scroll", () => {
+      this.handleScroll();
+    }, { passive: true });
+
+    const btnMinus = document.getElementById("rulerBtnMinus");
+    const btnPlus = document.getElementById("rulerBtnPlus");
+    if (btnMinus) {
+      btnMinus.addEventListener("click", () => this.stepBy(-1));
+    }
+    if (btnPlus) {
+      btnPlus.addEventListener("click", () => this.stepBy(1));
+    }
+  },
+
+  renderRuler(sport) {
+    this.currentMode = sport;
+    const titleEl = document.getElementById("rulerTargetTitle");
+    const badgeEl = document.getElementById("rulerTargetBadge");
+
+    if (sport === "RUNNING") {
+      if (titleEl) titleEl.textContent = "Target Kecepatan Langkah (Pace)";
+      if (badgeEl) badgeEl.textContent = "LARI";
+      if (this.unitTextEl) this.unitTextEl.textContent = "menit / km";
+      this.buildPaceRuler();
+    } else {
+      if (titleEl) titleEl.textContent = "Target Kecepatan Rata-rata";
+      if (badgeEl) badgeEl.textContent = "SEPEDA";
+      if (this.unitTextEl) this.unitTextEl.textContent = "km / jam";
+      this.buildSpeedRuler();
+    }
+  },
+
+  buildPaceRuler() {
+    const stepWidth = 14;
+    let html = '';
+    const centerPad = Math.max(140, Math.floor(window.innerWidth / 2));
+    this.trackEl.style.paddingLeft = `${centerPad}px`;
+    this.trackEl.style.paddingRight = `${centerPad}px`;
+
+    for (let sec = 180; sec <= 900; sec += 5) {
+      const isMajor = sec % 60 === 0;
+      const isMedium = sec % 30 === 0 && !isMajor;
+      const cls = isMajor ? "major" : (isMedium ? "medium" : "minor");
+      const mins = Math.floor(sec / 60);
+      const secs = sec % 60;
+      const label = isMajor ? `${mins}:${secs.toString().padStart(2, "0")}` : '';
+      html += `<div class="ruler-tick ${cls}" style="width:${stepWidth}px;" data-val="${sec}">
+        <div class="ruler-tick-line"></div>
+        ${label ? `<div class="ruler-tick-num">${label}</div>` : ''}
+      </div>`;
+    }
+    this.trackEl.innerHTML = html;
+
+    const targetSec = AppState.settings.targetAvgPaceSecPerKm || 330;
+    this.scrollToValue(targetSec, 180, 5, stepWidth);
+    this.updatePaceText(targetSec);
+  },
+
+  buildSpeedRuler() {
+    const stepWidth = 14;
+    let html = '';
+    const centerPad = Math.max(140, Math.floor(window.innerWidth / 2));
+    this.trackEl.style.paddingLeft = `${centerPad}px`;
+    this.trackEl.style.paddingRight = `${centerPad}px`;
+
+    for (let spd = 50; spd <= 800; spd += 5) {
+      const actual = spd / 10.0;
+      const isMajor = actual % 10 === 0;
+      const isMedium = actual % 5 === 0 && !isMajor;
+      const cls = isMajor ? "major" : (isMedium ? "medium" : "minor");
+      const label = isMajor ? `${actual}` : '';
+      html += `<div class="ruler-tick ${cls}" style="width:${stepWidth}px;" data-val="${actual}">
+        <div class="ruler-tick-line"></div>
+        ${label ? `<div class="ruler-tick-num">${label}</div>` : ''}
+      </div>`;
+    }
+    this.trackEl.innerHTML = html;
+
+    const targetSpd = AppState.settings.targetAvgSpeedKmh || 28.0;
+    this.scrollToValue(targetSpd, 5.0, 0.5, stepWidth);
+    this.updateSpeedText(targetSpd);
+  },
+
+  scrollToValue(val, minVal, stepVal, stepWidth) {
+    const steps = (val - minVal) / stepVal;
+    const scrollPos = steps * stepWidth;
+    setTimeout(() => {
+      if (this.containerEl) {
+        this.containerEl.scrollLeft = scrollPos;
+      }
+    }, 50);
+  },
+
+  handleScroll() {
+    if (!this.containerEl) return;
+    const scrollLeft = this.containerEl.scrollLeft;
+    const stepWidth = 14;
+
+    if (this.currentMode === "RUNNING") {
+      const steps = Math.round(scrollLeft / stepWidth);
+      const sec = Math.max(180, Math.min(900, 180 + steps * 5));
+      this.updatePaceText(sec);
+      AppState.settings.targetAvgPaceSecPerKm = sec;
+      const paceSlider = document.getElementById("targetAvgPaceSlider");
+      if (paceSlider) paceSlider.value = sec;
+    } else {
+      const steps = Math.round(scrollLeft / stepWidth);
+      const spd = Math.max(5.0, Math.min(80.0, 5.0 + steps * 0.5));
+      this.updateSpeedText(spd);
+      AppState.settings.targetAvgSpeedKmh = spd;
+      const speedSlider = document.getElementById("targetAvgSpeedSlider");
+      if (speedSlider) speedSlider.value = spd;
+    }
+    executeFullSimulation();
+    updateTicketSummary();
+  },
+
+  stepBy(dir) {
+    if (!this.containerEl) return;
+    const stepWidth = 14;
+    this.containerEl.scrollBy({ left: dir * stepWidth * 2, behavior: "smooth" });
+  },
+
+  updatePaceText(sec) {
+    if (this.valueTextEl) {
+      const mins = Math.floor(sec / 60);
+      const secs = sec % 60;
+      this.valueTextEl.textContent = `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+  },
+
+  updateSpeedText(spd) {
+    if (this.valueTextEl) {
+      this.valueTextEl.textContent = spd.toFixed(1);
+    }
+  }
+};
+
+/* ============================================================================
+   DEVICE DROPDOWNS & SUMMARY CONTROLLERS
+   ============================================================================ */
+function populateDeviceDropdowns() {
+  const brandSelect = document.getElementById("deviceBrandDropdown");
+  const modelSelect = document.getElementById("deviceModelDropdown");
+  if (!modelSelect) return;
+
+  const selectedBrand = brandSelect ? brandSelect.value : "ALL";
+  const isCycling = AppState.settings.sport === "CYCLING";
+  const requiredType = isCycling ? "CYCLOCOMP" : "SPORTWATCH";
+
+  const filtered = DEVICE_PROFILES.filter((d) => {
+    const matchType = d.deviceType === requiredType;
+    const matchBrand = selectedBrand === "ALL" || d.manufacturer.toLowerCase().includes(selectedBrand.toLowerCase());
+    return matchType && matchBrand;
+  });
+
+  const list = filtered.length > 0 ? filtered : DEVICE_PROFILES.filter((d) => d.deviceType === requiredType);
+
+  modelSelect.innerHTML = list.map((d) => {
+    const isSelected = d.id === AppState.selectedDeviceId;
+    return `<option value="${d.id}" ${isSelected ? "selected" : ""}>${d.manufacturer} — ${d.modelName}</option>`;
+  }).join("");
+
+  if (list.length > 0 && !list.some((d) => d.id === AppState.selectedDeviceId)) {
+    AppState.selectedDeviceId = list[0].id;
+    modelSelect.value = list[0].id;
+  }
+
+  updateSelectedDeviceCard();
+}
+
+function updateSelectedDeviceCard() {
+  const dev = DEVICE_PROFILES.find((d) => d.id === AppState.selectedDeviceId) || DEVICE_PROFILES[0];
+  if (!dev) return;
+
+  const titleEl = document.getElementById("selectedDeviceTitle");
+  const stravaEl = document.getElementById("selectedDeviceStravaName");
+  const idsEl = document.getElementById("selectedDeviceIdsBadge");
+  const badgeEl = document.getElementById("selectedDeviceTypeBadge");
+  const ticketDev = document.getElementById("ticketDeviceName");
+
+  const name = dev.fitProductName || `${dev.manufacturer} ${dev.modelName}`;
+  if (titleEl) titleEl.textContent = name;
+  if (stravaEl) stravaEl.textContent = name;
+  if (ticketDev) ticketDev.textContent = name;
+  if (idsEl) idsEl.textContent = `Manufacturer ID: ${dev.fitMfrId} • Product ID: ${dev.fitProdId}`;
+  if (badgeEl) {
+    badgeEl.textContent = dev.deviceType === "CYCLOCOMP" ? "CYCLOCOMP • SEPEDA" : "SPORTWATCH • LARI";
+  }
+}
+
+function updateManualStopsState() {
+  const toggle = document.getElementById("toggleManualStops");
+  const panel = document.getElementById("panelManualStops");
+  const countSelect = document.getElementById("stopsCountDropdown");
+  const durSelect = document.getElementById("stopDurationDropdown");
+  const noteEl = document.getElementById("stopsImpactNote");
+
+  const isEnabled = toggle ? toggle.checked : true;
+  if (panel) panel.style.display = isEnabled ? "block" : "none";
+
+  const count = parseInt(countSelect ? countSelect.value : "2", 10);
+  const dur = parseInt(durSelect ? durSelect.value : "90", 10);
+
+  AppState.settings.manualStopsEnabled = isEnabled;
+  AppState.settings.manualStopsCount = isEnabled ? count : 0;
+  AppState.settings.manualStopDurationSec = dur;
+
+  if (noteEl) {
+    if (isEnabled && count > 0) {
+      const totalSec = count * dur;
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      const durStr = s > 0 ? `${m} Menit ${s} Detik` : `${m} Menit`;
+      noteEl.innerHTML = `Total Jeda: <strong>${durStr}</strong> (${count} kali @ ${dur} detik) • Kecepatan, daya &amp; kadens menjadi 0 selama jeda.`;
+    } else {
+      noteEl.innerHTML = `Tanpa Jeda: Aktivitas berlangsung tanpa henti (non-stop).`;
+    }
+  }
+
+  executeFullSimulation();
+  updateTicketSummary();
+}
+
+function updateTicketSummary() {
+  const res = AppState.simulationResult;
+  const track = AppState.currentTrack;
+  if (!res || !track) return;
+
+  const isCycling = res.settings.sport === "CYCLING";
+  const ticketTitle = document.getElementById("ticketTrackTitle");
+  const ticketSport = document.getElementById("ticketSportBadge");
+  const ticketGain = document.getElementById("ticketGainVal");
+  const ticketDateTime = document.getElementById("ticketDateTimeDisplay");
+
+  if (ticketTitle) ticketTitle.textContent = track.name;
+  if (ticketSport) ticketSport.textContent = isCycling ? "BERSEPEDA • CYCLING" : "LARI • RUNNING";
+  if (ticketGain) ticketGain.textContent = Math.round(track.elevationGainMeters).toString();
+
+  const d = new Date(AppState.settings.startEpochMillis);
+  const dateStr = d.toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" });
+  const timeStr = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")} WIB`;
+  if (ticketDateTime) ticketDateTime.textContent = `${dateStr}, ${timeStr}`;
+
+  const distEl = document.getElementById("simDistVal");
+  const moveEl = document.getElementById("simMovingTimeVal");
+  const elapEl = document.getElementById("simElapsedSub");
+  const priVal = document.getElementById("simAvgPrimaryVal");
+  const priUnit = document.getElementById("simAvgPrimaryUnit");
+  const priLbl = document.getElementById("simAvgPrimaryLabel");
+  const hrEl = document.getElementById("simHrVal");
+  const calEl = document.getElementById("simCaloriesVal");
+
+  if (distEl) distEl.textContent = (res.totalDistanceMeters / 1000.0).toFixed(2);
+  if (moveEl) moveEl.textContent = formatDuration(res.movingTimeSeconds);
+  if (elapEl) elapEl.textContent = res.totalTimeSeconds > res.movingTimeSeconds ? `Total ${formatDuration(res.totalTimeSeconds)}` : `Total ${formatDuration(res.movingTimeSeconds)}`;
+  if (priLbl) priLbl.textContent = isCycling ? "Avg Speed" : "Avg Pace";
+  if (priVal) priVal.textContent = isCycling ? res.averageMovingSpeedKmh.toFixed(1) : res.averageMovingPaceFormatted;
+  if (priUnit) priUnit.textContent = isCycling ? "km/jam" : "/km";
+  if (hrEl) hrEl.textContent = res.averageHeartRate ? `${res.averageHeartRate}` : "152";
+  if (calEl) calEl.textContent = `${res.totalCalories}`;
+
+  updateSelectedDeviceCard();
+}
+
+function downloadSelectedExportFile() {
+  const formatSelect = document.getElementById("exportFormatDropdown");
+  const format = formatSelect ? formatSelect.value : "FIT";
+  if (format === "GPX") {
+    const track = AppState.currentTrack;
+    if (!track || !track.points) return;
+    const gpxStr = RouteBuilderEngine.exportBuiltTrackToGpxXml ? RouteBuilderEngine.exportBuiltTrackToGpxXml(track) : "";
+    if (!gpxStr) {
+      downloadCurrentFitFile();
+      return;
+    }
+    const blob = new Blob([gpxStr], { type: "application/gpx+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(track.name || "StravaKalcer").replace(/[^a-zA-Z0-9_-]+/g, "_")}.gpx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } else {
+    downloadCurrentFitFile();
+  }
+}
+
 function initApp() {
   // Initialize default date & time inputs
   const startDt = new Date(AppState.settings.startEpochMillis);
   const yyyy = startDt.getFullYear();
   const mm = String(startDt.getMonth() + 1).padStart(2, "0");
   const dd = String(startDt.getDate()).padStart(2, "0");
-  document.getElementById("activityDateInput").value = `${yyyy}-${mm}-${dd}`;
-  document.getElementById("activityTimeInput").value =
-    `${String(startDt.getHours()).padStart(2, "0")}:${String(startDt.getMinutes()).padStart(2, "0")}`;
+  const dateInput = document.getElementById("activityDateInput");
+  const timeInput = document.getElementById("activityTimeInput");
+  if (dateInput) dateInput.value = `${yyyy}-${mm}-${dd}`;
+  if (timeInput) timeInput.value = `${String(startDt.getHours()).padStart(2, "0")}:${String(startDt.getMinutes()).padStart(2, "0")}`;
 
-  // Navigation Tabs
-  document.querySelectorAll(".nav-tab-btn, .mobile-nav-btn").forEach((btn) => {
-    btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
-  });
+  // 1. Book Wizard Navigation
+  const startBtn = document.getElementById("startWizardBtn");
+  if (startBtn) startBtn.addEventListener("click", () => BookFlow.goToPage(2));
 
-  document.getElementById("brandHomeBtn").addEventListener("click", () => switchTab("tab-route"));
-  document.getElementById("goToConfigBtn").addEventListener("click", () => switchTab("tab-config"));
-  document.getElementById("runSimulationBtn").addEventListener("click", () => {
-    executeFullSimulation();
-    switchTab("tab-preview");
-  });
-  document.getElementById("backToTweakBtn").addEventListener("click", () => switchTab("tab-config"));
-  document.getElementById("proceedToExportBtn").addEventListener("click", () => switchTab("tab-export"));
+  const bottomBackBtn = document.getElementById("bottomBackBtn");
+  if (bottomBackBtn) bottomBackBtn.addEventListener("click", () => BookFlow.prevPage());
 
-  // Language & Theme Toggles
-  document.getElementById("langEnBtn").addEventListener("click", () => {
-    AppState.lang = "en";
-    localStorage.setItem("sk_lang", "en");
-    applyLanguageAndTheme();
-  });
-  document.getElementById("langIdBtn").addEventListener("click", () => {
-    AppState.lang = "id";
-    localStorage.setItem("sk_lang", "id");
-    applyLanguageAndTheme();
-  });
-  document.getElementById("themeToggleBtn").addEventListener("click", () => {
-    AppState.theme = AppState.theme === "light" ? "dark" : "light";
-    localStorage.setItem("sk_theme", AppState.theme);
-    applyLanguageAndTheme();
-  });
+  const bottomForwardBtn = document.getElementById("bottomForwardBtn");
+  if (bottomForwardBtn) bottomForwardBtn.addEventListener("click", () => BookFlow.nextPage());
 
-  // Onboarding Banner & Guide Modal
-  document.getElementById("toggleBannerBtn").addEventListener("click", () => {
-    AppState.guideHidden = !AppState.guideHidden;
-    localStorage.setItem("sk_guide_hidden", String(AppState.guideHidden));
-    applyLanguageAndTheme();
-  });
-  document.getElementById("openGuideModalBtn").addEventListener("click", () => {
-    document.getElementById("guideModal").classList.add("open");
-  });
-  document.getElementById("closeGuideModalBtn").addEventListener("click", () => {
-    document.getElementById("guideModal").classList.remove("open");
-  });
-  document.getElementById("guideModal").addEventListener("click", (e) => {
-    if (e.target.id === "guideModal") document.getElementById("guideModal").classList.remove("open");
-  });
+  const restartBtn = document.getElementById("restartWizardBtn");
+  if (restartBtn) restartBtn.addEventListener("click", () => BookFlow.goToPage(1));
 
-  // GPX Import & Sample Route & Reverse Route
-  const fileInput = document.getElementById("gpxFileInput");
-  const dropzone = document.getElementById("gpxDropzone");
-  document.getElementById("browseGpxBtn").addEventListener("click", (e) => {
-    e.stopPropagation();
-    fileInput.click();
-  });
-  dropzone.addEventListener("click", () => fileInput.click());
-  dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
-  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
-  dropzone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("dragover");
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      loadGpxFile(e.dataTransfer.files[0]);
-    }
-  });
-  fileInput.addEventListener("change", () => {
-    if (fileInput.files && fileInput.files[0]) loadGpxFile(fileInput.files[0]);
-  });
+  const brandHome = document.getElementById("brandHomeBtn");
+  if (brandHome) brandHome.addEventListener("click", () => BookFlow.goToPage(1));
 
-  document.getElementById("loadSampleRouteBtn").addEventListener("click", (e) => {
-    e.stopPropagation();
-    const sample = RouteProcessor.generateSampleDagoPakarRoute();
-    setLoadedTrack(sample);
-  });
-
-  document.getElementById("reverseRouteBtn").addEventListener("click", () => {
-    if (!AppState.currentTrack) return;
-    const rev = RouteProcessor.reverseTrack(AppState.currentTrack);
-    setLoadedTrack(rev);
-  });
-
-  // Sport & Solver Controls (Strictly syncs CYCLOCOMP for Cycling vs SPORTWATCH for Running!)
-  document.getElementById("sportCyclingBtn").addEventListener("click", () => {
-    AppState.settings.sport = "CYCLING";
-    AppState.settings.profileId = "ENDURANCE_RIDE";
-    AppState.settings.cadenceConfig.targetCadence = 86;
-    document.getElementById("targetCadenceSlider").value = 86;
-
-    // Auto-switch Device Filter to CYCLOCOMP (For Cycling)
-    AppState.deviceTypeFilter = "CYCLOCOMP";
-    AppState.deviceBrandFilter = "ALL";
-    const curDev = DEVICE_PROFILES.find((d) => d.id === AppState.selectedDeviceId);
-    if (!curDev || curDev.deviceType !== "CYCLOCOMP") {
-      AppState.selectedDeviceId = "garmin_edge_1040"; // Default Cycling Bike Computer
-    }
-
-    updateAutoActivityTitle();
-    renderProfileSelector();
-    executeFullSimulation();
-  });
-
-  document.getElementById("sportRunningBtn").addEventListener("click", () => {
-    AppState.settings.sport = "RUNNING";
-    AppState.settings.profileId = "STEADY_RUN";
-    AppState.settings.cadenceConfig.targetCadence = 172;
-    document.getElementById("targetCadenceSlider").value = 172;
-
-    // Auto-switch Device Filter to SPORTWATCH (For Running) & ensure no Bike Computer is used for Running!
-    AppState.deviceTypeFilter = "SPORTWATCH";
-    AppState.deviceBrandFilter = "ALL";
-    const curDev = DEVICE_PROFILES.find((d) => d.id === AppState.selectedDeviceId);
-    if (!curDev || curDev.deviceType === "CYCLOCOMP") {
-      AppState.selectedDeviceId = "coros_pace_3"; // Default Running Sportwatch (COROS PACE 3, prodId = 804)
-    }
-
-    updateAutoActivityTitle();
-    renderProfileSelector();
-    executeFullSimulation();
-  });
-
-  const changeDevQuickBtn = document.getElementById("configChangeDeviceBtn");
-  if (changeDevQuickBtn) {
-    changeDevQuickBtn.addEventListener("click", () => switchTab("tab-export"));
+  // 2. Language & Theme Toggles
+  const langSwitch = document.getElementById("langSwitchBtn");
+  if (langSwitch) {
+    langSwitch.addEventListener("click", () => {
+      AppState.lang = AppState.lang === "id" ? "en" : "id";
+      localStorage.setItem("sk_lang", AppState.lang);
+      const textEl = document.getElementById("langCurrentText");
+      if (textEl) textEl.textContent = AppState.lang.toUpperCase();
+      applyLanguageAndTheme();
+    });
   }
 
-  document.getElementById("targetAvgSpeedSlider").addEventListener("input", (e) => {
-    const val = parseFloat(e.target.value);
-    AppState.settings.targetAvgSpeedKmh = val;
-    document.getElementById("targetAvgSpeedLabel").textContent = `${val.toFixed(1)} km/h`;
-    executeFullSimulation();
-  });
-  document.getElementById("enableMaxSpeedCheck").addEventListener("change", (e) => {
-    AppState.settings.enableMaxSpeed = e.target.checked;
-    executeFullSimulation();
-  });
-  document.getElementById("desiredMaxSpeedSlider").addEventListener("input", (e) => {
-    const val = parseFloat(e.target.value);
-    AppState.settings.desiredMaxSpeedKmh = val;
-    document.getElementById("desiredMaxSpeedLabel").textContent = `${val.toFixed(1)} km/h`;
-    executeFullSimulation();
-  });
+  const themeToggle = document.getElementById("themeToggleBtn");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      AppState.theme = AppState.theme === "light" ? "dark" : "light";
+      localStorage.setItem("sk_theme", AppState.theme);
+      applyLanguageAndTheme();
+    });
+  }
 
-  document.getElementById("targetAvgPaceSlider").addEventListener("input", (e) => {
-    const val = parseInt(e.target.value, 10);
-    AppState.settings.targetAvgPaceSecPerKm = val;
-    document.getElementById("targetAvgPaceLabel").textContent = `${formatPace(val)} /km`;
-    executeFullSimulation();
-  });
-  document.getElementById("enableBestPaceCheck").addEventListener("change", (e) => {
-    AppState.settings.enableBestPace = e.target.checked;
-    executeFullSimulation();
-  });
-  document.getElementById("desiredBestPaceSlider").addEventListener("input", (e) => {
-    const val = parseInt(e.target.value, 10);
-    AppState.settings.desiredBestPaceSec = val;
-    document.getElementById("desiredBestPaceLabel").textContent = `${formatPace(val)} /km`;
-    executeFullSimulation();
-  });
+  // 3. Route Selection Dropdown & Panels
+  const routeSourceDropdown = document.getElementById("routeSourceDropdown");
+  if (routeSourceDropdown) {
+    routeSourceDropdown.addEventListener("change", (e) => {
+      const mode = e.target.value;
+      const panelPreset = document.getElementById("panelSourcePreset");
+      const panelImport = document.getElementById("panelSourceImport");
+      const panelMap = document.getElementById("panelSourceMap");
+      if (panelPreset) panelPreset.style.display = mode === "PRESET" ? "block" : "none";
+      if (panelImport) panelImport.style.display = mode === "IMPORT" ? "block" : "none";
+      if (panelMap) panelMap.style.display = mode === "MAP" ? "block" : "none";
+    });
+  }
 
-  // Schedule & Smart Stops
-  const updateEpochFromInputs = () => {
-    const dStr = document.getElementById("activityDateInput").value;
-    const tStr = document.getElementById("activityTimeInput").value;
+  const loadPresetBtn = document.getElementById("loadSelectedPresetBtn");
+  if (loadPresetBtn) {
+    loadPresetBtn.addEventListener("click", () => {
+      const presetSelect = document.getElementById("popularRouteDropdown");
+      const choice = presetSelect ? presetSelect.value : "DAGO";
+      let track;
+      if (choice === "GBK") track = RouteProcessor.generateSampleGbkRoute();
+      else if (choice === "SUDIRMAN") track = RouteProcessor.generateSampleSudirmanRoute();
+      else if (choice === "PIK") track = RouteProcessor.generateSamplePikRoute();
+      else track = RouteProcessor.generateSampleDagoPakarRoute();
+      setLoadedTrack(track);
+    });
+  }
+
+  // GPX Import Dropzone
+  const fileInput = document.getElementById("gpxFileInput");
+  const dropzone = document.getElementById("gpxDropzone");
+  const browseBtn = document.getElementById("browseGpxBtn");
+  if (browseBtn && fileInput) {
+    browseBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+  }
+  if (dropzone && fileInput) {
+    dropzone.addEventListener("click", () => fileInput.click());
+    dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
+    dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+    dropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("dragover");
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        loadGpxFile(e.dataTransfer.files[0]);
+      }
+    });
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files && fileInput.files[0]) loadGpxFile(fileInput.files[0]);
+    });
+  }
+
+  // Fullscreen Leaflet Map Modal
+  const openMapBtn = document.getElementById("openFullscreenMapBtn");
+  const closeMapBtn = document.getElementById("closeMapEditorBtn");
+  const mapModal = document.getElementById("mapEditorModal");
+  if (openMapBtn && mapModal) {
+    openMapBtn.addEventListener("click", () => {
+      mapModal.style.display = "flex";
+      setTimeout(() => {
+        RouteBuilderEngine.initMap();
+        if (RouteBuilderEngine.map) {
+          RouteBuilderEngine.map.invalidateSize();
+        }
+      }, 80);
+    });
+  }
+  if (closeMapBtn && mapModal) {
+    closeMapBtn.addEventListener("click", () => {
+      mapModal.style.display = "none";
+    });
+  }
+  const builderApply = document.getElementById("builderApplyToSimBtn");
+  if (builderApply) {
+    builderApply.addEventListener("click", async () => {
+      if (!RouteBuilderEngine.builtTrack && RouteBuilderEngine.waypoints.length >= 2) {
+        await RouteBuilderEngine.rebuildAndPreviewTrack();
+      }
+      const trackToUse = RouteBuilderEngine.builtTrack || AppState.currentTrack;
+      if (!trackToUse || !trackToUse.points || trackToUse.points.length < 2) {
+        alert("Silakan klik minimal 2 titik pada peta terlebih dahulu.");
+        return;
+      }
+      setLoadedTrack(trackToUse);
+      if (mapModal) mapModal.style.display = "none";
+    });
+  }
+
+  // 4. Sport Select Dropdown & Ruler Initialization
+  const sportDropdown = document.getElementById("sportSelectDropdown");
+  if (sportDropdown) {
+    sportDropdown.addEventListener("change", (e) => {
+      const sport = e.target.value;
+      AppState.settings.sport = sport;
+      if (sport === "CYCLING") {
+        AppState.settings.profileId = "ENDURANCE_RIDE";
+        AppState.deviceTypeFilter = "CYCLOCOMP";
+        const curDev = DEVICE_PROFILES.find((d) => d.id === AppState.selectedDeviceId);
+        if (!curDev || curDev.deviceType !== "CYCLOCOMP") {
+          AppState.selectedDeviceId = "garmin_edge_1040";
+        }
+      } else {
+        AppState.settings.profileId = "STEADY_RUN";
+        AppState.deviceTypeFilter = "SPORTWATCH";
+        const curDev = DEVICE_PROFILES.find((d) => d.id === AppState.selectedDeviceId);
+        if (!curDev || curDev.deviceType === "CYCLOCOMP") {
+          AppState.selectedDeviceId = "garmin_forerunner_265";
+        }
+      }
+      HorizontalRuler.renderRuler(sport);
+      populateDeviceDropdowns();
+      executeFullSimulation();
+      updateTicketSummary();
+    });
+  }
+
+  // Athlete Profile Dropdown
+  const profileDropdown = document.getElementById("athleteProfileDropdown");
+  if (profileDropdown) {
+    profileDropdown.addEventListener("change", (e) => {
+      AppState.settings.profileId = e.target.value;
+      executeFullSimulation();
+    });
+  }
+
+  // Date and Time inputs
+  const updateEpoch = () => {
+    const dStr = dateInput ? dateInput.value : "";
+    const tStr = timeInput ? timeInput.value : "";
     if (dStr && tStr) {
       const parsed = new Date(`${dStr}T${tStr}:00`);
       if (!Number.isNaN(parsed.getTime())) {
         AppState.settings.startEpochMillis = parsed.getTime();
-        updateAutoActivityTitle();
         executeFullSimulation();
+        updateTicketSummary();
       }
     }
   };
-  document.getElementById("activityDateInput").addEventListener("change", updateEpochFromInputs);
-  document.getElementById("activityTimeInput").addEventListener("change", updateEpochFromInputs);
-  document.getElementById("activityTitleInput").addEventListener("input", (e) => {
-    AppState.settings.activityTitle = e.target.value;
-  });
-  document.getElementById("smartStopPresetSelect").addEventListener("change", (e) => {
-    AppState.settings.smartStopPreset = e.target.value;
-    executeFullSimulation();
-  });
+  if (dateInput) dateInput.addEventListener("change", updateEpoch);
+  if (timeInput) timeInput.addEventListener("change", updateEpoch);
 
-  // Heart Rate, Cadence & Power Controls
-  document.getElementById("hrEnabledCheck").addEventListener("change", (e) => {
-    AppState.settings.hrConfig.enabled = e.target.checked;
-    executeFullSimulation();
-  });
-  document.getElementById("restingHrSlider").addEventListener("input", (e) => {
-    const v = parseInt(e.target.value, 10);
-    AppState.settings.hrConfig.restingHr = v;
-    document.getElementById("restingHrLabel").textContent = `${v} bpm`;
-    executeFullSimulation();
-  });
-  document.getElementById("avgHrSlider").addEventListener("input", (e) => {
-    const v = parseInt(e.target.value, 10);
-    AppState.settings.hrConfig.averageHr = v;
-    document.getElementById("avgHrLabel").textContent = `${v} bpm`;
-    executeFullSimulation();
-  });
-  document.getElementById("maxHrSlider").addEventListener("input", (e) => {
-    const v = parseInt(e.target.value, 10);
-    AppState.settings.hrConfig.maxHr = v;
-    document.getElementById("maxHrLabel").textContent = `${v} bpm`;
-    executeFullSimulation();
-  });
+  // 5. Manual Rest Stops (Frequency & Duration)
+  const toggleStops = document.getElementById("toggleManualStops");
+  const countSelect = document.getElementById("stopsCountDropdown");
+  const durSelect = document.getElementById("stopDurationDropdown");
+  if (toggleStops) toggleStops.addEventListener("change", updateManualStopsState);
+  if (countSelect) countSelect.addEventListener("change", updateManualStopsState);
+  if (durSelect) durSelect.addEventListener("change", updateManualStopsState);
 
-  document.getElementById("cadenceEnabledCheck").addEventListener("change", (e) => {
-    AppState.settings.cadenceConfig.enabled = e.target.checked;
-    executeFullSimulation();
-  });
-  document.getElementById("targetCadenceSlider").addEventListener("input", (e) => {
-    const v = parseInt(e.target.value, 10);
-    AppState.settings.cadenceConfig.targetCadence = v;
-    const unit = AppState.settings.sport === "CYCLING" ? "rpm" : "spm";
-    document.getElementById("targetCadenceValLabel").textContent = `${v} ${unit}`;
-    executeFullSimulation();
-  });
-  document.getElementById("coastingModeSelect").addEventListener("change", (e) => {
-    AppState.settings.cadenceConfig.coastingMode = e.target.value;
-    executeFullSimulation();
-  });
-  document.getElementById("climbingDropSlider").addEventListener("input", (e) => {
-    const v = parseInt(e.target.value, 10);
-    AppState.settings.cadenceConfig.climbingRpmDrop = v;
-    document.getElementById("climbingDropLabel").textContent = `-${v} rpm`;
-    executeFullSimulation();
-  });
-
-  document.getElementById("riderWeightSlider").addEventListener("input", (e) => {
-    const v = parseFloat(e.target.value);
-    AppState.settings.riderWeightKg = v;
-    document.getElementById("riderWeightLabel").textContent = `${v.toFixed(0)} kg`;
-    executeFullSimulation();
-  });
-  document.getElementById("bikeWeightSlider").addEventListener("input", (e) => {
-    const v = parseFloat(e.target.value);
-    AppState.settings.bikeWeightKg = v;
-    document.getElementById("bikeWeightLabel").textContent = `${v.toFixed(1)} kg`;
-    executeFullSimulation();
-  });
-
-  // Device Hardware Category Filter (CYCLOCOMP vs SPORTWATCH vs ALL) & Search Input
-  document.querySelectorAll("#deviceTypeFilterRow .device-type-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      AppState.deviceTypeFilter = btn.getAttribute("data-devtype");
-      AppState.deviceBrandFilter = "ALL";
-      renderDeviceAndFitExport();
+  // 6. Sensor Heart Rate & Cadence
+  const hrCheck = document.getElementById("hrEnabledCheck");
+  const hrZone = document.getElementById("hrZoneDropdown");
+  const hrPanel = document.getElementById("panelHeartRate");
+  if (hrCheck) {
+    hrCheck.addEventListener("change", (e) => {
+      AppState.settings.hrConfig.enabled = e.target.checked;
+      if (hrPanel) hrPanel.style.display = e.target.checked ? "block" : "none";
+      executeFullSimulation();
     });
-  });
-
-  const devSearchInput = document.getElementById("deviceSearchInput");
-  if (devSearchInput) {
-    devSearchInput.addEventListener("input", (e) => {
-      AppState.deviceSearchQuery = e.target.value;
-      renderDeviceAndFitExport();
+  }
+  if (hrZone) {
+    hrZone.addEventListener("change", (e) => {
+      const val = e.target.value;
+      if (val === "ZONE_2") AppState.settings.hrConfig.averageHr = 138;
+      else if (val === "ZONE_3") AppState.settings.hrConfig.averageHr = 152;
+      else if (val === "ZONE_4") AppState.settings.hrConfig.averageHr = 168;
+      executeFullSimulation();
     });
   }
 
-  const fixDevBtn = document.getElementById("btnFixDeviceForSport");
-  if (fixDevBtn) {
-    fixDevBtn.addEventListener("click", () => {
-      AppState.deviceTypeFilter = "SPORTWATCH";
-      AppState.deviceBrandFilter = "ALL";
-      AppState.selectedDeviceId = "coros_pace_3";
+  const cadCheck = document.getElementById("cadenceEnabledCheck");
+  const cadDropdown = document.getElementById("cadenceTargetDropdown");
+  const cadPanel = document.getElementById("panelCadence");
+  if (cadCheck) {
+    cadCheck.addEventListener("change", (e) => {
+      AppState.settings.cadenceConfig.enabled = e.target.checked;
+      if (cadPanel) cadPanel.style.display = e.target.checked ? "block" : "none";
+      executeFullSimulation();
+    });
+  }
+  if (cadDropdown) {
+    cadDropdown.addEventListener("change", (e) => {
+      const val = e.target.value;
+      if (val === "RUN_165") AppState.settings.cadenceConfig.targetCadence = 165;
+      else if (val === "RUN_172") AppState.settings.cadenceConfig.targetCadence = 172;
+      else if (val === "RUN_180") AppState.settings.cadenceConfig.targetCadence = 180;
+      else if (val === "BIKE_80") AppState.settings.cadenceConfig.targetCadence = 80;
+      else if (val === "BIKE_90") AppState.settings.cadenceConfig.targetCadence = 90;
+      executeFullSimulation();
+    });
+  }
+
+  // 7. Device Brand & Model Selection
+  const brandDropdown = document.getElementById("deviceBrandDropdown");
+  const modelDropdown = document.getElementById("deviceModelDropdown");
+  if (brandDropdown) {
+    brandDropdown.addEventListener("change", () => {
+      populateDeviceDropdowns();
+    });
+  }
+  if (modelDropdown) {
+    modelDropdown.addEventListener("change", (e) => {
+      AppState.selectedDeviceId = e.target.value;
+      updateSelectedDeviceCard();
       if (AppState.simulationResult) {
         const dev = DEVICE_PROFILES.find((x) => x.id === AppState.selectedDeviceId) || DEVICE_PROFILES[0];
         AppState.fitBytes = FitBinaryCodec.generateFitBytes(AppState.simulationResult, dev);
-        AppState.fitReport = FitBinaryCodec.validateFitBytes(AppState.fitBytes, AppState.simulationResult, dev);
       }
-      renderDeviceAndFitExport();
     });
   }
 
-  // Download .FIT & Export CSV
-  document.getElementById("downloadFitBtn").addEventListener("click", downloadCurrentFitFile);
-  document.getElementById("exportCsvBtn").addEventListener("click", downloadCurrentTelemetryCsv);
+  // 8. Download Button & Format
+  const downloadBtn = document.getElementById("downloadFitBtn");
+  if (downloadBtn) {
+    downloadBtn.addEventListener("click", downloadSelectedExportFile);
+  }
 
-  // Point Inspector Slider
-  document.getElementById("pointInspectorSlider").addEventListener("input", (e) => {
-    const idx = parseInt(e.target.value, 10);
-    AppState.cursorIndex = idx;
-    updatePointInspector(idx);
-  });
+  // Initialize Horizontal Ruler
+  HorizontalRuler.init();
+  updateManualStopsState();
+  populateDeviceDropdowns();
 
-  // Interactive Chart Scrubbing
-  [
-    "routeOverviewEleCanvas",
-    "simChartEle",
-    "simChartSpeed",
-    "simChartPower",
-    "simChartHr",
-    "simChartCadence"
-  ].forEach(bindChartScrubbing);
-
-  window.addEventListener("resize", () => {
-    renderRouteAndIntelligence();
-    renderSimulationPreview();
-  });
-
-  // Load built-in sample route on initial start so user immediately sees live data
+  // Load Initial Track
   const initialTrack = RouteProcessor.generateSampleDagoPakarRoute();
   setLoadedTrack(initialTrack);
+  updateTicketSummary();
   applyLanguageAndTheme();
 }
 
@@ -3069,9 +3504,10 @@ function setLoadedTrack(track) {
   AppState.currentTrack = track;
   AppState.intelligence = RouteIntelligenceEngine.analyze(track);
   AppState.cursorIndex = 0;
-  document.getElementById("routeStatusBadge").textContent = "LOADED";
+  document.getElementById("routeStatusBadge").textContent = "TERSEDIA";
   executeFullSimulation();
   renderRouteAndIntelligence();
+  if (typeof updateTicketSummary === "function") updateTicketSummary();
 }
 
 function downloadCurrentFitFile() {

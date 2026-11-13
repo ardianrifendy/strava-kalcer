@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Strava Kalcer — GPX Route Builder &amp; FIT Physics Reconstruction</title>
-  <meta name="description" content="Professional GPX-to-FIT Activity Reconstruction & Interactive Map GPX Route Builder with Native Strava Light/Dark UI, 34 GPS Device Profiles, and Binary Garmin FIT Protocol 2.0 Encoder." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Strava Kalcer — Rekonstruksi Rute &amp; Telemetri Garmin FIT</title>
+  <meta name="description" content="Platform rekonstruksi rute jalan raya non-tol dan simulator telemetri resmi Garmin FIT Protocol 2.0 untuk Strava." />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="styles.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -12,1269 +12,786 @@
 <body>
 
   <!-- ========================================================================
-       STICKY TOP NAVIGATION BAR (DESKTOP & MOBILE)
+       TOP GLASS NAVIGATION BAR (STICKY / FROSTED GLASS)
        ======================================================================== -->
-  <header class="top-navbar">
-    <div class="brand-wrap" id="brandHomeBtn" title="Strava Kalcer">
-      <div class="strava-mirror-logo" aria-hidden="true">
-        <!-- Original Strava Twin-Peak Chevron Vector (Mirrored via CSS scale(-1, -1)) -->
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10.328 2L3.5 15.273H7.636L10.328 9.873L13.019 15.273H17.155L10.328 2Z" fill="#FFFFFF"/>
-          <path d="M15.864 15.273L13.841 19.318L11.818 15.273H8.705L13.841 25.455L18.977 15.273H15.864Z" fill="#FFC4B0" transform="translate(0, -3.5)"/>
-        </svg>
-      </div>
-      <div class="brand-text-group">
-        <div class="brand-title">
-          <span>STRAVA <span class="accent">KALCER</span></span>
+  <header class="glass-header">
+    <div class="header-inner">
+      <div class="header-brand" id="brandHomeBtn" role="button" tabindex="0">
+        <div class="strava-symbol" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M10.3 2L3.5 15.3h4.1l2.7-5.4 2.7 5.4h4.1L10.3 2z" fill="#FC4C02"/>
+            <path d="M15.9 15.3l-2 4-2-4H8.7l5.1 10.2 5.1-10.2h-3z" fill="#FF8A65"/>
+          </svg>
         </div>
-        <span class="brand-subtitle" data-i18n="brandSubtitle">GPX Builder &amp; FIT Physics Reconstruction Engine</span>
+        <div class="brand-info">
+          <div class="brand-title">STRAVA <span class="brand-accent">KALCER</span></div>
+        </div>
+      </div>
+
+      <!-- Step Indicator -->
+      <div class="header-step-indicator" id="headerStepIndicator">
+        <span class="step-label" id="headerStepLabel">Tahap 1 dari 5</span>
+        <span class="step-desc" id="headerStepDesc">Pengenalan</span>
+      </div>
+
+      <!-- Actions: Language & Theme -->
+      <div class="header-actions">
+        <button type="button" class="glass-icon-btn" id="langSwitchBtn" title="Ubah Bahasa">
+          <span id="langCurrentText">ID</span>
+        </button>
+        <button type="button" class="glass-icon-btn" id="themeToggleBtn" title="Tema Terang / Gelap">
+          <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
       </div>
     </div>
 
-    <!-- Desktop Navigation Tabs -->
-    <nav class="desktop-nav-tabs" aria-label="Main Navigation">
-      <button type="button" class="nav-tab-btn active" data-tab="tab-route">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-        <span data-i18n="navRoute">1. Route &amp; GPX Builder</span>
-      </button>
-      <button type="button" class="nav-tab-btn" data-tab="tab-config">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-        <span data-i18n="navConfig">2. Simulation Setup</span>
-      </button>
-      <button type="button" class="nav-tab-btn" data-tab="tab-preview">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        <span data-i18n="navPreview">3. Telemetry &amp; Splits</span>
-      </button>
-      <button type="button" class="nav-tab-btn" data-tab="tab-export">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span data-i18n="navExport">4. Device &amp; FIT Export</span>
-      </button>
-      <button type="button" class="nav-tab-btn" data-tab="tab-debug">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <span data-i18n="navDebug">5. Diagnostics</span>
-      </button>
-    </nav>
-
-    <!-- Right Actions: User Guide, EN/ID Switcher, Light/Dark Theme -->
-    <div class="navbar-actions">
-      <button type="button" class="action-pill-btn" id="openGuideModalBtn" title="User Guide">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        <span class="guide-btn-label" data-i18n="btnUserGuide">User Guide</span>
-      </button>
-
-      <div class="lang-segmented" role="group" aria-label="Language Selector">
-        <button type="button" class="lang-btn active" id="langEnBtn" data-lang="en">EN</button>
-        <button type="button" class="lang-btn" id="langIdBtn" data-lang="id">ID</button>
-      </div>
-
-      <button type="button" class="icon-toggle-btn" id="themeToggleBtn" title="Toggle Light / Dark Mode" aria-label="Toggle Light / Dark Mode">
-        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
-          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-        </svg>
-      </button>
+    <!-- Thin Apple Specular Progress Line -->
+    <div class="header-progress-track">
+      <div class="header-progress-fill" id="headerProgressFill" style="width: 20%;"></div>
     </div>
   </header>
 
   <!-- ========================================================================
-       MAIN WORKSPACE CONTAINER
+       MAIN BOOK CONTAINER (5 SEQUENTIAL PAGES)
        ======================================================================== -->
-  <main class="app-container">
+  <main class="book-container">
 
-    <!-- FIRST-TIME USER ONBOARDING GUIDE BANNER -->
-    <section class="onboarding-banner" id="onboardingBanner">
-      <div class="onboarding-header">
-        <div class="onboarding-title-group">
-          <div class="onboarding-icon-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </div>
-          <div>
-            <div class="onboarding-title" data-i18n="guideBannerTitle">First-Time User Guide — Create or Import GPX &amp; Upload to Strava for Free</div>
-            <div class="onboarding-subtitle" data-i18n="guideBannerSub">Complete 4-step workflow: Draw a custom route on the map (or import .gpx), simulate realistic physics, and export a verified Garmin .FIT file.</div>
-          </div>
-        </div>
-        <button type="button" class="onboarding-close-btn" id="toggleBannerBtn" data-i18n="btnHideGuide">Hide Guide</button>
-      </div>
+    <!-- ====================================================================
+         HALAMAN 1: PENGENALAN & RUANG LINGKUP SISTEM (OVERVIEW)
+         ==================================================================== -->
+    <section class="book-page active" id="book-page-1" data-page="1">
+      <div class="page-content">
 
-      <div class="onboarding-steps-grid" id="onboardingStepsGrid">
-        <div class="onboarding-step-card">
-          <div class="step-num-row">
-            <span class="step-badge">1</span>
-            <span class="step-card-title" data-i18n="step1Title">Create GPX on Map or Import</span>
-          </div>
-          <p class="step-card-desc" data-i18n="step1Desc">Click "Create GPX on Map" to draw your own route with road-snapping &amp; 3D elevation, upload a .gpx file, or load the sample route.</p>
+        <!-- Hero Card -->
+        <div class="glass-card hero-card">
+          <div class="hero-eyebrow">STUDIO REKONSTRUKSI ELEVASI &amp; PERFORMA</div>
+          <h1 class="hero-title">Rute Nyata.<br>Performa Terverifikasi.</h1>
+          <p class="hero-subtitle">
+            Buat rute jalan raya otomatis bebas jalan tol, simulasikan data detak jantung dan daya kayuhan secara realistis, serta ekspor berkas biner resmi Garmin FIT Protocol 2.0 untuk Strava.
+          </p>
         </div>
 
-        <div class="onboarding-step-card">
-          <div class="step-num-row">
-            <span class="step-badge">2</span>
-            <span class="step-card-title" data-i18n="step2Title">Configure Physics &amp; Physiology</span>
+        <!-- 3 Feature Glass Cards -->
+        <div class="glass-card feature-row-card">
+          <div class="feature-item">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                <line x1="8" y1="2" x2="8" y2="18"/>
+                <line x1="16" y1="6" x2="16" y2="22"/>
+              </svg>
+            </div>
+            <div class="feature-texts">
+              <div class="feature-heading">Routing Jalan Raya Bebas Tol</div>
+              <div class="feature-body">Penyesuaian jalan aspal otomatis dengan profil elevasi 3D satelit akurat.</div>
+            </div>
           </div>
-          <p class="step-card-desc" data-i18n="step2Desc">Choose Cycling or Running, select an athlete profile, set your target average speed/pace, smart stops, HR, cadence, and power meter.</p>
+
+          <div class="feature-divider"></div>
+
+          <div class="feature-item">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="7"/>
+                <polyline points="12 9 12 12 13.5 13.5"/>
+                <path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"/>
+              </svg>
+            </div>
+            <div class="feature-texts">
+              <div class="feature-heading">113 Identitas Perangkat GPS</div>
+              <div class="feature-body">Profil resmi Garmin Edge, Forerunner, COROS PACE, dan Apple Watch.</div>
+            </div>
+          </div>
+
+          <div class="feature-divider"></div>
+
+          <div class="feature-item">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <div class="feature-texts">
+              <div class="feature-heading">Standar Biner Garmin FIT 2.0</div>
+              <div class="feature-body">Lolos validasi CRC-16 dengan integrasi auto-lap dan telemetri per detik.</div>
+            </div>
+          </div>
         </div>
 
-        <div class="onboarding-step-card">
-          <div class="step-num-row">
-            <span class="step-badge">3</span>
-            <span class="step-card-title" data-i18n="step3Title">Inspect Telemetry &amp; Device</span>
-          </div>
-          <p class="step-card-desc" data-i18n="step3Desc">Verify your synchronized elevation, speed, watts, HR, and KM splits. Select from 34 authentic Garmin, Wahoo, or Coros devices.</p>
-        </div>
+        <!-- Start CTA Button -->
+        <button type="button" class="glass-btn-primary full-width" id="startWizardBtn">
+          <span>Mulai Pembuatan Aktivitas</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
 
-        <div class="onboarding-step-card">
-          <div class="step-num-row">
-            <span class="step-badge">4</span>
-            <span class="step-card-title" data-i18n="step4Title">Download .FIT &amp; Upload Free</span>
-          </div>
-          <p class="step-card-desc" data-i18n="step4Desc">Download the validated binary .fit file, then click "UPLOAD TO STRAVA" to upload on Strava Web for 100% free (no API subscription required).</p>
-        </div>
       </div>
     </section>
 
-    <div class="studio-workspace">
+    <!-- ====================================================================
+         HALAMAN 2: PENENTUAN RUTE (ROUTE SELECTION)
+         ==================================================================== -->
+    <section class="book-page" id="book-page-2" data-page="2">
+      <div class="page-content">
 
-      <!-- ====================================================================
-           TAB 1: ROUTE, INTERACTIVE GPX BUILDER & ROUTE INTELLIGENCE
-           ==================================================================== -->
-      <section class="tab-panel active" id="tab-route">
-        <!-- Mobile Step Progress Indicator -->
-        <div class="step-context-bar">
-          <span class="step-pill">STEP 1 / 4</span>
-          <span class="step-context-text" data-i18n="stepBar1">Choose an existing GPX file or draw a custom non-toll route on the map.</span>
+        <div class="page-header-block">
+          <div class="page-eyebrow">TAHAP 1 DARI 4</div>
+          <h2 class="page-title">Penentuan Rute</h2>
+          <p class="page-subtitle">Tentukan rute perjalanan menggunakan berkas GPX, editor peta interaktif, atau rute populer.</p>
         </div>
 
-        <div class="two-col-grid">
-          <!-- Left Column: GPX Import / Create GPX Map Builder + Route Metrics -->
-          <div>
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  <div>
-                    <div class="card-title" data-i18n="cardImportTitle">GPX Route Source &amp; Free Route Builder</div>
-                    <div class="card-subtitle" data-i18n="cardImportSub">Import an existing .GPX file or draw a brand-new route on the interactive road map</div>
-                  </div>
-                </div>
-                <span class="status-badge badge-orange" id="routeStatusBadge">READY</span>
-              </div>
-
-              <input type="file" id="gpxFileInput" accept=".gpx,application/gpx+xml,text/xml" style="display:none;" />
-
-              <!-- Route Source Mode Switcher: Import GPX vs Create GPX on Map -->
-              <div class="segmented-row mode-switcher-row">
-                <button type="button" class="seg-option-btn active" id="modeImportGpxBtn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                  <span data-i18n="tabModeImport">Import .GPX / Sample Route</span>
-                </button>
-                <button type="button" class="seg-option-btn" id="modeCreateGpxBtn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                  <span data-i18n="tabModeCreate">Create GPX on Map (Route Builder)</span>
-                </button>
-              </div>
-
-              <!-- MODE A: GPX File Dropzone -->
-              <div class="gpx-dropzone" id="gpxDropzone">
-                <div class="dropzone-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                </div>
-                <div class="dropzone-title" data-i18n="dropzoneTitle">Drag &amp; Drop your .GPX file here</div>
-                <div class="dropzone-desc" data-i18n="dropzoneDesc">Supports Strava, Komoot, Garmin Connect, RideWithGPS, and GPX Studio files</div>
-                <div class="dropzone-btn-row">
-                  <button type="button" class="btn btn-primary" id="browseGpxBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <span data-i18n="btnSelectGpx">Select .GPX File</span>
-                  </button>
-                  <button type="button" class="btn btn-secondary" id="openBuilderQuickBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                    <span data-i18n="btnOpenBuilderQuick">Create GPX on Map</span>
-                  </button>
-                  <button type="button" class="btn btn-secondary" id="loadSampleRouteBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-                    <span data-i18n="btnLoadSample">Load Sample Route (Dago Pakar)</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- MODE B: Interactive Map Route Builder (Create GPX from Scratch) -->
-              <div id="gpxBuilderPanel" style="display:none;">
-                <div class="builder-toolbar">
-                  <!-- Search City / Place + GPS Button -->
-                  <div class="builder-search-row">
-                    <input type="text" class="form-input" id="builderSearchInput" placeholder="Search city or street..." />
-                    <div class="builder-search-btns">
-                      <button type="button" class="btn btn-secondary" id="builderSearchBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <span data-i18n="btnSearchPlace">Search</span>
-                      </button>
-                      <button type="button" class="btn btn-secondary" id="builderMyGpsBtn" title="Center on My GPS Location">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
-                        <span data-i18n="btnMyLocation">My Location</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Quick City Jump Chips -->
-                  <div class="builder-city-chips">
-                    <span class="quick-jump-label" data-i18n="lblQuickJump">Quick Jump:</span>
-                    <button type="button" class="chip-btn" data-lat="-6.2088" data-lon="106.8229" data-zoom="14">Jakarta (SCBD/GBK)</button>
-                    <button type="button" class="chip-btn" data-lat="-6.8852" data-lon="107.6135" data-zoom="14">Bandung (Dago)</button>
-                    <button type="button" class="chip-btn" data-lat="-6.5635" data-lon="106.8904" data-zoom="14">Bogor (Sentul)</button>
-                    <button type="button" class="chip-btn" data-lat="-7.7956" data-lon="110.3695" data-zoom="14">Yogyakarta</button>
-                    <button type="button" class="chip-btn" data-lat="-7.2575" data-lon="112.7521" data-zoom="14">Surabaya</button>
-                    <button type="button" class="chip-btn" data-lat="-8.2755" data-lon="115.3625" data-zoom="13">Bali (Kintamani)</button>
-                  </div>
-
-                  <!-- Route Name & Routing Mode -->
-                  <div class="builder-config-row">
-                    <div class="builder-config-field">
-                      <input type="text" class="form-input" id="builderRouteNameInput" value="Custom Strava Kalcer Route" placeholder="Route Name" />
-                    </div>
-                    <div class="builder-config-field">
-                      <select class="form-select" id="builderRoutingModeSelect">
-                        <option value="DRIVE_NO_TOLL" data-i18n="optDriveNoToll">Drive Road Mode — Avoid Toll Roads (Non-Tol)</option>
-                        <option value="BIKE_ROAD" data-i18n="optBikeRoad">Cycling / Running Road Network (Non-Tol)</option>
-                        <option value="DIRECT_LINE" data-i18n="optDirectLine">Direct Line (Off-Road / Trail)</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Interactive Leaflet Map Container -->
-                <div class="builder-map-wrapper">
-                  <div id="builderLeafletMap" class="builder-leaflet-map"></div>
-                  <div class="builder-map-overlay-badge" id="builderStatusText" data-i18n="builderHintClick">
-                    Click anywhere on the map to place Start Point, then click subsequent points to trace your route.
-                  </div>
-                </div>
-
-                <!-- Builder Action Controls (Undo, Loop, Clear) & Live Metrics -->
-                <div class="builder-stats-bar">
-                  <div class="builder-metrics-inline">
-                    <span><span style="color:var(--text-secondary);" data-i18n="lblWaypoints">Waypoints:</span> <strong id="builderWpCount">0</strong></span>
-                    <span><span style="color:var(--text-secondary);" data-i18n="lblDistance">Distance:</span> <strong id="builderDistKm" style="color:var(--strava-orange);">0.00 km</strong></span>
-                    <span><span style="color:var(--text-secondary);" data-i18n="lblEleGain">Elevation Gain:</span> <strong id="builderGainM">+0 m</strong></span>
-                  </div>
-                  <div class="builder-edit-btns">
-                    <button type="button" class="btn btn-secondary btn-sm" id="builderUndoBtn">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                      <span data-i18n="btnUndoPoint">Undo</span>
-                    </button>
-                    <button type="button" class="btn btn-secondary btn-sm" id="builderLoopStartBtn">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-                      <span data-i18n="btnLoopToStart">Loop to Start</span>
-                    </button>
-                    <button type="button" class="btn btn-secondary btn-sm" id="builderClearBtn">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14H7L5 6"/></svg>
-                      <span data-i18n="btnClearMap">Clear</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Primary Builder Export & Apply Buttons -->
-                <div class="builder-cta-grid">
-                  <button type="button" class="btn btn-primary" id="builderApplyToSimBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span data-i18n="btnUseBuiltRoute">USE THIS ROUTE FOR SIMULATION (.FIT)</span>
-                  </button>
-                  <button type="button" class="btn btn-secondary" id="builderDownloadGpxBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    <span data-i18n="btnDownloadCreatedGpx">DOWNLOAD .GPX FILE</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Active Route Summary Bar -->
-              <div class="active-track-bar">
-                <div class="active-track-info">
-                  <div class="active-track-caption" data-i18n="lblActiveTrack">ACTIVE TRACK NAME</div>
-                  <div class="active-track-title" id="activeTrackName">-</div>
-                </div>
-                <div class="active-track-actions">
-                  <button type="button" class="btn btn-secondary" id="reverseRouteBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-                    <span data-i18n="btnReverseRoute">Reverse Route</span>
-                  </button>
-                  <button type="button" class="btn btn-primary" id="goToConfigBtn">
-                    <span data-i18n="btnConfigureSim">Next: Configure Simulation</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Route Metrics & Elevation Quality Audit -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><polyline points="14 7 21 7 21 14"/></svg>
-                  <div class="card-title" data-i18n="cardRouteAuditTitle">Route Telemetry &amp; Elevation Audit</div>
-                </div>
-                <span class="status-badge badge-green" id="eleSourceBadge">PRESENT_AND_VALID</span>
-              </div>
-
-              <div class="metrics-grid-6">
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblTotalDist">Total Distance</div>
-                  <div class="metric-value-row">
-                    <span class="metric-value" id="routeDistVal">0.00</span>
-                    <span class="metric-unit">km</span>
-                  </div>
-                </div>
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblEleGain">Elevation Gain</div>
-                  <div class="metric-value-row">
-                    <span class="metric-value" id="routeGainVal">0</span>
-                    <span class="metric-unit">m</span>
-                  </div>
-                </div>
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblEleLoss">Elevation Loss</div>
-                  <div class="metric-value-row">
-                    <span class="metric-value" id="routeLossVal">0</span>
-                    <span class="metric-unit">m</span>
-                  </div>
-                </div>
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblAltitudeRange">Altitude Range</div>
-                  <div class="metric-value-row">
-                    <span class="metric-value" id="routeMinMaxEle" style="font-size: 16px;">0 - 0</span>
-                    <span class="metric-unit">m</span>
-                  </div>
-                </div>
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblMaxGrade">Max Gradient</div>
-                  <div class="metric-value-row">
-                    <span class="metric-value" id="routeMaxGrade">0.0</span>
-                    <span class="metric-unit">%</span>
-                  </div>
-                </div>
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblTrackpoints">Trackpoints</div>
-                  <div class="metric-value-row">
-                    <span class="metric-value" id="routePointCount">0</span>
-                    <span class="metric-unit">pts</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="audit-note-box" id="eleAuditNote">-</div>
+        <!-- Mode Source Dropdown -->
+        <div class="glass-card">
+          <label class="form-label" for="routeSourceDropdown">Pilih Sumber Rute</label>
+          <div class="glass-select-wrap">
+            <select class="glass-select" id="routeSourceDropdown">
+              <option value="PRESET">Rute Standar Populer (Siap Pakai)</option>
+              <option value="IMPORT">Unggah Berkas .GPX</option>
+              <option value="MAP">Buat Rute di Peta Layar Penuh</option>
+            </select>
+            <div class="select-chevron">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
 
-          <!-- Right Column: Interactive Route Map + Elevation Chart + Climb Intelligence -->
-          <div>
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"/></svg>
-                  <div class="card-title" data-i18n="cardRouteMapTitle">Interactive Route Geometry</div>
-                </div>
-                <span style="font-size: 11px; color: var(--text-secondary); font-weight: 600;" id="routeMapCursorLabel">0.00 km</span>
-              </div>
-
-              <div class="canvas-container" style="margin-bottom: 14px;">
-                <div id="routeOverviewLeafletMap" class="map-canvas" style="z-index:1;"></div>
-                <canvas id="routeOverviewMapCanvas" class="map-canvas" style="display:none;"></canvas>
-              </div>
-
-              <div class="chart-card" style="margin-bottom: 0;">
-                <div class="chart-header">
-                  <span class="chart-title" data-i18n="chartElevationTitle">Elevation Profile (m)</span>
-                  <span class="chart-readout" id="routeOverviewEleReadout">-</span>
-                </div>
-                <canvas id="routeOverviewEleCanvas" class="chart-canvas"></canvas>
+          <!-- SUB-VIEW 1: Preset Rute Populer -->
+          <div class="route-source-panel" id="panelSourcePreset">
+            <label class="form-label" for="popularRouteDropdown" style="margin-top: 14px;">Pilihan Lintasan Terverifikasi</label>
+            <div class="glass-select-wrap">
+              <select class="glass-select" id="popularRouteDropdown">
+                <option value="DAGO">Dago Pakar Perbukitan (7.32 km • Elevasi +224m)</option>
+                <option value="GBK">Lingkar Gelora Bung Karno (5.20 km • Elevasi +18m)</option>
+                <option value="SUDIRMAN">Car Free Day Sudirman - Thamrin (7.05 km • Elevasi +25m)</option>
+                <option value="PIK">Kawasan Rekreasi PIK 2 Loop (15.40 km • Elevasi +32m)</option>
+              </select>
+              <div class="select-chevron">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
             </div>
-
-            <!-- Route Intelligence: Terrain Distribution & Categorized Climbs -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                  <div class="card-title" data-i18n="cardRouteIntelTitle">Route Intelligence &amp; UCI Climb Detection</div>
-                </div>
-              </div>
-
-              <div class="metrics-grid-3" style="margin-bottom: 14px;">
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblFlatRatio">Flat Terrain</div>
-                  <div class="metric-value-row">
-                    <span class="metric-value" id="intelFlatPct">0</span>
-                    <span class="metric-unit">%</span>
-                  </div>
-                </div>
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblClimbRatio">Climbing</div>
-                  <div class="metric-value-row">
-                    <span class="metric-value" id="intelClimbPct">0</span>
-                    <span class="metric-unit">%</span>
-                  </div>
-                </div>
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblDescentRatio">Descending</div>
-                  <div class="metric-value-row">
-                    <span class="metric-value" id="intelDescentPct">0</span>
-                    <span class="metric-unit">%</span>
-                  </div>
-                </div>
-              </div>
-
-              <div id="climbsContainer" style="font-size: 12px; color: var(--text-secondary);"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ====================================================================
-           TAB 2: ACTIVITY & PHYSIOLOGY SIMULATION CONFIGURATION
-           ==================================================================== -->
-      <section class="tab-panel" id="tab-config">
-        <div class="step-context-bar">
-          <span class="step-pill">STEP 2 / 4</span>
-          <span class="step-context-text" data-i18n="stepBar2">Configure your sport, target speed/pace, heart rate, cadence, and power settings.</span>
-        </div>
-
-        <div class="two-col-grid">
-          <!-- Left Column: Sport, Profile, Speed/Pace Solver, Smart Stops, Date/Time -->
-          <div>
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-                  <div class="card-title" data-i18n="cardSportProfileTitle">Sport Type &amp; Athlete Behavior Profile</div>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <div class="form-label-row">
-                  <span class="form-label" data-i18n="lblSportType">Sport Type</span>
-                </div>
-                <div class="segmented-row">
-                  <button type="button" class="seg-option-btn active" id="sportCyclingBtn" data-sport="CYCLING">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></svg>
-                    <span data-i18n="sportCycling">Cycling (Ride)</span>
-                  </button>
-                  <button type="button" class="seg-option-btn" id="sportRunningBtn" data-sport="RUNNING">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0M7 21l3-4m6 4l-2-5-3-2 2-4 4 2 2-2M6 12l4-3"/></svg>
-                    <span data-i18n="sportRunning">Running (Run)</span>
-                  </button>
-                </div>
-
-                <!-- Live Animated Vector Cyclist & Runner Telemetry Stage -->
-                <div class="sport-motion-stage" id="sportMotionStage">
-                  <!-- CYCLING ANIMATION SCENE -->
-                  <div class="motion-scene" id="motionSceneCycling">
-                    <svg viewBox="0 0 500 140" class="motion-svg" aria-label="Animated Road Cyclist">
-                      <defs>
-                        <linearGradient id="uiCyanArea" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stop-color="#0096C7" stop-opacity="0.28" />
-                          <stop offset="100%" stop-color="#0096C7" stop-opacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M 0 112 Q 95 76, 185 96 T 360 68 T 500 92 L 500 132 L 0 132 Z" fill="url(#uiCyanArea)" />
-                      <path d="M 0 112 Q 95 76, 185 96 T 360 68 T 500 92" fill="none" stroke="#0096C7" stroke-width="1.8" stroke-opacity="0.6" />
-
-                      <!-- Wind Slipstream Lines -->
-                      <g stroke="#38BDF8" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
-                        <line x1="360" y1="36" x2="420" y2="36">
-                          <animate attributeName="x1" values="430;40" dur="1.0s" repeatCount="indefinite" />
-                          <animate attributeName="x2" values="485;95" dur="1.0s" repeatCount="indefinite" />
-                          <animate attributeName="opacity" values="0;0.75;0" dur="1.0s" repeatCount="indefinite" />
-                        </line>
-                        <line x1="390" y1="68" x2="440" y2="68">
-                          <animate attributeName="x1" values="450;20" dur="0.8s" repeatCount="indefinite" />
-                          <animate attributeName="x2" values="495;65" dur="0.8s" repeatCount="indefinite" />
-                          <animate attributeName="opacity" values="0;0.65;0" dur="0.8s" repeatCount="indefinite" />
-                        </line>
-                      </g>
-
-                      <!-- Moving Road Surface -->
-                      <line x1="10" y1="122" x2="490" y2="122" stroke="currentColor" stroke-opacity="0.25" stroke-width="2" />
-                      <line x1="10" y1="126" x2="490" y2="126" stroke="#FC4C02" stroke-width="2" stroke-dasharray="16 24">
-                        <animate attributeName="stroke-dashoffset" from="0" to="80" dur="0.52s" repeatCount="indefinite" />
-                      </line>
-
-                      <!-- Aero Road Cyclist Group -->
-                      <g transform="translate(170, 14) scale(0.86)">
-                        <animateTransform attributeName="transform" type="translate" values="170,14; 170,12.5; 170,14" dur="0.45s" repeatCount="indefinite" additive="replace" />
-                        <g transform="scale(0.86)">
-                          <!-- Rear Wheel -->
-                          <g transform="translate(36, 98)">
-                            <circle cx="0" cy="0" r="30" fill="none" stroke="currentColor" stroke-opacity="0.75" stroke-width="5.5" />
-                            <circle cx="0" cy="0" r="26" fill="none" stroke="#0096C7" stroke-width="1.8" stroke-dasharray="9 7">
-                              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.62s" repeatCount="indefinite" />
-                            </circle>
-                            <g stroke="currentColor" stroke-opacity="0.45" stroke-width="1.3">
-                              <line x1="-26" y1="0" x2="26" y2="0" /><line x1="0" y1="-26" x2="0" y2="26" />
-                              <line x1="-18" y1="-18" x2="18" y2="18" /><line x1="-18" y1="18" x2="18" y2="-18" />
-                              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.62s" repeatCount="indefinite" />
-                            </g>
-                            <circle cx="0" cy="0" r="4" fill="#FC4C02" />
-                          </g>
-                          <!-- Front Wheel -->
-                          <g transform="translate(148, 98)">
-                            <circle cx="0" cy="0" r="30" fill="none" stroke="currentColor" stroke-opacity="0.75" stroke-width="5.5" />
-                            <circle cx="0" cy="0" r="26" fill="none" stroke="#0096C7" stroke-width="1.8" stroke-dasharray="9 7">
-                              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.62s" repeatCount="indefinite" />
-                            </circle>
-                            <g stroke="currentColor" stroke-opacity="0.45" stroke-width="1.3">
-                              <line x1="-26" y1="0" x2="26" y2="0" /><line x1="0" y1="-26" x2="0" y2="26" />
-                              <line x1="-18" y1="-18" x2="18" y2="18" /><line x1="-18" y1="18" x2="18" y2="-18" />
-                              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.62s" repeatCount="indefinite" />
-                            </g>
-                            <circle cx="0" cy="0" r="4" fill="#FC4C02" />
-                          </g>
-                          <!-- Far Leg -->
-                          <path d="M 65 44 L 88 68 L 76 108" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
-                            <animate attributeName="d" values="M 65 44 L 88 68 L 76 108; M 65 44 L 95 62 L 94 96; M 65 44 L 86 56 L 80 86; M 65 44 L 76 66 L 66 98; M 65 44 L 88 68 L 76 108" dur="0.72s" repeatCount="indefinite" />
-                          </path>
-                          <!-- Bike Frame -->
-                          <g fill="none" stroke="#FC4C02" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="36" y1="98" x2="80" y2="98" /><line x1="36" y1="98" x2="68" y2="54" />
-                            <line x1="80" y1="98" x2="64" y2="46" /><line x1="80" y1="98" x2="128" y2="56" />
-                            <line x1="66" y1="54" x2="126" y2="54" /><line x1="148" y1="98" x2="124" y2="46" />
-                          </g>
-                          <line x1="56" y1="45" x2="71" y2="45" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
-                          <path d="M 124 46 L 137 46 C 144 46, 145 56, 136 58" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" />
-                          <rect x="139" y="40" width="9" height="4.5" rx="1.5" fill="#0096C7" />
-                          <!-- Crankset -->
-                          <circle cx="80" cy="98" r="9" fill="none" stroke="currentColor" stroke-width="2" />
-                          <g transform="translate(80, 98)">
-                            <line x1="0" y1="-10" x2="0" y2="10" stroke="#FC4C02" stroke-width="2.5" stroke-linecap="round">
-                              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.72s" repeatCount="indefinite" />
-                            </line>
-                          </g>
-                          <!-- Near Leg -->
-                          <path d="M 65 44 L 86 56 L 80 86" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-                            <animate attributeName="d" values="M 65 44 L 86 56 L 80 86; M 65 44 L 76 66 L 66 98; M 65 44 L 88 68 L 76 108; M 65 44 L 95 62 L 94 96; M 65 44 L 86 56 L 80 86" dur="0.72s" repeatCount="indefinite" />
-                          </path>
-                          <!-- Torso, Arm & Helmet -->
-                          <path d="M 65 43 Q 88 24, 114 28" fill="none" stroke="#FC4C02" stroke-width="9" stroke-linecap="round" />
-                          <path d="M 112 29 L 124 46 L 136 53" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
-                          <circle cx="123" cy="20" r="8" fill="currentColor" />
-                          <path d="M 111 17 Q 124 8, 134 19 Z" fill="#0096C7" />
-                        </g>
-                      </g>
-                    </svg>
-                  </div>
-
-                  <!-- RUNNING ANIMATION SCENE -->
-                  <div class="motion-scene" id="motionSceneRunning" style="display:none;">
-                    <svg viewBox="0 0 500 140" class="motion-svg" aria-label="Animated Marathon Runner">
-                      <defs>
-                        <linearGradient id="uiGreenArea" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stop-color="#12B76A" stop-opacity="0.28" />
-                          <stop offset="100%" stop-color="#12B76A" stop-opacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M 0 110 Q 105 82, 210 98 T 390 72 T 500 94 L 500 132 L 0 132 Z" fill="url(#uiGreenArea)" />
-                      <path d="M 0 110 Q 105 82, 210 98 T 390 72 T 500 94" fill="none" stroke="#12B76A" stroke-width="1.8" stroke-opacity="0.65" />
-
-                      <!-- Live Heart Rate ECG Waveform -->
-                      <path d="M 340 54 L 370 54 L 378 38 L 386 70 L 394 28 L 402 76 L 410 46 L 418 54 L 460 54" fill="none" stroke="#D92D20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="150" stroke-dashoffset="0">
-                        <animate attributeName="stroke-dashoffset" values="150;0;-150" dur="1.5s" repeatCount="indefinite" />
-                      </path>
-
-                      <!-- Moving Track Surface -->
-                      <line x1="10" y1="122" x2="490" y2="122" stroke="currentColor" stroke-opacity="0.25" stroke-width="2" />
-                      <line x1="10" y1="126" x2="490" y2="126" stroke="#12B76A" stroke-width="2" stroke-dasharray="14 22">
-                        <animate attributeName="stroke-dashoffset" from="0" to="72" dur="0.62s" repeatCount="indefinite" />
-                      </line>
-
-                      <!-- Marathon Runner Group -->
-                      <g transform="translate(215, 16)">
-                        <g transform="scale(0.86)">
-                          <animateTransform attributeName="transform" type="translate" values="0,0; 0,-6; 0,0; 0,-6; 0,0" dur="0.66s" repeatCount="indefinite" additive="sum" />
-                          <!-- Back Arm -->
-                          <path d="M 28 32 L 12 46 L 24 56" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-                            <animate attributeName="d" values="M 28 32 L 12 46 L 24 56; M 28 32 L 26 48 L 42 44; M 28 32 L 38 44 L 52 34; M 28 32 L 26 48 L 42 44; M 28 32 L 12 46 L 24 56" dur="0.66s" repeatCount="indefinite" />
-                          </path>
-                          <!-- Back Leg -->
-                          <path d="M 22 68 L 44 90 L 56 118" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-                            <animate attributeName="d" values="M 22 68 L 44 90 L 56 118; M 22 68 L 26 94 L 12 118; M 22 68 L 6 92 L -14 106; M 22 68 L 28 84 L 18 104; M 22 68 L 44 90 L 56 118" dur="0.66s" repeatCount="indefinite" />
-                          </path>
-                          <!-- Runner Torso -->
-                          <line x1="22" y1="68" x2="30" y2="28" stroke="#FC4C02" stroke-width="9.5" stroke-linecap="round" />
-                          <!-- Head & Visor -->
-                          <circle cx="34" cy="14" r="8.5" fill="currentColor" />
-                          <path d="M 26 11 Q 35 5, 46 12" fill="none" stroke="#12B76A" stroke-width="3.2" stroke-linecap="round" />
-                          <!-- Foreground Leg -->
-                          <path d="M 22 68 L 6 92 L -14 106" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
-                            <animate attributeName="d" values="M 22 68 L 6 92 L -14 106; M 22 68 L 28 84 L 18 104; M 22 68 L 44 90 L 56 118; M 22 68 L 26 94 L 12 118; M 22 68 L 6 92 L -14 106" dur="0.66s" repeatCount="indefinite" />
-                          </path>
-                          <!-- Foreground Arm + Glowing GPS Watch -->
-                          <path d="M 28 32 L 38 44 L 52 34" fill="none" stroke="currentColor" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round">
-                            <animate attributeName="d" values="M 28 32 L 38 44 L 52 34; M 28 32 L 26 48 L 42 44; M 28 32 L 12 46 L 24 56; M 28 32 L 26 48 L 42 44; M 28 32 L 38 44 L 52 34" dur="0.66s" repeatCount="indefinite" />
-                          </path>
-                          <circle cx="48" cy="36" r="3.6" fill="#12B76A">
-                            <animate attributeName="cx" values="48;38;22;38;48" dur="0.66s" repeatCount="indefinite" />
-                            <animate attributeName="cy" values="36;45;54;45;36" dur="0.66s" repeatCount="indefinite" />
-                          </circle>
-                        </g>
-                      </g>
-                    </svg>
-                  </div>
-                </div>
-
-                <!-- Quick Active Hardware Indicator synced with Sport Type -->
-                <div class="config-device-quickbar" id="configDeviceQuickbar">
-                  <div class="config-device-quickbar-info">
-                    <span class="status-badge badge-orange" id="configQuickDeviceTypeBadge">CYCLOCOMP • CYCLING</span>
-                    <span class="config-device-quickbar-name" id="configQuickDeviceName">Garmin Edge 1040 Solar</span>
-                  </div>
-                  <button type="button" class="btn btn-secondary btn-sm" id="configChangeDeviceBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                    <span data-i18n="btnChangeDeviceQuick">Change Device (113 Models)</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="form-group" style="margin-bottom: 0;">
-                <div class="form-label-row">
-                  <span class="form-label" data-i18n="lblActivityProfile">Select Realistic Athlete Profile (13 Presets)</span>
-                </div>
-                <div class="profile-list" id="profileSelectorList"></div>
-              </div>
-            </div>
-
-            <!-- Target Solver & Max Speed / Best Pace -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
-                  <div class="card-title" data-i18n="cardTargetSolverTitle">Target Speed / Pace Physics Solver</div>
-                </div>
-              </div>
-
-              <!-- Cycling Speed Controls -->
-              <div id="cyclingSolverControls">
-                <div class="form-group">
-                  <div class="form-label-row">
-                    <span class="form-label" data-i18n="lblTargetAvgSpeed">Target Moving Average Speed</span>
-                    <span class="form-value-badge" id="targetAvgSpeedLabel">28.0 km/h</span>
-                  </div>
-                  <input type="range" class="range-slider" id="targetAvgSpeedSlider" min="12" max="48" step="0.5" value="28.0" />
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
-                  <div class="form-label-row">
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                      <input type="checkbox" id="enableMaxSpeedCheck" checked />
-                      <span class="form-label" data-i18n="lblDesiredMaxSpeed">Inject Downhill Top Speed Opportunity</span>
-                    </label>
-                    <span class="form-value-badge" id="desiredMaxSpeedLabel">54.0 km/h</span>
-                  </div>
-                  <input type="range" class="range-slider" id="desiredMaxSpeedSlider" min="32" max="85" step="1.0" value="54.0" />
-                </div>
-              </div>
-
-              <!-- Running Pace Controls -->
-              <div id="runningSolverControls" style="display:none;">
-                <div class="form-group">
-                  <div class="form-label-row">
-                    <span class="form-label" data-i18n="lblTargetAvgPace">Target Moving Average Pace</span>
-                    <span class="form-value-badge" id="targetAvgPaceLabel">5:30 /km</span>
-                  </div>
-                  <input type="range" class="range-slider" id="targetAvgPaceSlider" min="185" max="540" step="5" value="330" />
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
-                  <div class="form-label-row">
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                      <input type="checkbox" id="enableBestPaceCheck" checked />
-                      <span class="form-label" data-i18n="lblDesiredBestPace">Target Best Split / Surge Pace</span>
-                    </label>
-                    <span class="form-value-badge" id="desiredBestPaceLabel">4:15 /km</span>
-                  </div>
-                  <input type="range" class="range-slider" id="desiredBestPaceSlider" min="150" max="420" step="5" value="255" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Schedule, Metadata & Smart Traffic Stops -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                  <div class="card-title" data-i18n="cardScheduleStopsTitle">Activity Schedule &amp; Smart Traffic Stops</div>
-                </div>
-              </div>
-
-              <div class="date-time-grid">
-                <div>
-                  <div class="form-label-row"><span class="form-label" data-i18n="lblStartDate">Activity Date</span></div>
-                  <input type="date" class="form-input" id="activityDateInput" />
-                </div>
-                <div>
-                  <div class="form-label-row"><span class="form-label" data-i18n="lblStartTime">Start Time</span></div>
-                  <input type="time" class="form-input" id="activityTimeInput" />
-                </div>
-              </div>
-
-              <div class="form-group">
-                <div class="form-label-row"><span class="form-label" data-i18n="lblActivityTitle">Activity Title</span></div>
-                <input type="text" class="form-input" id="activityTitleInput" value="Morning Ride" />
-              </div>
-
-              <div class="form-group" style="margin-bottom: 0;">
-                <div class="form-label-row">
-                  <span class="form-label" data-i18n="lblSmartStops">Smart Traffic &amp; Rest Stop Simulation</span>
-                  <span class="form-value-badge" id="stopsCountBadge">0 stops</span>
-                </div>
-                <select class="form-select" id="smartStopPresetSelect">
-                  <option value="NONE" data-i18n="stopNone">No Stops — Continuous Non-Stop Effort</option>
-                  <option value="LIGHT_TRAFFIC" data-i18n="stopLight">Light Traffic — Brief Intersection Pauses (15-35s)</option>
-                  <option value="CITY_RIDING" data-i18n="stopCity">City Commute — Red Lights &amp; Junctions (25-60s)</option>
-                  <option value="PHOTO_COFFEE" data-i18n="stopCoffee">Scenic / Coffee Stop — Mid-Route Rest Break (2-5m)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column: Heart Rate, Cadence, Power Meter & Run Simulation CTA -->
-          <div>
-            <!-- Heart Rate Physiology -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                  <div class="card-title" data-i18n="cardHrTitle">Heart Rate Physiology (Asymmetric Lag Model)</div>
-                </div>
-                <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; cursor:pointer;">
-                  <input type="checkbox" id="hrEnabledCheck" checked />
-                  <span data-i18n="lblEnabled">Enabled</span>
-                </label>
-              </div>
-
-              <div id="hrConfigBody">
-                <div class="form-group">
-                  <div class="form-label-row">
-                    <span class="form-label" data-i18n="lblRestingHr">Resting / Warmup Baseline HR</span>
-                    <span class="form-value-badge" id="restingHrLabel">65 bpm</span>
-                  </div>
-                  <input type="range" class="range-slider" id="restingHrSlider" min="45" max="95" step="1" value="65" />
-                </div>
-
-                <div class="form-group">
-                  <div class="form-label-row">
-                    <span class="form-label" data-i18n="lblTargetAvgHr">Target Average Exercising HR</span>
-                    <span class="form-value-badge" id="avgHrLabel">148 bpm</span>
-                  </div>
-                  <input type="range" class="range-slider" id="avgHrSlider" min="105" max="185" step="1" value="148" />
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
-                  <div class="form-label-row">
-                    <span class="form-label" data-i18n="lblMaxHr">Physiological Ceiling (Max HR)</span>
-                    <span class="form-value-badge" id="maxHrLabel">188 bpm</span>
-                  </div>
-                  <input type="range" class="range-slider" id="maxHrSlider" min="150" max="210" step="1" value="188" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Customizable Cadence Engine -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                  <div class="card-title" data-i18n="cardCadenceTitle">Cadence &amp; Downhill Coasting Dynamics</div>
-                </div>
-                <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; cursor:pointer;">
-                  <input type="checkbox" id="cadenceEnabledCheck" checked />
-                  <span data-i18n="lblEnabled">Enabled</span>
-                </label>
-              </div>
-
-              <div id="cadenceConfigBody">
-                <div class="form-group">
-                  <div class="form-label-row">
-                    <span class="form-label" id="targetCadenceTitleLabel" data-i18n="lblTargetCadence">Target Flat Cadence</span>
-                    <span class="form-value-badge" id="targetCadenceValLabel">86 rpm</span>
-                  </div>
-                  <input type="range" class="range-slider" id="targetCadenceSlider" min="60" max="195" step="1" value="86" />
-                </div>
-
-                <div class="form-group" id="coastingModeGroup">
-                  <div class="form-label-row">
-                    <span class="form-label" data-i18n="lblCoastingMode">Steep Downhill Coasting Mode (&lt; -4.5% Grade)</span>
-                  </div>
-                  <select class="form-select" id="coastingModeSelect">
-                    <option value="ZERO_RPM" data-i18n="coastZero">Freewheel Coasting (0 RPM on steep descents)</option>
-                    <option value="SOFT_PEDAL_20" data-i18n="coastSoft">Soft Pedaling (~20 RPM light spin on descents)</option>
-                  </select>
-                </div>
-
-                <div class="form-group" id="climbingDropGroup" style="margin-bottom: 0;">
-                  <div class="form-label-row">
-                    <span class="form-label" data-i18n="lblClimbingDrop">Steep Climb Grinding RPM Drop</span>
-                    <span class="form-value-badge" id="climbingDropLabel">-14 rpm</span>
-                  </div>
-                  <input type="range" class="range-slider" id="climbingDropSlider" min="0" max="28" step="1" value="14" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Cycling Power Meter Engine -->
-            <div class="card" id="powerMeterCard">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                  <div class="card-title" data-i18n="cardPowerTitle">Physics Power Meter (Watts, 30s NP &amp; kJ)</div>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <div class="form-label-row">
-                  <span class="form-label" data-i18n="lblRiderWeight">Rider Body Weight</span>
-                  <span class="form-value-badge" id="riderWeightLabel">68 kg</span>
-                </div>
-                <input type="range" class="range-slider" id="riderWeightSlider" min="45" max="115" step="1" value="68" />
-              </div>
-
-              <div class="form-group" style="margin-bottom: 0;">
-                <div class="form-label-row">
-                  <span class="form-label" data-i18n="lblBikeWeight">Bicycle &amp; Gear Weight</span>
-                  <span class="form-value-badge" id="bikeWeightLabel">8.2 kg</span>
-                </div>
-                <input type="range" class="range-slider" id="bikeWeightSlider" min="6.5" max="18.0" step="0.1" value="8.2" />
-              </div>
-            </div>
-
-            <button type="button" class="btn btn-primary btn-block btn-lg" id="runSimulationBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              <span data-i18n="btnRunSim">RUN PHYSICS SIMULATION &amp; PREVIEW TELEMETRY</span>
+            <button type="button" class="glass-btn-secondary" id="loadSelectedPresetBtn" style="margin-top: 12px; width: 100%;">
+              <span>Terapkan Lintasan Terpilih</span>
             </button>
           </div>
-        </div>
-      </section>
 
-      <!-- ====================================================================
-           TAB 3: TELEMETRY PREVIEW, SYNCHRONIZED CHARTS & KM SPLITS
-           ==================================================================== -->
-      <section class="tab-panel" id="tab-preview">
-        <div class="step-context-bar">
-          <span class="step-pill">STEP 3 / 4</span>
-          <span class="step-context-text" data-i18n="stepBar3">Inspect your simulated telemetry, scrub charts, and review 1.0 km splits.</span>
-        </div>
-
-        <!-- Feasibility & Solver Convergence Banner -->
-        <div class="card" id="feasibilityBannerCard" style="border-left: 4px solid var(--strava-green);">
-          <div class="feasibility-top-row">
-            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
-              <span class="status-badge badge-green" id="feasibilityBadge">TARGET ACHIEVED</span>
-              <span style="font-size:14px; font-weight:800;" id="feasibilityTargetSummary">-</span>
-            </div>
-            <div class="feasibility-actions">
-              <button type="button" class="btn btn-secondary" id="backToTweakBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                <span data-i18n="btnTweakConfig">Tweak Settings</span>
-              </button>
-              <button type="button" class="btn btn-primary" id="proceedToExportBtn">
-                <span data-i18n="btnProceedExport">Next: Select Device &amp; Export .FIT</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          <!-- SUB-VIEW 2: Upload GPX -->
+          <div class="route-source-panel" id="panelSourceImport" style="display: none; margin-top: 14px;">
+            <input type="file" id="gpxFileInput" accept=".gpx,application/gpx+xml,text/xml" style="display:none;" />
+            <div class="gpx-dropzone-apple" id="gpxDropzone">
+              <div class="dropzone-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <div class="dropzone-title">Pilih atau Seret Berkas .GPX</div>
+              <div class="dropzone-hint">Format data rute GPX 1.1 standar didukung penuh</div>
+              <button type="button" class="glass-btn-secondary" id="browseGpxBtn" style="margin-top: 8px;">
+                <span>Jelajahi Berkas</span>
               </button>
             </div>
           </div>
-          <div style="font-size:12px; color:var(--text-secondary); margin-top:8px;" id="feasibilityNoteText">-</div>
-        </div>
 
-        <!-- 10-Metric Summary Grid (Row 1 + Row 2) -->
-        <div class="card">
-          <div class="metrics-grid-4" style="margin-bottom: 12px;">
-            <div class="metric-box">
-              <div class="metric-label" data-i18n="lblDistance">Distance</div>
-              <div class="metric-value-row"><span class="metric-value" id="simDistVal">0.00</span><span class="metric-unit">km</span></div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-label" data-i18n="lblMovingTime">Moving Time</div>
-              <div class="metric-value-row"><span class="metric-value" id="simMovingTimeVal">00:00</span><span class="metric-unit" id="simElapsedSub"></span></div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-label" id="simAvgPrimaryLabel">Avg Speed</div>
-              <div class="metric-value-row"><span class="metric-value" id="simAvgPrimaryVal" style="color:var(--strava-orange);">0.0</span><span class="metric-unit" id="simAvgPrimaryUnit">km/h</span></div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-label" id="simMaxPrimaryLabel">Max Speed</div>
-              <div class="metric-value-row"><span class="metric-value" id="simMaxPrimaryVal">0.0</span><span class="metric-unit" id="simMaxPrimaryUnit">km/h</span></div>
-            </div>
-          </div>
-
-          <div class="metrics-grid-6" id="simSecondaryMetricsRow">
-            <div class="metric-box">
-              <div class="metric-label" data-i18n="lblAvgHr">Avg / Max HR</div>
-              <div class="metric-value-row"><span class="metric-value" id="simHrVal" style="font-size:17px;">-</span><span class="metric-unit">bpm</span></div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-label" data-i18n="lblAvgCadence">Avg Cadence</div>
-              <div class="metric-value-row"><span class="metric-value" id="simCadenceVal" style="font-size:17px;">-</span><span class="metric-unit" id="simCadenceUnit">rpm</span></div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-label" data-i18n="lblAvgPower">Avg Power</div>
-              <div class="metric-value-row"><span class="metric-value" id="simAvgPowerVal" style="font-size:17px;">-</span><span class="metric-unit">W</span></div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-label" data-i18n="lblNormPower">Normalized (NP)</div>
-              <div class="metric-value-row"><span class="metric-value" id="simNpPowerVal" style="font-size:17px;">-</span><span class="metric-unit">W</span></div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-label" data-i18n="lblCalories">Calories / Work</div>
-              <div class="metric-value-row"><span class="metric-value" id="simCaloriesVal" style="font-size:17px;">0</span><span class="metric-unit" id="simWorkSub">kcal</span></div>
-            </div>
-            <div class="metric-box">
-              <div class="metric-label" data-i18n="lblAmbientTemp">Ambient Temp</div>
-              <div class="metric-value-row"><span class="metric-value" id="simTempVal" style="font-size:17px;">24</span><span class="metric-unit">°C</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Live Synchronized Cursor Readout Bar -->
-        <div class="cursor-readout-bar">
-          <span id="simCursorPositionText" style="color:var(--strava-orange);">CURSOR @ 0.00 km (0.0%)</span>
-          <span id="simCursorTelemetryText">-</span>
-        </div>
-
-        <div class="two-col-grid">
-          <!-- Left: Synchronized Map + Kilometer Splits Table -->
-          <div>
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-                  <div class="card-title" data-i18n="cardSyncMapTitle">Synchronized Telemetry Route Map</div>
-                </div>
-                <span style="font-size:11px; color:var(--text-secondary);" data-i18n="lblDragChartsHint">Hover or drag on any chart to scrub</span>
+          <!-- SUB-VIEW 3: Open Fullscreen Map Editor -->
+          <div class="route-source-panel" id="panelSourceMap" style="display: none; margin-top: 14px;">
+            <div class="map-launcher-card">
+              <div class="map-launcher-desc">
+                Buka editor peta jalan raya untuk menitikkan rute kustom. Sistem secara otomatis mengikuti jalan raya aspal dan menghindari jalan tol.
               </div>
-              <div class="canvas-container">
-                <div id="simSyncLeafletMap" class="map-canvas" style="z-index:1;"></div>
-                <canvas id="simSyncMapCanvas" class="map-canvas" style="display:none;"></canvas>
-              </div>
-            </div>
-
-            <!-- Strava-Style Auto-Lap Splits Table (1.0 km Laps) -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                  <div class="card-title" data-i18n="cardSplitsTitle">Kilometer Splits (1.0 km Auto-Laps)</div>
-                </div>
-              </div>
-              <div class="data-table-wrap">
-                <table class="data-table" id="splitsTable">
-                  <thead>
-                    <tr>
-                      <th>KM</th>
-                      <th data-i18n="thSplitSpeed">Speed / Pace</th>
-                      <th data-i18n="thSplitElev">Elev Diff</th>
-                      <th data-i18n="thSplitHr">Avg HR</th>
-                      <th data-i18n="thSplitCad">Cadence</th>
-                      <th data-i18n="thSplitPower">Avg Power</th>
-                    </tr>
-                  </thead>
-                  <tbody id="splitsTableBody"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: 5 Synchronized Telemetry Charts -->
-          <div>
-            <div class="chart-card">
-              <div class="chart-header">
-                <span class="chart-title" data-i18n="chartElevationTitle">Elevation Profile (m)</span>
-                <span class="chart-readout" id="chartReadoutEle">-</span>
-              </div>
-              <canvas id="simChartEle" class="chart-canvas"></canvas>
-            </div>
-
-            <div class="chart-card">
-              <div class="chart-header">
-                <span class="chart-title" id="chartTitleSpeed">Speed (km/h)</span>
-                <span class="chart-readout" id="chartReadoutSpeed">-</span>
-              </div>
-              <canvas id="simChartSpeed" class="chart-canvas"></canvas>
-            </div>
-
-            <div class="chart-card" id="chartCardPower">
-              <div class="chart-header">
-                <span class="chart-title" data-i18n="chartPowerTitle">Power Output (Watts)</span>
-                <span class="chart-readout" id="chartReadoutPower">-</span>
-              </div>
-              <canvas id="simChartPower" class="chart-canvas"></canvas>
-            </div>
-
-            <div class="chart-card" id="chartCardHr">
-              <div class="chart-header">
-                <span class="chart-title" data-i18n="chartHrTitle">Heart Rate (bpm)</span>
-                <span class="chart-readout" id="chartReadoutHr">-</span>
-              </div>
-              <canvas id="simChartHr" class="chart-canvas"></canvas>
-            </div>
-
-            <div class="chart-card" id="chartCardCadence">
-              <div class="chart-header">
-                <span class="chart-title" id="chartTitleCadence">Cadence (RPM)</span>
-                <span class="chart-readout" id="chartReadoutCadence">-</span>
-              </div>
-              <canvas id="simChartCadence" class="chart-canvas"></canvas>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ====================================================================
-           TAB 4: DEVICE SELECTION, FIT VALIDATION & STRAVA UPLOAD
-           ==================================================================== -->
-      <section class="tab-panel" id="tab-export">
-        <div class="step-context-bar">
-          <span class="step-pill">STEP 4 / 4</span>
-          <span class="step-context-text" data-i18n="stepBar4">Choose your GPS device signature, download the .FIT file, and upload to Strava.</span>
-        </div>
-
-        <div class="two-col-grid">
-          <!-- Left Column: 113 Authentic GPS Device Selector (Strictly Separated: CYCLOCOMP vs SPORTWATCH) -->
-          <div>
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                  <div>
-                    <div class="card-title" data-i18n="cardDeviceTitle">Authentic Hardware Device Signature (113 Famous Models)</div>
-                    <div class="card-subtitle" data-i18n="cardDeviceSub">Strictly separated into CYCLOCOMP (Cycling Bike Computers) &amp; SPORTWATCH (Running &amp; Multisport Watches) with official FIT Product IDs &amp; Product Names</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 1. Primary Hardware Category Switcher: CYCLOCOMP (Cycling) vs SPORTWATCH (Running) -->
-              <div class="device-type-switcher" id="deviceTypeFilterRow">
-                <button type="button" class="device-type-btn active" data-devtype="CYCLOCOMP" id="btnDevTypeCyclocomp">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></svg>
-                  <div class="device-type-btn-text">
-                    <span class="device-type-btn-title" data-i18n="tabDevCyclocompTitle">Cyclocomp</span>
-                    <span class="device-type-btn-sub" data-i18n="tabDevCyclocompSub">Cycling (52)</span>
-                  </div>
-                </button>
-                <button type="button" class="device-type-btn" data-devtype="SPORTWATCH" id="btnDevTypeSportwatch">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><polyline points="12 9 12 12 13.5 13.5"/><path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"/></svg>
-                  <div class="device-type-btn-text">
-                    <span class="device-type-btn-title" data-i18n="tabDevSportwatchTitle">Sportwatch</span>
-                    <span class="device-type-btn-sub" data-i18n="tabDevSportwatchSub">Running (61)</span>
-                  </div>
-                </button>
-                <button type="button" class="device-type-btn device-type-btn-compact" data-devtype="ALL" id="btnDevTypeAll">
-                  <div class="device-type-btn-text">
-                    <span class="device-type-btn-title" data-i18n="tabDevAllTitle">All</span>
-                    <span class="device-type-btn-sub" data-i18n="tabDevAllSub">113 Models</span>
-                  </div>
-                </button>
-              </div>
-
-              <!-- 2. Instant Search Input -->
-              <div class="device-search-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" class="form-input device-search-input" id="deviceSearchInput" placeholder="Search device..." />
-              </div>
-
-              <!-- 3. Dynamic Brand Filter Pills -->
-              <div class="device-brand-pills" id="deviceBrandFilterRow"></div>
-
-              <!-- 4. Sport vs Hardware Compatibility Alert (Only visible if user picks Cyclocomp while in Running mode) -->
-              <div class="device-sport-warning" id="deviceSportWarningBanner" style="display:none;">
-                <div class="device-sport-warning-text" id="deviceSportWarningText">
-                  Warning: You are simulating a RUNNING activity, but a CYCLOCOMP (Bike Computer) is selected. Switch to a Running Sportwatch for authentic Strava Running display.
-                </div>
-                <button type="button" class="btn btn-primary btn-sm" id="btnFixDeviceForSport">
-                  <span data-i18n="btnSwitchToRunningWatch">Switch to COROS PACE 3 (Running Watch)</span>
-                </button>
-              </div>
-
-              <!-- 5. Selected Device Hardware Summary -->
-              <div class="selected-device-box">
-                <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-                  <div>
-                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
-                      <span style="font-size:11px; font-weight:800; color:var(--strava-orange); text-transform:uppercase;" data-i18n="lblSelectedHardware">SELECTED GPS HARDWARE</span>
-                      <span class="status-badge badge-cyan" id="selectedDeviceTypeBadge">CYCLOCOMP • FOR CYCLING</span>
-                    </div>
-                    <div style="font-size:16.5px; font-weight:800; color:var(--text-primary);" id="selectedDeviceTitle">Garmin Edge 1040 Solar</div>
-                    <div style="font-size:12px; font-weight:700; color:var(--strava-green); margin-top:2px;" id="selectedDeviceStravaName">Strava Display: "Garmin Edge 1040 Solar"</div>
-                  </div>
-                  <span class="status-badge badge-orange" id="selectedDeviceIdsBadge">MFR: 1 • PROD: 3843</span>
-                </div>
-                <div style="font-size:11.5px; color:var(--text-secondary); margin-top:8px;" id="selectedDeviceSpecs">
-                  Category: Bike Computer • Barometric Altimeter: YES • Native Power: YES • Firmware: v24.18
-                </div>
-              </div>
-
-              <div class="profile-list" style="max-height: 430px;" id="deviceProfileGrid"></div>
-            </div>
-          </div>
-
-          <!-- Right Column: Binary .FIT Parse-Back Validation + Download & Free Strava Upload -->
-          <div>
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-                  <div>
-                    <div class="card-title" data-i18n="cardFitValidationTitle">Garmin FIT Protocol 2.0 Binary Validation</div>
-                    <div class="card-subtitle" data-i18n="cardFitValidationSub">Real-time binary encoder &amp; parse-back CRC-16 verification</div>
-                  </div>
-                </div>
-                <span class="status-badge badge-green" id="fitStatusBadge">VALIDATED</span>
-              </div>
-
-              <div class="metrics-grid-3" style="margin-bottom: 16px;">
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblFitSize">Binary File Size</div>
-                  <div class="metric-value-row"><span class="metric-value" id="fitFileSizeVal">0.0</span><span class="metric-unit">KB</span></div>
-                </div>
-                <div class="metric-box">
-                  <div class="metric-label" data-i18n="lblFitRecords">FIT Messages</div>
-                  <div class="metric-value-row"><span class="metric-value" id="fitMsgCountVal">0</span><span class="metric-unit">msgs</span></div>
-                </div>
-                <div class="metric-box">
-                  <div class="metric-label">CRC-16 Checksum</div>
-                  <div class="metric-value-row"><span class="metric-value" id="fitCrcHexVal" style="font-size:16px;">0x0000</span><span class="metric-unit">PASS</span></div>
-                </div>
-              </div>
-
-              <!-- 9-Point Validation Checklist -->
-              <div id="fitChecklistContainer" style="margin-bottom: 18px;"></div>
-
-              <!-- Primary Action: Download .FIT File -->
-              <button type="button" class="btn btn-primary btn-block btn-lg" id="downloadFitBtn" style="margin-bottom: 12px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span data-i18n="btnDownloadFit">DOWNLOAD VALIDATED .FIT FILE</span>
+              <button type="button" class="glass-btn-primary" id="openFullscreenMapBtn" style="margin-top: 10px; width: 100%;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+                <span>Buka Editor Peta Layar Penuh</span>
               </button>
+            </div>
+          </div>
+        </div>
 
-              <!-- Secondary Action: UPLOAD TO STRAVA (100% Free Web Upload) -->
-              <div class="strava-free-upload-box">
-                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-                  <div style="font-size:13px; font-weight:800; color:var(--strava-orange);" data-i18n="stravaFreeTitle">
-                    Upload to Strava
+        <!-- Active Track Telemetry Card -->
+        <div class="glass-card telemetry-summary-card">
+          <div class="card-title-row">
+            <span class="card-heading">Rangkuman Rute Aktif</span>
+            <span class="status-pill pill-green" id="routeStatusBadge">TERSEDIA</span>
+          </div>
+          <div class="track-name-display" id="activeTrackName">Dago Pakar Scenic Climb &amp; Descent Loop</div>
+
+          <div class="metrics-grid-apple">
+            <div class="metric-cell">
+              <div class="metric-value-large"><span id="routeDistVal">7.32</span> <span class="metric-unit">km</span></div>
+              <div class="metric-caption">Jarak Total</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-value-large"><span id="routeGainVal">224</span> <span class="metric-unit">m</span></div>
+              <div class="metric-caption">Elevasi Naik</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-value-large"><span id="routeLossVal">224</span> <span class="metric-unit">m</span></div>
+              <div class="metric-caption">Elevasi Turun</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-value-large"><span id="routeMaxGrade">8.4</span> <span class="metric-unit">%</span></div>
+              <div class="metric-caption">Gradien Maks</div>
+            </div>
+          </div>
+
+          <div class="route-aux-meta" style="margin-top: 10px; font-size: 12.5px; color: var(--text-secondary);">
+            Koordinat Titik: <strong id="routePointCount">142</strong> titik | Sumber Ketinggian: <strong id="eleSourceBadge">Satelit 3D DEM</strong>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         HALAMAN 3: MODE OLAHRAGA, TARGET & JEDA MANUAL
+         ==================================================================== -->
+    <section class="book-page" id="book-page-3" data-page="3">
+      <div class="page-content">
+
+        <div class="page-header-block">
+          <div class="page-eyebrow">TAHAP 2 DARI 4</div>
+          <h2 class="page-title">Olahraga &amp; Target</h2>
+          <p class="page-subtitle">Sesuaikan target kecepatan langkah, simulasi jeda istirahat, dan sensor fisik.</p>
+        </div>
+
+        <!-- Sport & Intensity Dropdown -->
+        <div class="glass-card">
+          <div class="form-row-group">
+            <div class="form-col">
+              <label class="form-label" for="sportSelectDropdown">Cabang Olahraga</label>
+              <div class="glass-select-wrap">
+                <select class="glass-select" id="sportSelectDropdown">
+                  <option value="RUNNING">Lari (Running)</option>
+                  <option value="CYCLING">Bersepeda (Cycling)</option>
+                </select>
+                <div class="select-chevron">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-col">
+              <label class="form-label" for="athleteProfileDropdown">Profil Intensitas</label>
+              <div class="glass-select-wrap">
+                <select class="glass-select" id="athleteProfileDropdown">
+                  <option value="ENDURANCE_RIDE">Sedang (Aerobik / Steady Effort)</option>
+                  <option value="RECOVERY_SPIN">Santai (Pemulihan / Easy Pace)</option>
+                  <option value="TEMPO_EFFORT">Tempo (Zona Ambang Batas)</option>
+                  <option value="RACE_PACE">Maksimal (Simulasi Balapan)</option>
+                </select>
+                <div class="select-chevron">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HORIZONTAL RULER PICKER (PACE & SPEED) -->
+        <div class="glass-card ruler-picker-card">
+          <div class="ruler-header-row">
+            <div class="ruler-title" id="rulerTargetTitle">Target Kecepatan Langkah (Pace)</div>
+            <div class="ruler-mode-badge" id="rulerTargetBadge">LARI</div>
+          </div>
+
+          <!-- Big Value Readout -->
+          <div class="ruler-display-wrap">
+            <button type="button" class="ruler-step-btn" id="rulerBtnMinus" title="Kurangi">-</button>
+            <div class="ruler-number-center">
+              <div class="ruler-big-number" id="rulerValueText">05:30</div>
+              <div class="ruler-unit-text" id="rulerUnitText">menit / km</div>
+            </div>
+            <button type="button" class="ruler-step-btn" id="rulerBtnPlus" title="Tambah">+</button>
+          </div>
+
+          <!-- Scrollable Tape Measure Track -->
+          <div class="ruler-viewport-wrapper">
+            <div class="ruler-indicator-needle"></div>
+            <div class="ruler-scroll-container" id="rulerScrollContainer">
+              <div class="ruler-track" id="rulerTrack"></div>
+            </div>
+          </div>
+          <div class="ruler-scroll-hint">Geser meteran ke kiri atau kanan untuk menyesuaikan nilai</div>
+        </div>
+
+        <!-- Activity Date & Time Input Card -->
+        <div class="glass-card">
+          <div class="card-heading" style="margin-bottom: 12px;">Waktu &amp; Tanggal Aktivitas</div>
+          <div class="form-row-group">
+            <div class="form-col">
+              <label class="form-label" for="activityDateInput">Tanggal Mulai</label>
+              <input type="date" class="glass-input" id="activityDateInput" />
+            </div>
+            <div class="form-col">
+              <label class="form-label" for="activityTimeInput">Jam Mulai (WIB)</label>
+              <input type="time" class="glass-input" id="activityTimeInput" />
+            </div>
+          </div>
+        </div>
+
+        <!-- MANUAL STOPS (JEDA OLAHRAGA) CARD -->
+        <div class="glass-card">
+          <div class="toggle-row">
+            <div>
+              <div class="card-heading">Jeda &amp; Istirahat Saat Olahraga</div>
+              <div class="toggle-subtext">Menghitung waktu istirahat (lampu merah, hidrasi) secara terpisah dari waktu bergerak.</div>
+            </div>
+            <label class="apple-toggle">
+              <input type="checkbox" id="toggleManualStops" checked />
+              <span class="apple-toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-expandable-panel" id="panelManualStops">
+            <div class="form-row-group" style="margin-top: 14px;">
+              <div class="form-col">
+                <label class="form-label" for="stopsCountDropdown">Frekuensi Jeda</label>
+                <div class="glass-select-wrap">
+                  <select class="glass-select" id="stopsCountDropdown">
+                    <option value="1">1 Kali Istirahat</option>
+                    <option value="2" selected>2 Kali Istirahat</option>
+                    <option value="3">3 Kali Istirahat</option>
+                    <option value="4">4 Kali Istirahat</option>
+                    <option value="5">5 Kali Istirahat</option>
+                  </select>
+                  <div class="select-chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                   </div>
-                  <span class="status-badge badge-orange">FREE</span>
                 </div>
-                <ol class="strava-upload-steps">
-                  <li data-i18n="stravaStep1">Download the <strong>.FIT</strong> file above.</li>
-                  <li data-i18n="stravaStep2">Click below and select the file on Strava.</li>
-                </ol>
-                <a href="https://www.strava.com/upload/select" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block btn-lg" id="uploadToStravaWebBtn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                  <span>UPLOAD TO STRAVA</span>
-                </a>
+              </div>
+
+              <div class="form-col">
+                <label class="form-label" for="stopDurationDropdown">Durasi per Jeda</label>
+                <div class="glass-select-wrap">
+                  <select class="glass-select" id="stopDurationDropdown">
+                    <option value="30">30 Detik</option>
+                    <option value="60">1 Menit</option>
+                    <option value="90" selected>1 Menit 30 Detik</option>
+                    <option value="120">2 Menit</option>
+                    <option value="180">3 Menit</option>
+                    <option value="300">5 Menit</option>
+                  </select>
+                  <div class="select-chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stops-impact-note" id="stopsImpactNote">
+              Total Jeda: <strong>3 Menit 00 Detik</strong> • Kecepatan, daya &amp; kadens menjadi 0 selama jeda.
+            </div>
+          </div>
+        </div>
+
+        <!-- SENSORS (HEART RATE & CADENCE) CARD -->
+        <div class="glass-card">
+          <!-- HR Toggle -->
+          <div class="toggle-row">
+            <div>
+              <div class="card-heading">Sensor Detak Jantung (Heart Rate)</div>
+              <div class="toggle-subtext">Simulasi detak jantung dengan lag kardiovaskular asimetris.</div>
+            </div>
+            <label class="apple-toggle">
+              <input type="checkbox" id="hrEnabledCheck" checked />
+              <span class="apple-toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-expandable-panel" id="panelHeartRate" style="margin-top: 10px; margin-bottom: 14px;">
+            <label class="form-label" for="hrZoneDropdown">Target Zona Beban Jantung</label>
+            <div class="glass-select-wrap">
+              <select class="glass-select" id="hrZoneDropdown">
+                <option value="ZONE_2">Zona 2 — Pembakaran Lemak / Mudah (130 - 145 BPM)</option>
+                <option value="ZONE_3" selected>Zona 3 — Aerobik Menengah (145 - 160 BPM)</option>
+                <option value="ZONE_4">Zona 4 — Ambang Laktat / Kencang (160 - 175 BPM)</option>
+              </select>
+              <div class="select-chevron">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-divider" style="margin: 14px 0;"></div>
+
+          <!-- Cadence Toggle -->
+          <div class="toggle-row">
+            <div>
+              <div class="card-heading">Sensor Kadens (Langkah / Pedal)</div>
+              <div class="toggle-subtext">Mencatat putaran pedal (RPM) atau langkah lari (SPM).</div>
+            </div>
+            <label class="apple-toggle">
+              <input type="checkbox" id="cadenceEnabledCheck" checked />
+              <span class="apple-toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-expandable-panel" id="panelCadence" style="margin-top: 10px;">
+            <label class="form-label" for="cadenceTargetDropdown">Target Frekuensi Kadens</label>
+            <div class="glass-select-wrap">
+              <select class="glass-select" id="cadenceTargetDropdown">
+                <option value="RUN_165">165 SPM (Lari Santai)</option>
+                <option value="RUN_172" selected>172 SPM (Lari Standar)</option>
+                <option value="RUN_180">180 SPM (Lari Kadens Optimal)</option>
+                <option value="BIKE_80">80 RPM (Gowes Santai)</option>
+                <option value="BIKE_90">90 RPM (Gowes Efisien)</option>
+              </select>
+              <div class="select-chevron">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
             </div>
           </div>
         </div>
-      </section>
 
-      <!-- ====================================================================
-           TAB 5: DEVELOPER DIAGNOSTICS & POINT INSPECTOR
-           ==================================================================== -->
-      <section class="tab-panel" id="tab-debug">
-        <div class="step-context-bar">
-          <span class="step-pill">DIAGNOSTICS</span>
-          <span class="step-context-text" data-i18n="stepBar5">Inspect point-by-point physics adjustments, downhill scoring, and export CSV.</span>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         HALAMAN 4: IDENTITAS PERANGKAT GPS RESMI (DEVICE IDENTITY)
+         ==================================================================== -->
+    <section class="book-page" id="book-page-4" data-page="4">
+      <div class="page-content">
+
+        <div class="page-header-block">
+          <div class="page-eyebrow">TAHAP 3 DARI 4</div>
+          <h2 class="page-title">Identitas Perangkat GPS</h2>
+          <p class="page-subtitle">Pilih model jam tangan atau cyclocomputer yang akan dicatat resmi pada berkas biner FIT.</p>
         </div>
 
-        <div class="two-col-grid">
-          <div>
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                  <div class="card-title" data-i18n="cardDiagSolverTitle">Physics Solver State &amp; Export CSV</div>
-                </div>
-                <button type="button" class="btn btn-secondary" id="exportCsvBtn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  <span data-i18n="btnExportCsv">Export Telemetry CSV</span>
-                </button>
-              </div>
-              <div id="solverDiagnosticsList"></div>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
-                  <div class="card-title" data-i18n="cardDownhillCandTitle">Downhill High-Speed Candidates</div>
-                </div>
-              </div>
-              <div id="downhillCandidatesList" style="font-size:12px; color:var(--text-secondary);"></div>
+        <div class="glass-card">
+          <label class="form-label" for="deviceBrandDropdown">Penyaring Produsen Perangkat</label>
+          <div class="glass-select-wrap">
+            <select class="glass-select" id="deviceBrandDropdown">
+              <option value="ALL">Semua Produsen Terdaftar</option>
+              <option value="Garmin" selected>Garmin (Forerunner &amp; Edge)</option>
+              <option value="COROS">COROS (PACE &amp; APEX)</option>
+              <option value="Apple">Apple Watch (Ultra &amp; Series)</option>
+              <option value="Wahoo Fitness">Wahoo (ELEMNT &amp; RIVAL)</option>
+              <option value="Suunto">Suunto (Race &amp; Vertical)</option>
+              <option value="Polar">Polar (Vantage &amp; Pacer)</option>
+            </select>
+            <div class="select-chevron">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
 
-          <div>
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title-group">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <div class="card-title" data-i18n="cardPointInspectorTitle">Point-by-Point Telemetry Inspector</div>
-                </div>
-                <span class="status-badge badge-cyan" id="inspectorReasonBadge">MOVING</span>
-              </div>
-
-              <div class="form-group">
-                <div class="form-label-row">
-                  <span class="form-label" id="inspectorIndexLabel">Point 0 of 0</span>
-                </div>
-                <input type="range" class="range-slider" id="pointInspectorSlider" min="0" max="100" value="0" />
-              </div>
-
-              <div id="pointInspectorDetails"></div>
+          <label class="form-label" for="deviceModelDropdown" style="margin-top: 14px;">Pilih Model Perangkat Resmi</label>
+          <div class="glass-select-wrap">
+            <select class="glass-select" id="deviceModelDropdown">
+              <!-- Dynamically populated via app.js -->
+            </select>
+            <div class="select-chevron">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
         </div>
-      </section>
 
-    </div>
+        <!-- Selected Device Identity Card -->
+        <div class="glass-card device-verified-card">
+          <div class="card-title-row">
+            <span class="card-heading">Konfirmasi Metadata Biner</span>
+            <span class="status-pill pill-blue" id="selectedDeviceTypeBadge">SPORTWATCH</span>
+          </div>
+
+          <div class="device-spec-row">
+            <div class="device-large-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="12" cy="12" r="7"/>
+                <polyline points="12 9 12 12 13.5 13.5"/>
+                <path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"/>
+              </svg>
+            </div>
+            <div class="device-spec-info">
+              <div class="device-model-name" id="selectedDeviceTitle">Garmin Forerunner 265</div>
+              <div class="device-strava-label">Label Strava: <strong id="selectedDeviceStravaName">Garmin Forerunner 265</strong></div>
+              <div class="device-ids-sub" id="selectedDeviceIdsBadge">Manufacturer ID: 1 • Product ID: 4257</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         HALAMAN 5: RINGKASAN AKTIVITAS & EKSPOR BERKAS (SUMMARY & EXPORT)
+         ==================================================================== -->
+    <section class="book-page" id="book-page-5" data-page="5">
+      <div class="page-content">
+
+        <div class="page-header-block">
+          <div class="page-eyebrow">SELESAI</div>
+          <h2 class="page-title">Aktivitas Anda Siap</h2>
+          <p class="page-subtitle">Seluruh simulasi fisiologi telah diverifikasi dan siap diunduh dalam format berkas biner FIT resmi.</p>
+        </div>
+
+        <!-- Digital Activity Ticket Pass (Apple Wallet Style) -->
+        <div class="glass-card activity-ticket-pass">
+          <div class="ticket-header-row">
+            <div>
+              <div class="ticket-sport-badge" id="ticketSportBadge">LARI • RUNNING</div>
+              <div class="ticket-route-title" id="ticketTrackTitle">Dago Pakar Scenic Climb &amp; Descent Loop</div>
+            </div>
+            <div class="ticket-date-right" id="ticketDateTimeDisplay">Hari ini, 06:15 WIB</div>
+          </div>
+
+          <div class="ticket-divider"></div>
+
+          <!-- Main Numbers Grid -->
+          <div class="ticket-numbers-grid">
+            <div class="ticket-stat-box">
+              <div class="ticket-num-val" id="simDistVal">7.32</div>
+              <div class="ticket-num-unit">Kilometer</div>
+              <div class="ticket-num-label">Jarak Total</div>
+            </div>
+
+            <div class="ticket-stat-box">
+              <div class="ticket-num-val" id="simMovingTimeVal">40:15</div>
+              <div class="ticket-num-unit" id="simElapsedSub">Total 43:15</div>
+              <div class="ticket-num-label">Waktu Bergerak</div>
+            </div>
+
+            <div class="ticket-stat-box">
+              <div class="ticket-num-val" id="simAvgPrimaryVal">05:30</div>
+              <div class="ticket-num-unit" id="simAvgPrimaryUnit">/km</div>
+              <div class="ticket-num-label" id="simAvgPrimaryLabel">Avg Pace</div>
+            </div>
+          </div>
+
+          <div class="ticket-divider"></div>
+
+          <!-- Secondary Details -->
+          <div class="ticket-details-grid">
+            <div class="detail-cell">
+              <span class="detail-label">Elevasi Naik</span>
+              <strong class="detail-val">+<span id="ticketGainVal">224</span> m</strong>
+            </div>
+            <div class="detail-cell">
+              <span class="detail-label">Detak Jantung Rata-rata</span>
+              <strong class="detail-val"><span id="simHrVal">152</span> BPM</strong>
+            </div>
+            <div class="detail-cell">
+              <span class="detail-label">Estimasi Kalori</span>
+              <strong class="detail-val"><span id="simCaloriesVal">512</span> kkal</strong>
+            </div>
+            <div class="detail-cell">
+              <span class="detail-label">Perangkat Resmi</span>
+              <strong class="detail-val" id="ticketDeviceName">Garmin Forerunner 265</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Format Dropdown -->
+        <div class="glass-card">
+          <label class="form-label" for="exportFormatDropdown">Format Berkas Ekspor</label>
+          <div class="glass-select-wrap">
+            <select class="glass-select" id="exportFormatDropdown">
+              <option value="FIT" selected>Garmin FIT Protocol 2.0 (.fit) — Direkomendasikan untuk Strava</option>
+              <option value="GPX">Standard GPS Exchange Format (.gpx)</option>
+            </select>
+            <div class="select-chevron">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+
+          <!-- Primary Download Button -->
+          <button type="button" class="glass-btn-primary full-width" id="downloadFitBtn" style="margin-top: 16px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Unduh Berkas .FIT Resmi</span>
+          </button>
+
+          <!-- Direct Upload to Strava Link -->
+          <a href="https://www.strava.com/upload/select" target="_blank" rel="noopener noreferrer" class="glass-btn-secondary full-width" style="margin-top: 10px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <span>Buka Halaman Unggah Strava</span>
+          </a>
+
+          <!-- Restart Button -->
+          <button type="button" class="glass-text-btn" id="restartWizardBtn" style="margin-top: 14px;">
+            <span>Buat Aktivitas Baru</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
   </main>
 
   <!-- ========================================================================
-       MOBILE BOTTOM NAVIGATION BAR (< 820px)
+       STICKY BOTTOM GLASS NAVIGATION BAR
        ======================================================================== -->
-  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
-    <button type="button" class="mobile-nav-btn active" data-tab="tab-route">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-      <span data-i18n="mobNavRoute">1. Route</span>
-    </button>
-    <button type="button" class="mobile-nav-btn" data-tab="tab-config">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
-      <span data-i18n="mobNavConfig">2. Setup</span>
-    </button>
-    <button type="button" class="mobile-nav-btn" data-tab="tab-preview">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      <span data-i18n="mobNavPreview">3. Preview</span>
-    </button>
-    <button type="button" class="mobile-nav-btn" data-tab="tab-export">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <span data-i18n="mobNavExport">4. Export</span>
-    </button>
-    <button type="button" class="mobile-nav-btn" data-tab="tab-debug">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      <span data-i18n="mobNavDebug">5. Debug</span>
-    </button>
-  </nav>
+  <footer class="glass-bottom-bar" id="glassBottomBar">
+    <div class="bottom-bar-inner">
+      <button type="button" class="bottom-nav-btn btn-back" id="bottomBackBtn" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span>Kembali</span>
+      </button>
+
+      <button type="button" class="bottom-nav-btn btn-forward" id="bottomForwardBtn">
+        <span id="bottomForwardText">Lanjutkan</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </footer>
 
   <!-- ========================================================================
-       USER GUIDE MODAL (COMPLETE STEP-BY-STEP DOCUMENTATION EN & ID)
+       MODAL: FULLSCREEN LEAFLET MAP ROUTE BUILDER
        ======================================================================== -->
-  <div class="modal-overlay" id="guideModal">
-    <div class="modal-card">
-      <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
-        <div class="card-title-group">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          <div class="card-title" data-i18n="modalGuideTitle">Complete User Guide — Strava Kalcer</div>
-        </div>
-        <button type="button" class="btn btn-secondary" id="closeGuideModalBtn" style="padding: 6px 12px;" data-i18n="btnClose">Close</button>
+  <div class="fullscreen-modal" id="mapEditorModal" style="display:none;">
+    <div class="modal-glass-header">
+      <div class="modal-title-group">
+        <div class="modal-title">Editor Rute Peta Layar Penuh</div>
+        <div class="modal-subtitle">Klik titik pada jalan untuk membentuk rute bebas tol.</div>
       </div>
-
-      <div id="modalGuideContent" style="font-size: 13px; color: var(--text-primary); line-height: 1.6;"></div>
+      <button type="button" class="modal-close-btn" id="closeMapEditorBtn" title="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
+
+    <div class="modal-map-toolbar">
+      <div class="map-toolbar-left">
+        <span class="toolbar-stat">Titik: <strong id="builderWpCount">0</strong></span>
+        <span class="toolbar-stat">Jarak: <strong id="builderDistKm">0.00</strong> km</span>
+        <span class="toolbar-stat">Tanjakan: <strong id="builderGainM">0</strong> m</span>
+      </div>
+      <div class="map-toolbar-actions">
+        <button type="button" class="toolbar-pill-btn" id="builderUndoBtn" title="Urungkan">Urungkan</button>
+        <button type="button" class="toolbar-pill-btn" id="builderLoopStartBtn" title="Loop Kembali">Loop</button>
+        <button type="button" class="toolbar-pill-btn" id="builderClearBtn" title="Hapus Semua">Hapus</button>
+      </div>
+    </div>
+
+    <!-- Leaflet Container -->
+    <div class="fullscreen-map-canvas" id="builderLeafletMap"></div>
+
+    <div class="modal-glass-footer">
+      <div class="builder-status-text" id="builderStatusText">Siap: Klik peta untuk menambah titik rute.</div>
+      <button type="button" class="glass-btn-primary" id="builderApplyToSimBtn">
+        <span>Selesai &amp; Terapkan Rute</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Hidden compatibility shims so core calculation in app.js never throws null exceptions -->
+  <div style="display:none;" aria-hidden="true">
+    <div id="routeMinMaxEle"></div>
+    <div id="eleAuditNote"></div>
+    <div id="routeMapCursorLabel"></div>
+    <div id="routeOverviewEleReadout"></div>
+    <div id="stopsCountBadge"></div>
+    <div id="feasibilityBadge"></div>
+    <div id="feasibilityTargetSummary"></div>
+    <div id="feasibilityNoteText"></div>
+    <div id="simMaxPrimaryVal"></div>
+    <div id="simMaxPrimaryUnit"></div>
+    <div id="simMaxPrimaryLabel"></div>
+    <div id="simCadenceVal"></div>
+    <div id="simCadenceUnit"></div>
+    <div id="simAvgPowerVal"></div>
+    <div id="simNpPowerVal"></div>
+    <div id="simTempVal"></div>
+    <div id="simWorkSub"></div>
+    <div id="simCursorPositionText"></div>
+    <div id="simCursorTelemetryText"></div>
+    <div id="fitMsgCountVal"></div>
+    <div id="fitFileSizeVal"></div>
+    <div id="fitCrcHexVal"></div>
+    <div id="fitChecklistContainer"></div>
+    <div id="splitsTableBody"></div>
+    <div id="climbsContainer"></div>
+    <div id="downhillCandidatesList"></div>
+    <div id="solverDiagnosticsList"></div>
+    <div id="intelClimbPct"></div>
+    <div id="intelFlatPct"></div>
+    <div id="intelDescentPct"></div>
+    <input type="text" id="activityTitleInput" value="Strava Kalcer Activity" />
+    <input type="text" id="builderRouteNameInput" value="Custom Route" />
+    <select id="builderRoutingModeSelect"><option value="ROAD_OSRM">ROAD_OSRM</option></select>
+    <button id="builderSearchBtn"></button>
+    <input id="builderSearchInput" />
+    <button id="builderMyGpsBtn"></button>
+    <button id="builderDownloadGpxBtn"></button>
+    <button id="exportCsvBtn"></button>
+    <button id="reverseRouteBtn"></button>
+    <button id="loadSampleRouteBtn"></button>
+    <button id="sportCyclingBtn"></button>
+    <button id="sportRunningBtn"></button>
+    <button id="goToConfigBtn"></button>
+    <button id="backToTweakBtn"></button>
+    <button id="proceedToExportBtn"></button>
+    <button id="runSimulationBtn"></button>
+    <button id="openBuilderQuickBtn"></button>
+    <button id="modeImportGpxBtn"></button>
+    <button id="modeCreateGpxBtn"></button>
+    <button id="toggleBannerBtn"></button>
+    <button id="openGuideModalBtn"></button>
+    <button id="closeGuideModalBtn"></button>
+    <div id="guideModal"></div>
+    <div id="modalGuideContent"></div>
+    <div id="onboardingStepsGrid"></div>
+    <div id="gpxBuilderPanel"></div>
+    <div id="motionSceneCycling"></div>
+    <div id="motionSceneRunning"></div>
+    <div id="configChangeDeviceBtn"></div>
+    <div id="configQuickDeviceTypeBadge"></div>
+    <div id="configQuickDeviceName"></div>
+    <div id="profileSelectorList"></div>
+    <div id="deviceBrandFilterRow"></div>
+    <div id="deviceProfileGrid"></div>
+    <input id="deviceSearchInput" />
+    <div id="deviceSportWarningBanner"></div>
+    <div id="deviceSportWarningText"></div>
+    <button id="btnFixDeviceForSport"></button>
+    <input id="targetAvgSpeedSlider" type="range" />
+    <span id="targetAvgSpeedLabel"></span>
+    <input id="targetAvgPaceSlider" type="range" />
+    <span id="targetAvgPaceLabel"></span>
+    <input id="enableMaxSpeedCheck" type="checkbox" />
+    <input id="desiredMaxSpeedSlider" type="range" />
+    <span id="desiredMaxSpeedLabel"></span>
+    <input id="enableBestPaceCheck" type="checkbox" />
+    <input id="desiredBestPaceSlider" type="range" />
+    <span id="desiredBestPaceLabel"></span>
+    <select id="smartStopPresetSelect"><option value="NONE">NONE</option></select>
+    <input id="targetCadenceSlider" type="range" />
+    <span id="targetCadenceValLabel"></span>
+    <select id="coastingModeSelect"><option value="ZERO_RPM">ZERO_RPM</option></select>
+    <div id="coastingModeGroup"></div>
+    <div id="climbingDropGroup"></div>
+    <input id="climbingDropSlider" type="range" />
+    <span id="climbingDropLabel"></span>
+    <input id="riderWeightSlider" type="range" />
+    <span id="riderWeightLabel"></span>
+    <input id="bikeWeightSlider" type="range" />
+    <span id="bikeWeightLabel"></span>
+    <input id="avgHrSlider" type="range" />
+    <span id="avgHrLabel"></span>
+    <input id="maxHrSlider" type="range" />
+    <span id="maxHrLabel"></span>
+    <input id="restingHrSlider" type="range" />
+    <span id="restingHrLabel"></span>
+    <div id="powerMeterCard"></div>
+    <div id="runningSolverControls"></div>
+    <div id="cyclingSolverControls"></div>
+    <span id="chartTitleSpeed"></span>
+    <span id="chartTitleCadence"></span>
+    <span id="chartReadoutEle"></span>
+    <span id="chartReadoutSpeed"></span>
+    <span id="chartReadoutPower"></span>
+    <span id="chartReadoutHr"></span>
+    <span id="chartReadoutCadence"></span>
+    <input id="pointInspectorSlider" type="range" />
+    <span id="inspectorIndexLabel"></span>
+    <span id="inspectorReasonBadge"></span>
+    <div id="pointInspectorDetails"></div>
+    <button id="langEnBtn"></button>
+    <button id="langIdBtn"></button>
   </div>
 
   <script src="app.js"></script>
