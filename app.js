@@ -4392,17 +4392,39 @@ const RouteBuilderEngine = {
     this.isRoutingBusy = false;
   },
 
+  updateTelemetryDisplay(track) {
+    const distEl = document.getElementById("builderDistKm");
+    const gainEl = document.getElementById("builderGainM");
+    const lossEl = document.getElementById("builderLossM");
+    const gradeEl = document.getElementById("builderMaxGrade");
+    const wpEl = document.getElementById("builderWpCount");
+
+    if (wpEl) wpEl.textContent = String(this.waypoints.length);
+
+    if (track && track.points && track.points.length >= 2) {
+      if (distEl) distEl.textContent = (track.totalDistanceMeters / 1000.0).toFixed(2);
+      if (gainEl) gainEl.textContent = `+${Math.round(track.elevationGainMeters)}`;
+      if (lossEl) lossEl.textContent = `-${Math.round(track.elevationLossMeters)}`;
+      if (gradeEl) gradeEl.textContent = track.maxGradientPercent.toFixed(1);
+    } else {
+      if (distEl) distEl.textContent = "0.00";
+      if (gainEl) gainEl.textContent = "+0";
+      if (lossEl) lossEl.textContent = "-0";
+      if (gradeEl) gradeEl.textContent = "0.0";
+    }
+  },
+
   async rebuildAndPreviewTrack() {
     const rawPts = this.getAllRoutedPoints();
     if (rawPts.length < 2) {
       this.builtTrack = null;
-      document.getElementById("builderDistKm").textContent = "0.00 km";
-      document.getElementById("builderGainM").textContent = "+0 m";
+      this.updateTelemetryDisplay(null);
       return;
     }
 
     await this.fetchReal3DElevations(rawPts);
-    const routeName = document.getElementById("builderRouteNameInput").value.trim() || "Custom Strava Kalcer Route";
+    const nameInput = document.getElementById("builderRouteNameInput");
+    const routeName = (nameInput && nameInput.value.trim()) || "Custom Strava Kalcer Route";
     const processed = RouteProcessor.process({
       trackName: routeName,
       points: rawPts,
@@ -4410,15 +4432,14 @@ const RouteBuilderEngine = {
     });
 
     this.builtTrack = processed;
-    document.getElementById("builderDistKm").textContent = `${(processed.totalDistanceMeters / 1000.0).toFixed(2)} km`;
-    document.getElementById("builderGainM").textContent = `+${Math.round(processed.elevationGainMeters)} m`;
+    this.updateTelemetryDisplay(processed);
 
     this.setStatus(
-      `Route ready: ${(processed.totalDistanceMeters / 1000.0).toFixed(2)} km (+${Math.round(processed.elevationGainMeters)}m climb, ${processed.points.length} 3D trackpoints). Click more points or export below.`,
-      `Rute siap: ${(processed.totalDistanceMeters / 1000.0).toFixed(2)} km (+${Math.round(processed.elevationGainMeters)}m tanjakan, ${processed.points.length} titik 3D). Klik titik lagi atau gunakan tombol di bawah.`
+      `Route ready: ${(processed.totalDistanceMeters / 1000.0).toFixed(2)} km (+${Math.round(processed.elevationGainMeters)}m climb, ${processed.points.length} 3D trackpoints). Click more points or apply below.`,
+      `Rute siap: ${(processed.totalDistanceMeters / 1000.0).toFixed(2)} km (+${Math.round(processed.elevationGainMeters)}m tanjakan, ${processed.points.length} titik 3D). Klik lagi untuk memperpanjang rute.`
     );
 
-    // Live-sync with active track & right-hand elevation chart!
+    // Live-sync with active track
     setLoadedTrack(processed);
   },
 
@@ -4433,8 +4454,7 @@ const RouteBuilderEngine = {
       await this.rebuildAndPreviewTrack();
     } else {
       this.builtTrack = null;
-      document.getElementById("builderDistKm").textContent = "0.00 km";
-      document.getElementById("builderGainM").textContent = "+0 m";
+      this.updateTelemetryDisplay(null);
       this.setStatus(
         "Click on the map to add waypoints.",
         "Klik pada peta untuk menambahkan titik rute."
@@ -4453,8 +4473,7 @@ const RouteBuilderEngine = {
     this.segmentsCoords = [];
     this.builtTrack = null;
     this.refreshMarkersAndPolyline();
-    document.getElementById("builderDistKm").textContent = "0.00 km";
-    document.getElementById("builderGainM").textContent = "+0 m";
+    this.updateTelemetryDisplay(null);
     this.setStatus(
       "Map cleared. Click anywhere on the map to place Start Point.",
       "Peta dibersihkan. Klik di mana saja pada peta untuk menaruh Titik Start."
@@ -4563,9 +4582,14 @@ function setupRouteBuilderEvents() {
       const lat = parseFloat(chip.getAttribute("data-lat"));
       const lon = parseFloat(chip.getAttribute("data-lon"));
       const zoom = parseInt(chip.getAttribute("data-zoom") || "14", 10);
+      const cityName = chip.textContent.trim();
       RouteBuilderEngine.initMap();
       if (RouteBuilderEngine.map) {
-        RouteBuilderEngine.map.setView([lat, lon], zoom);
+        RouteBuilderEngine.map.flyTo([lat, lon], zoom, { animate: true, duration: 1.0 });
+        RouteBuilderEngine.setStatus(
+          `Map centered to ${cityName}. Click on the map to start your route.`,
+          `Peta dipusatkan ke ${cityName}. Klik pada jalan untuk membuat rute.`
+        );
       }
     });
   });
