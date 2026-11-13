@@ -1394,9 +1394,19 @@ body {
   transform: scale(0.97);
 }
 
-.glass-btn-primary svg {
-  width: 18px;
-  height: 18px;
+.glass-btn-primary svg,
+.glass-btn-secondary svg,
+.glass-text-btn svg,
+a.glass-btn-secondary svg,
+a.glass-btn-primary svg,
+.bottom-nav-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
+  flex-shrink: 0 !important;
 }
 
 .glass-btn-secondary {
@@ -1452,6 +1462,11 @@ body {
 /* ============================================================================
    STICKY BOTTOM GLASS NAVIGATION BAR
    ============================================================================ */
+body:has(#book-page-1.active) #glassBottomBar,
+#book-page-1.active ~ #glassBottomBar {
+  display: none !important;
+}
+
 .glass-bottom-bar {
   position: fixed;
   bottom: 0;

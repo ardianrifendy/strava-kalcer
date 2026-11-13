@@ -5115,4 +5115,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  // Initialize wizard strictly on Page 1 and hide the bottom bar
+  if (typeof BookFlow !== "undefined") {
+    BookFlow.goToPage(1);
+  }
 });
