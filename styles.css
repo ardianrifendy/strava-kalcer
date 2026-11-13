@@ -381,7 +381,7 @@ body {
 }
 
 /* ============================================================================
-   FORMS & GLASS DROPDOWNS (SELECT)
+   FORMS & CUSTOM GLASS DROPDOWNS (APPLE STYLE)
    ============================================================================ */
 .form-label {
   display: block;
@@ -394,6 +394,173 @@ body {
 .glass-select-wrap {
   position: relative;
   width: 100%;
+}
+
+/* ============================================================================
+   CUSTOM APPLE GLASS DROPDOWN COMPONENT (NON-NATIVE GLASS POPUP)
+   ============================================================================ */
+.custom-glass-dropdown {
+  position: relative;
+  width: 100%;
+  user-select: none;
+}
+
+.custom-glass-dropdown select.glass-select {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+}
+
+.custom-glass-dropdown .select-chevron {
+  display: none !important;
+}
+
+.dropdown-trigger {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  background: var(--bg-glass-input);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+.dropdown-trigger:hover {
+  background: var(--bg-glass-card-hover);
+  border-color: rgba(252, 76, 2, 0.35);
+}
+
+.custom-glass-dropdown.open {
+  z-index: 1000;
+}
+
+.custom-glass-dropdown.open .dropdown-trigger {
+  border-color: var(--color-strava);
+  box-shadow: 0 0 0 3px var(--color-strava-glow);
+}
+
+.dropdown-selected-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-chevron-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--text-tertiary);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.custom-glass-dropdown.open .dropdown-chevron-icon {
+  transform: rotate(180deg);
+  color: var(--color-strava);
+}
+
+/* Glass Popover Menu */
+.dropdown-menu-glass {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  max-height: 250px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-glass-surface);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid var(--border-specular);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  padding: 6px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px) scale(0.98);
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s;
+}
+
+[data-theme="dark"] .dropdown-menu-glass {
+  background: rgba(30, 30, 34, 0.94);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+
+.custom-glass-dropdown.open .dropdown-menu-glass {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.dropdown-option-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-option-item span {
+  flex: 1;
+  text-align: left;
+}
+
+.dropdown-option-item:hover, .dropdown-option-item:active {
+  background: rgba(252, 76, 2, 0.08);
+  color: var(--color-strava);
+}
+
+.dropdown-option-item.selected {
+  font-weight: 700;
+  color: var(--color-strava);
+  background: rgba(252, 76, 2, 0.12);
+}
+
+.dropdown-check-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-strava);
+  flex-shrink: 0;
+  display: none;
+}
+
+.dropdown-option-item.selected .dropdown-check-icon {
+  display: block;
+}
+
+.dropdown-menu-glass::-webkit-scrollbar {
+  width: 5px;
+}
+.dropdown-menu-glass::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
 }
 
 .glass-select {
@@ -1261,6 +1428,73 @@ body {
   font-weight: 600;
   color: var(--text-primary);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.toolbar-pill-btn:active {
+  transform: scale(0.96);
+}
+
+.toolbar-gps-btn {
+  background: rgba(0, 113, 227, 0.12) !important;
+  color: var(--color-blue) !important;
+  border-color: rgba(0, 113, 227, 0.3) !important;
+}
+
+.toolbar-gps-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Pulsing User Location Marker */
+.gps-pulse-pin {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gps-pulse-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #0071E3;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 113, 227, 0.55);
+  position: relative;
+  z-index: 2;
+}
+
+.gps-pulse-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: rgba(0, 113, 227, 0.35);
+  animation: gpsPulse 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  z-index: 1;
+}
+
+@keyframes gpsPulse {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.95;
+  }
+  70% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
 }
 
 .fullscreen-map-canvas {

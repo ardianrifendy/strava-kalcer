@@ -2281,6 +2281,7 @@ function applyLanguageAndTheme() {
   renderDiagnosticsTab();
   if (typeof updateTicketSummary === "function") updateTicketSummary();
   if (typeof updateSelectedDeviceCard === "function") updateSelectedDeviceCard();
+  if (typeof CustomDropdownManager !== "undefined") CustomDropdownManager.refreshAll();
 }
 
 function switchTab(tabId) {
@@ -2448,6 +2449,7 @@ function executeFullSimulation() {
   renderDiagnosticsTab();
   if (typeof updateTicketSummary === "function") updateTicketSummary();
   if (typeof updateSelectedDeviceCard === "function") updateSelectedDeviceCard();
+  if (typeof CustomDropdownManager !== "undefined") CustomDropdownManager.refreshAll();
 }
 
 function renderSimulationPreview() {
@@ -2875,6 +2877,219 @@ const BookFlow = {
 };
 
 /* ============================================================================
+   CUSTOM APPLE GLASS DROPDOWN MANAGER (POPOVER COMPONENT)
+   ============================================================================ */
+const CustomDropdownManager = {
+  activeDropdown: null,
+
+  initAll() {
+    const selects = document.querySelectorAll("select.glass-select");
+    selects.forEach((sel) => this.enhance(sel));
+
+    // Global listener: close popover on outside click
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".custom-glass-dropdown")) {
+        this.closeAll();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        this.closeAll();
+      }
+    });
+  },
+
+  enhance(selectEl) {
+    if (!selectEl) return;
+    const wrap = selectEl.closest(".glass-select-wrap");
+    if (!wrap) return;
+
+    wrap.classList.add("custom-glass-dropdown");
+
+    // Create trigger button if not present
+    let trigger = wrap.querySelector(".dropdown-trigger");
+    if (!trigger) {
+      trigger = document.createElement("button");
+      trigger.type = "button";
+      trigger.className = "dropdown-trigger";
+      trigger.setAttribute("aria-haspopup", "listbox");
+      trigger.setAttribute("aria-expanded", "false");
+
+      const label = document.createElement("span");
+      label.className = "dropdown-selected-text";
+
+      const chevron = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      chevron.setAttribute("class", "dropdown-chevron-icon");
+      chevron.setAttribute("viewBox", "0 0 24 24");
+      chevron.setAttribute("fill", "none");
+      chevron.setAttribute("stroke", "currentColor");
+      chevron.setAttribute("stroke-width", "2");
+      chevron.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
+
+      trigger.appendChild(label);
+      trigger.appendChild(chevron);
+      wrap.appendChild(trigger);
+
+      trigger.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggle(wrap);
+      });
+    }
+
+    // Create dropdown menu container if not present
+    let menu = wrap.querySelector(".dropdown-menu-glass");
+    if (!menu) {
+      menu = document.createElement("div");
+      menu.className = "dropdown-menu-glass";
+      menu.setAttribute("role", "listbox");
+      wrap.appendChild(menu);
+    }
+
+    // Render options
+    this.renderMenu(selectEl, wrap, trigger, menu);
+
+    // Sync if underlying select changes externally
+    selectEl.addEventListener("change", () => {
+      this.syncTriggerAndSelection(selectEl, wrap, trigger, menu);
+    });
+  },
+
+  renderMenu(selectEl, wrap, trigger, menu) {
+    menu.innerHTML = "";
+    const options = Array.from(selectEl.options);
+    const selectedIdx = selectEl.selectedIndex >= 0 ? selectEl.selectedIndex : 0;
+    const selectedOpt = options[selectedIdx];
+
+    const label = trigger.querySelector(".dropdown-selected-text");
+    if (label) {
+      label.textContent = selectedOpt ? selectedOpt.text : "Pilih opsi...";
+    }
+
+    options.forEach((opt, idx) => {
+      const item = document.createElement("div");
+      item.className = "dropdown-option-item" + (idx === selectedIdx ? " selected" : "");
+      item.setAttribute("role", "option");
+      item.setAttribute("data-value", opt.value);
+
+      const textSpan = document.createElement("span");
+      textSpan.textContent = opt.text;
+
+      const checkSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      checkSvg.setAttribute("class", "dropdown-check-icon");
+      checkSvg.setAttribute("viewBox", "0 0 24 24");
+      checkSvg.setAttribute("fill", "none");
+      checkSvg.setAttribute("stroke", "currentColor");
+      checkSvg.setAttribute("stroke-width", "2.5");
+      checkSvg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+
+      item.appendChild(textSpan);
+      item.appendChild(checkSvg);
+
+      item.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (selectEl.value !== opt.value) {
+          selectEl.value = opt.value;
+          selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+          selectEl.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        this.syncTriggerAndSelection(selectEl, wrap, trigger, menu);
+        this.close(wrap);
+      });
+
+      menu.appendChild(item);
+    });
+  },
+
+  syncTriggerAndSelection(selectEl, wrap, trigger, menu) {
+    if (!trigger) trigger = wrap.querySelector(".dropdown-trigger");
+    if (!menu) menu = wrap.querySelector(".dropdown-menu-glass");
+    if (!trigger || !menu) return;
+
+    const label = trigger.querySelector(".dropdown-selected-text");
+    const currentVal = selectEl.value;
+    const selectedOpt = selectEl.options[selectEl.selectedIndex];
+
+    if (label) {
+      label.textContent = selectedOpt ? selectedOpt.text : "Pilih opsi...";
+    }
+
+    menu.querySelectorAll(".dropdown-option-item").forEach((it) => {
+      const match = it.getAttribute("data-value") === currentVal;
+      it.classList.toggle("selected", match);
+    });
+  },
+
+  refresh(selectEl) {
+    if (!selectEl) return;
+    const wrap = selectEl.closest(".glass-select-wrap");
+    if (!wrap) return;
+    const trigger = wrap.querySelector(".dropdown-trigger");
+    const menu = wrap.querySelector(".dropdown-menu-glass");
+    if (trigger && menu) {
+      this.renderMenu(selectEl, wrap, trigger, menu);
+    } else {
+      this.enhance(selectEl);
+    }
+  },
+
+  refreshAll() {
+    const selects = document.querySelectorAll("select.glass-select");
+    selects.forEach((sel) => this.refresh(sel));
+  },
+
+  toggle(wrap) {
+    const isOpen = wrap.classList.contains("open");
+    this.closeAll();
+    if (!isOpen) {
+      // Dynamic flip check: if bottom space is small, open upwards
+      const rect = wrap.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const menu = wrap.querySelector(".dropdown-menu-glass");
+      if (menu) {
+        if (spaceBelow < 260 && rect.top > 260) {
+          menu.style.top = "auto";
+          menu.style.bottom = "calc(100% + 6px)";
+        } else {
+          menu.style.top = "calc(100% + 6px)";
+          menu.style.bottom = "auto";
+        }
+      }
+
+      wrap.classList.add("open");
+      const trigger = wrap.querySelector(".dropdown-trigger");
+      if (trigger) trigger.setAttribute("aria-expanded", "true");
+      this.activeDropdown = wrap;
+
+      const selected = menu ? menu.querySelector(".dropdown-option-item.selected") : null;
+      if (menu && selected) {
+        setTimeout(() => {
+          selected.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }, 50);
+      }
+    }
+  },
+
+  close(wrap) {
+    if (!wrap) return;
+    wrap.classList.remove("open");
+    const trigger = wrap.querySelector(".dropdown-trigger");
+    if (trigger) trigger.setAttribute("aria-expanded", "false");
+    if (this.activeDropdown === wrap) this.activeDropdown = null;
+  },
+
+  closeAll() {
+    document.querySelectorAll(".custom-glass-dropdown.open").forEach((wrap) => {
+      this.close(wrap);
+    });
+    this.activeDropdown = null;
+  }
+};
+
+/* ============================================================================
    HORIZONTAL RULER PICKER (PACE & SPEED)
    ============================================================================ */
 const HorizontalRuler = {
@@ -3063,6 +3278,9 @@ function populateDeviceDropdowns() {
   }
 
   updateSelectedDeviceCard();
+  if (typeof CustomDropdownManager !== "undefined") {
+    CustomDropdownManager.refresh(modelSelect);
+  }
 }
 
 function updateSelectedDeviceCard() {
@@ -3288,6 +3506,7 @@ function initApp() {
 
   // Fullscreen Leaflet Map Modal
   const openMapBtn = document.getElementById("openFullscreenMapBtn");
+  const quickGpsBtn = document.getElementById("launchMapGpsQuickBtn");
   const closeMapBtn = document.getElementById("closeMapEditorBtn");
   const mapModal = document.getElementById("mapEditorModal");
   if (openMapBtn && mapModal) {
@@ -3298,6 +3517,18 @@ function initApp() {
         if (RouteBuilderEngine.map) {
           RouteBuilderEngine.map.invalidateSize();
         }
+      }, 80);
+    });
+  }
+  if (quickGpsBtn && mapModal) {
+    quickGpsBtn.addEventListener("click", () => {
+      mapModal.style.display = "flex";
+      setTimeout(() => {
+        RouteBuilderEngine.initMap();
+        if (RouteBuilderEngine.map) {
+          RouteBuilderEngine.map.invalidateSize();
+        }
+        RouteBuilderEngine.locateUserGps();
       }, 80);
     });
   }
@@ -3455,6 +3686,7 @@ function initApp() {
   HorizontalRuler.init();
   updateManualStopsState();
   populateDeviceDropdowns();
+  CustomDropdownManager.initAll();
 
   // Load Initial Track
   const initialTrack = RouteProcessor.generateSampleDagoPakarRoute();
@@ -3634,6 +3866,7 @@ const RouteBuilderEngine = {
   segmentsCoords: [], // Array of coordinate arrays per segment: [[{lat, lon, ele}, ...], ...]
   markers: [],
   polylineLayer: null,
+  userGpsMarker: null,
   routingMode: "ROAD_OSRM",
   isRoutingBusy: false,
   builtTrack: null,
@@ -3661,6 +3894,75 @@ const RouteBuilderEngine = {
     this.map.on("click", (e) => {
       this.addWaypoint(e.latlng.lat, e.latlng.lng);
     });
+  },
+
+  locateUserGps() {
+    if (!navigator.geolocation) {
+      alert("Browser Anda tidak mendukung deteksi lokasi GPS.");
+      this.setStatus(
+        "GPS not supported by your browser.",
+        "Browser Anda tidak mendukung layanan lokasi GPS."
+      );
+      return;
+    }
+
+    this.setStatus(
+      "Acquiring high accuracy GPS coordinates...",
+      "Mencari koordinat lokasi GPS akurasi tinggi..."
+    );
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        this.initMap();
+        if (this.map) {
+          this.map.flyTo([lat, lon], 16, { animate: true, duration: 1.2 });
+
+          if (this.userGpsMarker) {
+            this.userGpsMarker.setLatLng([lat, lon]);
+          } else {
+            const gpsIcon = L.divIcon({
+              className: "gps-pulse-pin",
+              html: '<div class="gps-pulse-ring"></div><div class="gps-pulse-dot"></div>',
+              iconSize: [32, 32],
+              iconAnchor: [16, 16]
+            });
+            this.userGpsMarker = L.marker([lat, lon], {
+              icon: gpsIcon,
+              zIndexOffset: 1000
+            }).addTo(this.map);
+            this.userGpsMarker.bindPopup("<strong>Lokasi Anda Saat Ini</strong><br>Klik peta untuk mulai membuat rute dari sini.").openPopup();
+            this.userGpsMarker.on("click", () => {
+              if (this.waypoints.length === 0) {
+                this.addWaypoint(lat, lon);
+              }
+            });
+          }
+        }
+        this.setStatus(
+          `GPS location detected: ${lat.toFixed(5)}, ${lon.toFixed(5)}. Click on the map to place route points.`,
+          `Lokasi GPS terdeteksi: ${lat.toFixed(5)}, ${lon.toFixed(5)}. Klik pada peta untuk mulai membuat rute.`
+        );
+      },
+      (err) => {
+        let msg = "Izin GPS ditolak atau sinyal GPS tidak tersedia.";
+        if (err.code === 1) {
+          msg = "Akses lokasi GPS ditolak oleh browser. Mohon izinkan akses lokasi pada peramban Anda.";
+        } else if (err.code === 2) {
+          msg = "Posisi GPS tidak dapat ditentukan oleh perangkat Anda.";
+        } else if (err.code === 3) {
+          msg = "Waktu pencarian koordinat GPS habis.";
+        }
+        this.setStatus(msg, msg);
+        alert(msg);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 10000
+      }
+    );
   },
 
   setStatus(textEn, textId) {
@@ -4016,21 +4318,7 @@ function setupRouteBuilderEvents() {
   const myGpsBtn = document.getElementById("builderMyGpsBtn");
   if (myGpsBtn) {
     myGpsBtn.addEventListener("click", () => {
-      if (!navigator.geolocation) return;
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          RouteBuilderEngine.initMap();
-          if (RouteBuilderEngine.map) {
-            RouteBuilderEngine.map.setView([pos.coords.latitude, pos.coords.longitude], 15);
-          }
-        },
-        () => {
-          RouteBuilderEngine.setStatus(
-            "GPS permission denied or unavailable. Use the search bar or city buttons above.",
-            "Izin lokasi GPS ditolak. Gunakan kotak pencarian atau tombol kota di atas."
-          );
-        }
-      );
+      RouteBuilderEngine.locateUserGps();
     });
   }
 

@@ -210,6 +210,14 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
                 <span>Buka Editor Peta Layar Penuh</span>
               </button>
+              <button type="button" class="glass-btn-secondary" id="launchMapGpsQuickBtn" style="margin-top: 8px; width: 100%;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/>
+                  <line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>
+                  <line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/>
+                </svg>
+                <span>Buka Peta dari Lokasi Saya (GPS)</span>
+              </button>
             </div>
           </div>
         </div>
@@ -661,6 +669,10 @@
         <span class="toolbar-stat">Tanjakan: <strong id="builderGainM">0</strong> m</span>
       </div>
       <div class="map-toolbar-actions">
+        <button type="button" class="toolbar-pill-btn toolbar-gps-btn" id="builderMyGpsBtn" title="Cek Lokasi Saya (GPS)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>
+          <span>Lokasi Saya (GPS)</span>
+        </button>
         <button type="button" class="toolbar-pill-btn" id="builderUndoBtn" title="Urungkan">Urungkan</button>
         <button type="button" class="toolbar-pill-btn" id="builderLoopStartBtn" title="Loop Kembali">Loop</button>
         <button type="button" class="toolbar-pill-btn" id="builderClearBtn" title="Hapus Semua">Hapus</button>
@@ -715,7 +727,6 @@
     <select id="builderRoutingModeSelect"><option value="ROAD_OSRM">ROAD_OSRM</option></select>
     <button id="builderSearchBtn"></button>
     <input id="builderSearchInput" />
-    <button id="builderMyGpsBtn"></button>
     <button id="builderDownloadGpxBtn"></button>
     <button id="exportCsvBtn"></button>
     <button id="reverseRouteBtn"></button>
